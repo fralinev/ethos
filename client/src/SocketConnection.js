@@ -14,8 +14,12 @@ export default class SocketConnection {
             console.warn('WebSocket is already connected.');
             return;
         }
+        const isLocalhost = window.location.hostname === 'localhost';
+        const wsProtocol = isLocalhost ? 'ws' : 'wss';
+        const wsHost = isLocalhost ? 'localhost:8080' : window.location.host;
+        const wsUrl = `${wsProtocol}://${wsHost}`;
         this.user = user
-        this.socket = new WebSocket('ws://localhost:8080');
+        this.socket = new WebSocket(wsUrl);
         this.socket.onopen = () => {
             console.log(`WebSocket connection established for ${user}`)
             this.sendConnectMessage();
@@ -34,14 +38,14 @@ export default class SocketConnection {
     }
 
     handleMessage(event) {
-        
-            const message = JSON.parse(event.data);
-            console.log("check message", message)
-            if (message.type === 'userList') {
-                return this.callbacks.updateUserList(message.users)
-            }
-            this.callbacks.addMessage(message)
-            
+
+        const message = JSON.parse(event.data);
+        console.log("check message", message)
+        if (message.type === 'userList') {
+            return this.callbacks.updateUserList(message.users)
+        }
+        this.callbacks.addMessage(message)
+
     }
 
     sendMessage(body) {
@@ -63,30 +67,30 @@ export default class SocketConnection {
             const connectMessage = {
                 type: 'connect',
                 user: this.user
-              };
+            };
             this.socket.send(JSON.stringify(connectMessage));
-          } else {
+        } else {
             console.warn('WebSocket is not open. Message not sent.');
-          }
-      }
-      sendDisconnectMessage() {
+        }
+    }
+    sendDisconnectMessage() {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             const disconnectMessage = {
                 type: 'disconnect',
                 user: this.user
             };
             this.socket.send(JSON.stringify(disconnectMessage));
-          } else {
+        } else {
             console.warn('WebSocket is already open. Message not sent.');
-          }
+        }
 
-      }
+    }
 
     close(event) {
         console.log("check close socket", event)
         if (this.socket) {
             this.sendDisconnectMessage();
-            
+
             this.socket.close();
         }
         this.cleanup();
@@ -95,7 +99,7 @@ export default class SocketConnection {
     cleanup() {
         // Remove the event listener when the connection is closed
         window.removeEventListener('beforeunload', this.close);
-      }
+    }
 }
 
 export const socket = new SocketConnection()
