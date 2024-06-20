@@ -12,11 +12,12 @@ const port = process.env.PORT || 8080
 
 // Create an HTTP server
 const httpServer = http.createServer((req, res) => {
-    if (process.env.NODE_ENV === 'production') {
+    // if (process.env.NODE_ENV === 'production') {
       // Serve static files from the React app's build directory
       const filePath = path.join(__dirname, 'dist', req.url === '/' ? 'index.html' : req.url);
       fs.readFile(filePath, (err, data) => {
         if (err) {
+            console.log("check err", err)
           res.writeHead(404);
           res.end(JSON.stringify(err));
           return;
@@ -24,10 +25,10 @@ const httpServer = http.createServer((req, res) => {
         res.writeHead(200);
         res.end(data);
       });
-    } else {
-      res.writeHead(200);
-      res.end('Development server - No static files served');
-    }
+    // } else {
+    //   res.writeHead(200);
+    //   res.end('Development server - No static files served');
+    // }
   });
 
 const webSocketServer = new WebSocket.Server({ server: httpServer });
