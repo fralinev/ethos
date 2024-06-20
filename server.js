@@ -14,7 +14,7 @@ const port = process.env.PORT || 8080
 const httpServer = http.createServer((req, res) => {
     if (process.env.NODE_ENV === 'production') {
       // Serve static files from the React app's build directory
-      const filePath = path.join(__dirname, 'client', 'build', req.url === '/' ? 'index.html' : req.url);
+      const filePath = path.join(__dirname, 'dist', req.url === '/' ? 'index.html' : req.url);
       fs.readFile(filePath, (err, data) => {
         if (err) {
           res.writeHead(404);
