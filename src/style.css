@@ -1,0 +1,16 @@
+body{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    background-color: black;
+
+}
+
+#container{
+    display: flex;
+}
+
+#sidebar{
+    font-size: 3rem;
+    color:yellowgreen
+}
