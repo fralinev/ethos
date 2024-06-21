@@ -23,3 +23,32 @@ body{
     font-family: "Roboto";
     font-size: 3rem;
 }
+
+.custom-chevron{
+    position: absolute;
+  right: 10px; /* Adjust as needed */
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none; /* Make sure clicks go to the select element */
+  color: #888; /* Adjust the color as needed */
+}
+
+.custom-select-container {
+    position: relative;
+    display: inline-block;
+    width: 200px; /* Adjust as needed */
+  }
+
+  .custom-select {
+    color: yellow;
+    background-color: black;
+    width: 100%;
+    padding: 10px;
+    appearance: none; /* Remove default arrow */
+    -webkit-appearance: none; /* Remove default arrow for Safari */
+    -moz-appearance: none; /* Remove default arrow for Firefox */
+    /* background: none; */
+    border: 3px solid #ccc;
+    border-radius: 4px;
+    font-size: 2rem;
+  }

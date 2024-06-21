@@ -4,8 +4,9 @@ import Dropdown from "./Dropdown"
 import Input from "./Input"
 import { useNavigate } from "react-router-dom"
 
-const Entry = () => {
+const Entry = ({setIsAuthenticated}) => {
     const [selectedUser, setSelectedUser] = useState(null)
+    const [password, setPassword] = useState('');
     const navigate = useNavigate();
     const handleDropdownChange = (event) => {
         const user = event.target.value;
@@ -16,15 +17,30 @@ const Entry = () => {
         }
     }
     const onConnectClick = () => {
-        console.log("check click")
-        navigate('/main')
+        if (password === 'q') {
+            setIsAuthenticated(true)
+            navigate('/main')
+        } else {
+            setPassword('')
+        }
+
+    }
+    const style = {
+        color: 'red',
+        backgroundColor: 'black',
+        fontSize: '2rem',
+        border: '3px solid #ccc',
+        padding: '15px',
+        outline: 'none',
+        width: '200px',
+        borderRadius: '4px'
+
     }
     return (
         <>
-            <div style={{display:'flex', flexDirection:'column', width: "25vw", gap: '30px'}}>
-                <h2 style={{ color: "red" }}>entry</h2>
+            <div style={{display:'flex', flexDirection:'column', width: "25rem", gap: '30px', padding: '5rem'}}>
                 <Dropdown handleDropdownChange={handleDropdownChange}/>
-                {selectedUser && <Input/>}
+                {selectedUser && <input style={style} value={password} onChange={(e) => setPassword(e.target.value)} placeholder='password' type='password' autocomplete="off"/>}
                 <Button clickHandler={onConnectClick} color='red' text='connect' />
             </div>
 

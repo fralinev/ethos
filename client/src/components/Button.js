@@ -7,7 +7,8 @@ const Button = ({color, text, clickHandler}) => {
         fontSize: '2rem',
         border: '3px solid red',
         padding: '15px',
-        cursor: 'pointer'
+        cursor: 'pointer',
+        width: '200px'
     }
     return (
         <button onClick={clickHandler} style={style}>{text}</button>
