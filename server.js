@@ -10,25 +10,32 @@ const fs = require('fs')
 const port = process.env.PORT || 8080
 
 
-// Create an HTTP server
 const httpServer = http.createServer((req, res) => {
-    // if (process.env.NODE_ENV === 'production') {
-      // Serve static files from the React app's build directory
-      const filePath = path.join(__dirname, 'dist', req.url === '/' ? 'index.html' : req.url);
-      fs.readFile(filePath, (err, data) => {
-        if (err) {
-            console.log("check err", err)
-          res.writeHead(404);
-          res.end(JSON.stringify(err));
-          return;
+    const filePath = path.join(__dirname, 'dist', req.url === '/' ? 'index.html' : req.url);
+    console.log('filePath', filePath);
+  
+    fs.readFile(filePath, (error, data) => {
+      if (error) {
+        if (error.code === 'ENOENT') {
+          // If the file is not found, serve index.html for client-side routing
+          fs.readFile(path.join(__dirname, 'dist', 'index.html'), (err, data) => {
+            if (err) {
+              res.writeHead(404, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(err));
+            } else {
+              res.writeHead(200, { 'Content-Type': 'text/html' });
+              res.end(data);
+            }
+          });
+        } else {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(error));
         }
-        res.writeHead(200);
+      } else {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
         res.end(data);
-      });
-    // } else {
-    //   res.writeHead(200);
-    //   res.end('Development server - No static files served');
-    // }
+      }
+    });
   });
 
 const webSocketServer = new WebSocket.Server({ server: httpServer });
