@@ -41,8 +41,8 @@ export default class SocketConnection {
 
         const message = JSON.parse(event.data);
         console.log("check message", message)
-        if (message.type === 'userList') {
-            return this.callbacks.updateUserList(message.users)
+        if (message.type === 'onlineUsers') {
+            return this.callbacks.updateOnlineUsers(message.users)
         }
         this.callbacks.addMessage(message)
 

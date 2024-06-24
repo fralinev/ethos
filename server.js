@@ -73,7 +73,7 @@ webSocketServer.on('connection', socket => {
 
 function broadcastUserList() {
     const userList = Array.from(users.values());
-    const message = JSON.stringify({ type: 'userList', users: userList });
+    const message = JSON.stringify({ type: 'onlineUsers', users: userList });
 
     webSocketServer.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {

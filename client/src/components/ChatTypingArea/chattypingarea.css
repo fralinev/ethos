@@ -1,0 +1,45 @@
+.chat-typing-container {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    width: 60%;
+    
+  }
+  
+  #chat-typing-input {
+    font-family: sans-serif;
+    color: yellow;
+    outline: none;
+    background-color: rgb(43, 39, 39);
+    width: 100%;
+    margin: 0 0 20px 0;
+    border: none;
+    resize: none;
+    padding: 5px;
+    line-height: 32px;
+    font-size: 16px;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  
+  .hidden-div {
+    visibility: hidden;
+    white-space: pre-wrap; /* Ensure whitespace is handled correctly */
+    word-wrap: break-word;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: sans-serif; /* Match textarea */
+    line-height: 32px; /* Match textarea */
+    font-size: 16px; /* Match textarea */
+    padding: 5px; /* Match textarea */
+    border: 1px solid #ccc; /* Match textarea */
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1; /* Ensure it's behind the textarea */
+  }
+  
+  .hidden-div::before {
+    content: attr(data-replicated-value);
+    white-space: pre-wrap;
+  }
