@@ -1,5 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+
 
 module.exports = {
   entry: './client/src/index.js',
@@ -30,6 +32,20 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.jsx', '.css'],
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          mangle: false,  // Avoids mangling variable names.
+          output: {
+            ascii_only: true,  // Ensures output uses proper characters.
+            comments: false,  // Strips out comments.
+          },
+        },
+      }),
+    ],
   },
   plugins: [
     new HtmlWebpackPlugin({
