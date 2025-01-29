@@ -50,6 +50,15 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: './client/public/index.html',
+      inject: 'body',
+      minify: {
+        removeComments: true,
+        collapseWhitespace: true,
+        keepClosingSlash: true,
+      },
+      // Prevent HTML escaping of the script tag:
+      scriptLoading: 'blocking',
+      xhtml: true,
     }),
   ],
   devServer: {
