@@ -15,10 +15,7 @@ module.exports = {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ["@babel/preset-env"],
-          }
+          loader: 'babel-loader'
         },
       },
       {
@@ -33,27 +30,12 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.jsx', '.css'],
   },
-  optimization: {
-    minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          mangle: false,  // Avoids mangling variable names.
-          output: {
-            ascii_only: true,  // Ensures output uses proper characters.
-            comments: false,  // Strips out comments.
-          },
-        },
-      }),
-    ],
-  },
   plugins: [
-    // new CopyWebpackPlugin({
-    //   patterns: [
-    //     { from: './client/public/index.html', to: 'index.html' },
-    //     { from: './client/public/supp.html', to: 'supp.html' },
-    //   ],
-    // }),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: './client/public/index.html', to: 'index.html' }
+      ],
+    }),
     // new HtmlWebpackPlugin({
     //   template: './client/public/index.html',
     //   inject: 'body',
