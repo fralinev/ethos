@@ -54,18 +54,18 @@ module.exports = {
     //     { from: './client/public/supp.html', to: 'supp.html' },
     //   ],
     // }),
-    new HtmlWebpackPlugin({
-      template: './client/public/index.html',
-      inject: 'body',
-      minify: {
-        removeComments: true,
-        collapseWhitespace: true,
-        keepClosingSlash: true,
-      },
-      // Prevent HTML escaping of the script tag:
-      scriptLoading: 'blocking',
-      xhtml: true,
-    }),
+    // new HtmlWebpackPlugin({
+    //   template: './client/public/index.html',
+    //   inject: 'body',
+    //   minify: {
+    //     removeComments: true,
+    //     collapseWhitespace: true,
+    //     keepClosingSlash: true,
+    //   },
+    //   // Prevent HTML escaping of the script tag:
+    //   scriptLoading: 'blocking',
+    //   xhtml: true,
+    // }),
   ],
   devServer: {
     static: {
