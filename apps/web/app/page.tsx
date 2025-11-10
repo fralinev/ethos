@@ -13,7 +13,8 @@ async function fetchSafe(url: string, ms = 1500) {
   const t = setTimeout(() => ctrl.abort(), ms);
   try {
     const r = await fetch(url, { cache: "no-store", signal: ctrl.signal });
-    console.log("HEALTH CHECK", r.json())
+    const json = await r.json()
+    console.log("HEALTH CHECK", json)
     if (!r.ok) return { status: `api ${r.status}` };
     return await r.json();
   } catch {
