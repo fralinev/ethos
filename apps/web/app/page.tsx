@@ -15,6 +15,7 @@ async function fetchSafe(url: string, ms = 1500) {
 }
 export default async function Home() {
   const apiUrl = process.env.API_URL ?? "http://localhost:4000";
+   console.log("SSR API_URL =", apiUrl);
   const health = await fetchSafe(`${apiUrl}/health`);
 
   
