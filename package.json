@@ -1,0 +1,22 @@
+{
+  "name": "ethos",
+  "private": true,
+  "version": "0.0.1",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace=@ethos/web",
+    "dev:api": "npm run dev --workspace=@ethos/api",
+    "dev:worker": "npm run dev --workspace=@ethos/worker",
+    "build": "npm run build --workspaces",
+    "lint": "eslint . --ext .ts,.tsx"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/helmet": "^4.0.0",
+    "eslint": "^9.0.0",
+    "typescript": "^5.6.3"
+  }
+}
