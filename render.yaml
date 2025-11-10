@@ -1,6 +1,7 @@
 services:
   - type: web
     name: ethos-web
+    region: oregon
     rootDir: .
     env: node
     buildCommand: |
@@ -24,6 +25,7 @@ services:
 
   - type: web
     name: ethos-api
+    region: oregon
     rootDir: .
     env: node
     buildCommand: |
