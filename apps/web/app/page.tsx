@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 export default async function Home() {
-  const apiUrl = process.env.API_URL
+  const apiUrl = process.env.API_URL ?? "http://localhost:4000";
   const res = await fetch(`${apiUrl}/health`, { cache: "no-store" });
   const data = await res.json();
   return (

@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: ethos-web
+    rootDir: .
+    env: node
+    buildCommand: |
+      npm ci
+      npm run build --workspace=@ethos/web
+    startCommand: npm run start --workspace=@ethos/web
+    envVars:
+      - key: API_URL
+        fromService:
+          name: ethos-api
+          type: web
+          property: url
+
+  - type: web
+    name: ethos-api
+    rootDir: .
+    env: node
+    buildCommand: |
+      npm ci
+      npm run build --workspace=@ethos/api
+    startCommand: npm run start --workspace=@ethos/api
+    envVars:
+      - key: WEB_ORIGIN
+        fromService:
+          name: ethos-web
+          type: web
+          property: url
