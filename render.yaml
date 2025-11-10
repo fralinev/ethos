@@ -6,15 +6,21 @@ services:
     buildCommand: |
       npm ci
       npm run build --workspace=@ethos/web
-    startCommand: npm run start --workspace=@ethos/web
+    startCommand: next start -p $PORT
     envVars:
       - key: NODE_VERSION
         value: 20.18.0
-      - key: API_URL
+      # Inject API internal networking info
+      - key: API_HOST
         fromService:
           name: ethos-api
           type: web
-          property: url
+          property: host
+      - key: API_PORT
+        fromService:
+          name: ethos-api
+          type: web
+          property: port
 
   - type: web
     name: ethos-api
@@ -25,8 +31,5 @@ services:
       npm run build --workspace=@ethos/api
     startCommand: npm run start --workspace=@ethos/api
     envVars:
-      - key: WEB_ORIGIN
-        fromService:
-          name: ethos-web
-          type: web
-          property: url
+      - key: NODE_VERSION
+        value: 20.18.0
