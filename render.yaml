@@ -7,7 +7,7 @@ services:
     buildCommand: |
       npm ci
       npm run build --workspace=@ethos/web
-    startCommand: next start -p $PORT
+    startCommand: npm run start --workspace=@ethos/web
     envVars:
       - key: NODE_VERSION
         value: 20.18.0
