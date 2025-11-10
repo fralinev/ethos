@@ -4,10 +4,12 @@ services:
     rootDir: .
     env: node
     buildCommand: |
-      npm ci
+      npm ci --include=optional
       npm run build --workspace=@ethos/web
     startCommand: npm run start --workspace=@ethos/web
     envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
       - key: API_URL
         fromService:
           name: ethos-api
@@ -19,7 +21,7 @@ services:
     rootDir: .
     env: node
     buildCommand: |
-      npm ci --include=optional
+      npm ci
       npm run build --workspace=@ethos/api
     startCommand: npm run start --workspace=@ethos/api
     envVars:
