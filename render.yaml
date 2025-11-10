@@ -19,7 +19,7 @@ services:
     rootDir: .
     env: node
     buildCommand: |
-      npm ci
+      npm ci --include=optional
       npm run build --workspace=@ethos/api
     startCommand: npm run start --workspace=@ethos/api
     envVars:

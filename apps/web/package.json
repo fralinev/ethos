@@ -6,7 +6,8 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start -p 3000",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "node -e \"require('lightningcss')\""
   },
   "dependencies": {
     "react": "19.2.0",
