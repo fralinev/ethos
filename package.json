@@ -6,6 +6,7 @@
     "apps/*",
     "packages/*"
   ],
+  "engines": { "node": "20.x" },
   "scripts": {
     "dev:web": "npm run dev --workspace=@ethos/web",
     "dev:api": "npm run dev --workspace=@ethos/api",
