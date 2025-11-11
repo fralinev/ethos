@@ -6,6 +6,7 @@ import helmet from 'helmet';
 require('dotenv').config();
 
 import { db } from './db';
+import { usersRouter } from "./routes/users";
 
 const app = express();
 
@@ -35,5 +36,8 @@ app.get('/dbcheck', async (_req, res) => {
 app.get('/', (_req, res) => {
   res.send('Ethos API is running');
 });
+console.log('checkk usersRouter', usersRouter)
+
+app.use("/api/users", usersRouter);
 
 export default app;
