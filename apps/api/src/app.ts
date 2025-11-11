@@ -3,6 +3,10 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 
+require('dotenv').config();
+
+import { db } from './db';
+
 const app = express();
 
 // Basic middleware
@@ -17,10 +21,18 @@ app.use(express.json());
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
+app.get('/dbcheck', async (_req, res) => {
+  try {
+    const { rows } = await db.query("select 1 as ok");
+    res.json({ ok: rows[0].ok === 1 });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: (e as Error).message });
+  }
+
+})
 
 // Example placeholder route group
 app.get('/', (_req, res) => {
-    console.log("checkk")
   res.send('Ethos API is running');
 });
 

@@ -36,13 +36,15 @@ export default async function Home() {
   const apiUrl = process.env.API_URL ?? "http://localhost:4000";
    console.log("API_BASE =", apiBase);
   const health = await fetchSafe(`${apiBase}/health`, 3000);
+  const dbCheck = await fetchSafe(`${apiBase}/dbcheck`, 3000);
 
   
   return (
     <div>
 
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: "100px" }}>ETHOS</div>
-      <div>{health.status}</div>
+      <div>API: {health.status}</div>
+      <div>DB: {JSON.stringify(dbCheck)}</div>
     </div>
   );
 }
