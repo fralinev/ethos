@@ -14,9 +14,9 @@ services:
       # Inject API internal networking info
       - key: API_URL
         fromService:
-        name: ethos-api
-        type: web
-        property: url
+          name: ethos-api
+          type: web
+          property: url
 
   - type: web
     name: ethos-api
