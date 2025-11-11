@@ -14,7 +14,7 @@ async function fetchSafe(url: string, ms = 1500) {
   try {
     const r = await fetch(url, { cache: "no-store", signal: ctrl.signal });
     const json = await r.json()
-    console.log("HEALTH CHECK", json)
+    console.log("HEALTH CHECK", r.json())
     if (!r.ok) return { status: `api ${r.status}` };
     return await r.json();
   } catch {
@@ -24,10 +24,10 @@ async function fetchSafe(url: string, ms = 1500) {
   }
 }
 export default async function Home() {
-  // const apiBase = getApiBase();
+  const apiBase = getApiBase();
   const apiUrl = process.env.API_URL ?? "http://localhost:4000";
-  //  console.log("API_BASE =", apiBase);
-  const health = await fetchSafe(`${apiUrl}/health`, 3000);
+   console.log("API_BASE =", apiBase);
+  const health = await fetchSafe(`${apiBase}/health`, 3000);
 
   
   return (

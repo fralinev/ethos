@@ -11,12 +11,16 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 20.18.0
-      # Inject API internal networking info
-      - key: API_URL
+      - key: API_HOST
         fromService:
           name: ethos-api
           type: web
-          property: url
+          property: host
+      - key: API_PORT
+        fromService:
+          name: ethos-api
+          type: web
+          property: port
 
   - type: web
     name: ethos-api
