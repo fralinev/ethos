@@ -2,22 +2,23 @@ import Image from "next/image";
 
 function getApiBase() {
   const host = process.env.API_HOST;
-  const port = process.env.API_PORT;
-  if (host && port) return `http://${host}:${port}`; // internal Render network
-  if (process.env.API_URL) return process.env.API_URL; // optional public URL
-  return "http://localhost:4000"; // local dev
+  if (process.env.NODE_ENV === "production" && host) return `https://${host}`; // public URL
+  if (host && process.env.API_PORT) return `http://${host}:${process.env.API_PORT}`; // local/docker
+  return "http://localhost:4000";
 }
+
 
 async function fetchSafe(url: string, ms = 1500) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), ms);
   try {
     const r = await fetch(url, { cache: "no-store", signal: ctrl.signal });
-    const json = await r.json()
-    console.log("HEALTH CHECK", r.json())
+    const json = await r.json();
+    console.log("HEALTH CHECK", json);
     if (!r.ok) return { status: `api ${r.status}` };
-    return await r.json();
-  } catch {
+    return json;
+  } catch (err) {
+    console.log("FETCH ERROR", err);
     return { status: "unavailable" };
   } finally {
     clearTimeout(t);
