@@ -1,10 +1,17 @@
 import Image from "next/image";
 
 function getApiBase() {
-  const host = process.env.API_HOST;
-  if (process.env.NODE_ENV === "production" && host) return `https://${host}`; // public URL
-  if (host && process.env.API_PORT) return `http://${host}:${process.env.API_PORT}`; // local/docker
-  return "http://localhost:4000";
+  const host = process.env.API_HOST; // e.g. "ethos-api-vbj7"
+  if (!host) return "http://localhost:4000";
+
+  const fqdn = host.includes(".") ? host : `${host}.onrender.com`;
+
+  if (process.env.NODE_ENV === "production") {
+    return `https://${fqdn}`; // public URL on 443
+  }
+  // local/dev or Docker
+  const port = process.env.API_PORT;
+  return port ? `http://${fqdn}:${port}` : `http://${fqdn}`;
 }
 
 
