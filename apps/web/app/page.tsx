@@ -24,9 +24,9 @@ async function fetchSafe(url: string, ms = 1500) {
   }
 }
 export default async function Home() {
-  const apiBase = getApiBase();
+  // const apiBase = getApiBase();
   const apiUrl = process.env.API_URL ?? "http://localhost:4000";
-   console.log("API_BASE =", apiBase);
+  //  console.log("API_BASE =", apiBase);
   const health = await fetchSafe(`${apiUrl}/health`, 3000);
 
   
