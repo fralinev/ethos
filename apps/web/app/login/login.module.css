@@ -1,0 +1,22 @@
+
+.login{
+    display:flex;
+    height: 50vh;
+    justify-content: center;
+    align-items: center;
+}
+
+.loginInput{
+    border: 1px solid white
+}
+.loginButton{
+    color:yellowgreen;
+    border: 1px solid white;
+    margin: 5px;
+    padding: 5px;
+}
+.loginButton:hover{
+    color: black;
+    background-color: yellowgreen;
+    cursor: pointer;
+}

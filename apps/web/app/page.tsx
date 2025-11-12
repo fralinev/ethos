@@ -1,4 +1,11 @@
 import Image from "next/image";
+import { redirect } from "next/navigation";
+
+async function isAuthenticated(): Promise<boolean> {
+  // 🔒 Later: read cookies/headers or call your API.
+  // Keep this fast and server-side only.
+  return false; // currently treat everyone as unauthenticated
+}
 
 function getApiUrl() {
   const host = process.env.API_HOST; // e.g. "ethos-api-vbj7" ethos-api-vbj7
@@ -32,6 +39,8 @@ async function fetchSafe(url: string, ms = 1500) {
   }
 }
 export default async function Home() {
+  const authed = await isAuthenticated();
+  if (!authed) redirect("/login");
   // const apiBase = getApiUrl();
   const apiUrl = getApiUrl();
   const health = await fetchSafe(`${apiUrl}/health`, 3000);
