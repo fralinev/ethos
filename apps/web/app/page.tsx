@@ -1,8 +1,9 @@
 import Image from "next/image";
 
-function getApiBase() {
+function getApiUrl() {
   const host = process.env.API_HOST; // e.g. "ethos-api-vbj7"
   if (!host) return "http://localhost:4000";
+  console.log("host:", host)
 
   const fqdn = host.includes(".") ? host : `${host}.onrender.com`;
 
@@ -21,22 +22,20 @@ async function fetchSafe(url: string, ms = 1500) {
   try {
     const r = await fetch(url, { cache: "no-store", signal: ctrl.signal });
     const json = await r.json();
-    console.log("HEALTH CHECK", json);
     if (!r.ok) return { status: `api ${r.status}` };
     return json;
   } catch (err) {
-    console.log("FETCH ERROR", err);
     return { status: "unavailable" };
   } finally {
     clearTimeout(t);
   }
 }
 export default async function Home() {
-  const apiBase = getApiBase();
+  const apiBase = getApiUrl();
   // const apiUrl = process.env.API_URL ?? "http://localhost:4000";
    console.log("API_BASE =", apiBase);
   const health = await fetchSafe(`${apiBase}/health`, 3000);
-  const dbCheck = await fetchSafe(`${apiBase}/dbcheck`, 3000);
+  // const dbCheck = await fetchSafe(`${apiBase}/dbcheck`, 3000);
 
   
   return (
@@ -44,7 +43,7 @@ export default async function Home() {
 
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: "100px" }}>ETHOS</div>
       <div>API: {health.status}</div>
-      <div>DB: {JSON.stringify(dbCheck)}</div>
+      {/* <div>DB: {JSON.stringify(dbCheck)}</div> */}
     </div>
   );
 }
