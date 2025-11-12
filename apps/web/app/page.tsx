@@ -1,18 +1,19 @@
 import Image from "next/image";
 
 function getApiUrl() {
-  const host = process.env.API_HOST; // e.g. "ethos-api-vbj7"
-  if (!host) return "http://localhost:4000";
-  console.log("host:", host)
+  const host = process.env.API_HOST; // e.g. "ethos-api-vbj7" ethos-api-vbj7
+  // if (!host) return "http://localhost:4000";
+  // console.log("host:", host)
 
-  const fqdn = host.includes(".") ? host : `${host}.onrender.com`;
+  // const fqdn = host.includes(".") ? host : `${host}.onrender.com`;
 
   if (process.env.NODE_ENV === "production") {
-    return `https://${fqdn}`; // public URL on 443
+    return `https://${host}.onrender.com`;
   }
+  return host;
   // local/dev or Docker
-  const port = process.env.API_PORT;
-  return port ? `http://${fqdn}:${port}` : `http://${fqdn}`;
+  // const port = process.env.API_PORT;
+  // return port ? `http://${fqdn}:${port}` : `http://${fqdn}`;
 }
 
 
@@ -31,10 +32,9 @@ async function fetchSafe(url: string, ms = 1500) {
   }
 }
 export default async function Home() {
-  const apiBase = getApiUrl();
-  // const apiUrl = process.env.API_URL ?? "http://localhost:4000";
-   console.log("API_BASE =", apiBase);
-  const health = await fetchSafe(`${apiBase}/health`, 3000);
+  // const apiBase = getApiUrl();
+  const apiUrl = getApiUrl();
+  const health = await fetchSafe(`${apiUrl}/health`, 3000);
   // const dbCheck = await fetchSafe(`${apiBase}/dbcheck`, 3000);
 
   
