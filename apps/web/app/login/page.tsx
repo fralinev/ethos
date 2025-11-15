@@ -29,8 +29,8 @@ export default function LoginPage() {
       body: JSON.stringify({username, password})
     });
     if (res) {
-      setStatusText(res.statusText)
       const data = await res.json();
+      setStatusText(data.message)
       if (data.ok) {
         redirect("/")
       }
