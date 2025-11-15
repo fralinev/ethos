@@ -9,12 +9,17 @@ import { db } from './db';
 import { usersRouter } from "./routes/users";
 import { authRouter } from './routes/auth';
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://ethos-web-jdtk.onrender.com",
+];
+
 const app = express();
 
 // Basic middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.WEB_ORIGIN ?? 'http://localhost:3000',
+  origin: allowedOrigins,
   credentials: false
 }));
 app.use(express.json());
