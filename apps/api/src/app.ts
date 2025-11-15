@@ -16,26 +16,35 @@ const allowedOrigins = [
 
 const app = express();
 
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1); // trust first proxy
+}
+
 // Basic middleware
-app.use(helmet());
 app.use(cors({
   origin: allowedOrigins,
   credentials: true
 }));
+app.use(helmet());
+
 app.use(express.json());
+
+let sessionSecret = process.env.SESSION_SECRET;
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "dev-secret",
+    secret: sessionSecret || "dev-secret",
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, // true only with HTTPS
+      secure: process.env.NODE_ENV === "production" || false,
       httpOnly: true,
       sameSite: "lax",
       maxAge: 1000 * 60 * 60, // 1 hour
     },
   })
 );
+
+
 
 // Health check (useful for verifying the server runs)
 app.get('/health', (_req, res) => {
