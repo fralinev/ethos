@@ -23,6 +23,7 @@ export default function LoginPage() {
     const res = await fetch(`${getApiUrl()}/auth/login`, {
       cache: "no-store",
       method: "POST",
+      credentials: "include",
       headers: {
         'Content-Type': 'application/json'
       },
@@ -30,8 +31,9 @@ export default function LoginPage() {
     });
     if (res) {
       const data = await res.json();
+      console.log(data)
       setStatusText(data.message)
-      if (data.ok) {
+      if (data.user) {
         redirect("/")
       }
     }

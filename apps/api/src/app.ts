@@ -4,7 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 
 require('dotenv').config();
-
+import session from "express-session";
 import { db } from './db';
 import { usersRouter } from "./routes/users";
 import { authRouter } from './routes/auth';
@@ -20,9 +20,22 @@ const app = express();
 app.use(helmet());
 app.use(cors({
   origin: allowedOrigins,
-  credentials: false
+  credentials: true
 }));
 app.use(express.json());
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "dev-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // true only with HTTPS
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 60, // 1 hour
+    },
+  })
+);
 
 // Health check (useful for verifying the server runs)
 app.get('/health', (_req, res) => {
