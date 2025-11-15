@@ -2,12 +2,16 @@
 
 import { useState } from "react"
 import { getApiUrl } from "../../lib/getApiUrl"
+import { redirect } from "next/navigation";
+
 
 import styles from "./signup.module.css"
 
 export default function LoginPage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
+  const [statusText, setStatusText] = useState("")
+
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(e.target.value)
@@ -26,6 +30,13 @@ export default function LoginPage() {
       },
       body: JSON.stringify({username, password})
     });
+    if (res) {
+          const data = await res.json();
+          setStatusText(data.message)
+          if (data.ok) {
+            redirect("/login")
+          }
+        }
     console.log("SIGNUP response", res.statusText)
   }
   // const handleSignup = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -63,6 +74,9 @@ export default function LoginPage() {
             <div>
               <button className={styles.signupButton} type="submit">create user</button>
               {/* <button className={styles.loginButton} type="button" onClick={handleSignup}>signup</button> */}
+            </div>
+            <div>
+              <h4>{statusText}</h4>
             </div>
           </form>
         </div>
