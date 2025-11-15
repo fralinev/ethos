@@ -1,0 +1,22 @@
+
+.signup{
+    display:flex;
+    height: 50vh;
+    justify-content: center;
+    align-items: center;
+}
+
+.signupInput{
+    border: 1px solid white
+}
+.signupButton{
+    color:yellowgreen;
+    border: 1px solid white;
+    margin: 5px;
+    padding: 5px;
+}
+.signupButton:hover{
+    color: black;
+    background-color: yellowgreen;
+    cursor: pointer;
+}

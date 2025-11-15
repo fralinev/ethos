@@ -1,4 +1,8 @@
+import { getApiUrl } from "../../lib/getApiUrl"
+
+
 export const revalidate = 0;
+
 
 type User = {
   id: number;
@@ -7,23 +11,17 @@ type User = {
   created_at: string;
 };
 
-function getApiBase() {
-  const host = process.env.API_HOST; // e.g. "ethos-api-vbj7"
-  if (!host) return "http://localhost:4000";
-
-  const fqdn = host.includes(".") ? host : `${host}.onrender.com`;
-
-  if (process.env.NODE_ENV === "production") {
-    return `https://${fqdn}`; // public URL on 443
-  }
-  // local/dev or Docker
-  const port = process.env.API_PORT;
-  return port ? `http://${fqdn}:${port}` : `http://${fqdn}`;
-}
+// function getApiUrl() {
+//   const host = process.env.API_HOST; // e.g. "ethos-api-vbj7"
+//   if (process.env.NODE_ENV === "production") {
+//     return `https://${host}.onrender.com`;
+//   }
+//   return host;
+// }
 
 async function getUsers(): Promise<User[]> {
   // const API_URL = process.env.API_HOST ?? "http://localhost:4000";
-  const res = await fetch(`${getApiBase()}/api/users`, { cache: "no-store" });
+  const res = await fetch(`${getApiUrl()}/users`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch users");
   return res.json();
 }

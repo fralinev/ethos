@@ -1,26 +1,12 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import { getApiUrl } from "../lib/getApiUrl";
+
 
 async function isAuthenticated(): Promise<boolean> {
   // 🔒 Later: read cookies/headers or call your API.
   // Keep this fast and server-side only.
-  return false; // currently treat everyone as unauthenticated
-}
-
-function getApiUrl() {
-  const host = process.env.API_HOST; // e.g. "ethos-api-vbj7" ethos-api-vbj7
-  // if (!host) return "http://localhost:4000";
-  // console.log("host:", host)
-
-  // const fqdn = host.includes(".") ? host : `${host}.onrender.com`;
-
-  if (process.env.NODE_ENV === "production") {
-    return `https://${host}.onrender.com`;
-  }
-  return host;
-  // local/dev or Docker
-  // const port = process.env.API_PORT;
-  // return port ? `http://${fqdn}:${port}` : `http://${fqdn}`;
+  return true; // currently treat everyone as unauthenticated
 }
 
 

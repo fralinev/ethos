@@ -2,15 +2,12 @@
 
 import { useState } from "react"
 import { getApiUrl } from "../../lib/getApiUrl"
-import { redirect } from "next/navigation";
 
-
-import styles from "./login.module.css"
+import styles from "./signup.module.css"
 
 export default function LoginPage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
-  const [statusText, setStatusText] = useState("")
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(e.target.value)
@@ -18,9 +15,10 @@ export default function LoginPage() {
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value)
   }
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const res = await fetch(`${getApiUrl()}/auth/login`, {
+    console.log("logging in...", username)
+    const res = await fetch(`${getApiUrl()}/auth/signup`, {
       cache: "no-store",
       method: "POST",
       headers: {
@@ -28,31 +26,25 @@ export default function LoginPage() {
       },
       body: JSON.stringify({username, password})
     });
-    if (res) {
-      setStatusText(res.statusText)
-      const data = await res.json();
-      if (data.ok) {
-        redirect("/")
-      }
-    }
+    console.log("SIGNUP response", res.statusText)
   }
-  const handleSignup = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-    redirect("/signup")
-  }
+  // const handleSignup = (e: React.MouseEvent<HTMLButtonElement>) => {
+  //   e.preventDefault()
+  //   console.log("signing up...", username)
+  // }
   return (
-    <div className={styles.login}>
+    <div className={styles.signup}>
       <main>
         <div>
-          <h1>login</h1>
-          <form className="flex flex-col gap-5" onSubmit={handleLogin}>
+          <h1>signup</h1>
+          <form className="flex flex-col gap-5" onSubmit={handleSignup}>
             <div>
               <label htmlFor="username">username: </label>
               <input
                 type="text"
                 id="username"
                 name="username"
-                className={styles.loginInput}
+                className={styles.signupInput}
                 onChange={handleUsernameChange}
                 value={username}
               />
@@ -63,17 +55,14 @@ export default function LoginPage() {
                 type="password"
                 id="password"
                 name="password"
-                className={styles.loginInput}
+                className={styles.signupInput}
                 onChange={handlePasswordChange}
                 value={password}
               />
             </div>
             <div>
-              <button className={styles.loginButton} type="submit">login</button>
-              <button className={styles.loginButton} type="button" onClick={handleSignup}>signup</button>
-            </div>
-            <div>
-              <h4>{statusText}</h4>
+              <button className={styles.signupButton} type="submit">create user</button>
+              {/* <button className={styles.loginButton} type="button" onClick={handleSignup}>signup</button> */}
             </div>
           </form>
         </div>

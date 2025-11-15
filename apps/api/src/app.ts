@@ -7,6 +7,7 @@ require('dotenv').config();
 
 import { db } from './db';
 import { usersRouter } from "./routes/users";
+import { authRouter } from './routes/auth';
 
 const app = express();
 
@@ -36,8 +37,8 @@ app.get('/dbcheck', async (_req, res) => {
 app.get('/', (_req, res) => {
   res.send('Ethos API is running');
 });
-console.log('checkk usersRouter', usersRouter)
 
-app.use("/api/users", usersRouter);
+app.use("/users", usersRouter);
+app.use("/auth", authRouter)
 
 export default app;
