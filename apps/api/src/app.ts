@@ -2,12 +2,32 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import { UpstashStore } from "./redisStore";
 
 require('dotenv').config();
 import session from "express-session";
 import { db } from './db';
 import { usersRouter } from "./routes/users";
 import { authRouter } from './routes/auth';
+
+import { Redis } from '@upstash/redis'
+const redis = new Redis({
+  url: 'https://possible-trout-31818.upstash.io',
+  token: process.env.UPSTASH_REDIS_REST_TOKEN
+})
+
+export const sessionMiddleware = session({
+  store: new UpstashStore(redis),
+  secret: process.env.SESSION_SECRET!,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24, // 1 day
+    secure: process.env.NODE_ENV === "production" || false,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  },
+});
 
 const allowedOrigins = [
   "http://localhost:3000",
@@ -26,23 +46,25 @@ app.use(cors({
   credentials: true
 }));
 app.use(helmet());
+app.use(sessionMiddleware);
+
 
 app.use(express.json());
 
 let sessionSecret = process.env.SESSION_SECRET;
-app.use(
-  session({
-    secret: sessionSecret || "dev-secret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === "production" || false,
-      httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 1000 * 60 * 60, // 1 hour
-    },
-  })
-);
+// app.use(
+//   session({
+//     secret: sessionSecret || "dev-secret",
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//       secure: process.env.NODE_ENV === "production" || false,
+//       httpOnly: true,
+//       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+//       maxAge: 1000 * 60 * 60, // 1 hour
+//     },
+//   })
+// );
 
 
 
