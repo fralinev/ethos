@@ -73,3 +73,11 @@ authRouter.post("/signup", async (req, res) => {
     return res.status(500).json({ message: "internal service error" })
   }
 })
+
+authRouter.get("/me", (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ user: null });
+  }
+
+  return res.json({ user: req.session.user });
+});
