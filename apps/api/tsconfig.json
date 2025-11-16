@@ -5,12 +5,13 @@
     "lib": ["es2020"],
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "rootDir": "src",
+    "rootDir": "../../",
     "outDir": "dist",
     "noEmit": false,
     "types": ["node"],
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    
   },
   "include": ["src/**/*.ts"]
 }

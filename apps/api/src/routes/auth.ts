@@ -78,6 +78,32 @@ authRouter.get("/me", (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ user: null });
   }
+  console.log(req.session)
 
   return res.json({ user: req.session.user });
 });
+
+authRouter.post("/logout", (req, res) => {
+
+  console.log("logging out user", req.session.user);
+
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("failed to destroy session", err);
+      return res.status(500).json({ error: "failed to logout" });
+    }
+    res.clearCookie("connect.sid", {
+      httpOnly: true,
+      sameSite:
+        process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    return res.status(200).json({ success: true });
+  });
+})
+
+authRouter.get("/session", (req, res) => {
+  console.log(req.session)
+  return res.json({ user: req.session });
+})

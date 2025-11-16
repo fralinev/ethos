@@ -1,20 +1,20 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getApiUrl } from "../lib/getApiUrl";
+import { getSessionFromNextRequest } from '../lib/session'
+import { SessionData } from "@/packages/shared/session";
 
-
-async function isAuthenticated(): Promise<boolean> {
-  // 🔒 Later: read cookies/headers or call your API.
-  // Keep this fast and server-side only.
-  return true; // currently treat everyone as unauthenticated
+function isAuthenticated(session?: SessionData): boolean {
+  if (session?.user) return true
+  return false
 }
 
 
-async function fetchSafe(url: string, ms = 1500) {
+async function fetchSafe(url: string, config: object, ms = 1500) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), ms);
   try {
-    const r = await fetch(url, { cache: "no-store", signal: ctrl.signal });
+    const r = await fetch(url, { cache: "no-store", signal: ctrl.signal, ...config });
     const json = await r.json();
     if (!r.ok) return { status: `api ${r.status}` };
     return json;
@@ -25,19 +25,22 @@ async function fetchSafe(url: string, ms = 1500) {
   }
 }
 export default async function Home() {
-  const authed = await isAuthenticated();
-  if (!authed) redirect("/login");
-  // const apiBase = getApiUrl();
   const apiUrl = getApiUrl();
-  const health = await fetchSafe(`${apiUrl}/health`, 3000);
-  // const dbCheck = await fetchSafe(`${apiBase}/dbcheck`, 3000);
+  // const response = await fetchSafe(`${apiUrl}/auth/session`, {credentials: "include"})
+  // const res = await fetch(`${getApiUrl()}/auth/session`, {
+  //         credentials: "include", // <-- browser sends connect.sid
+  //       });
+  const session = await getSessionFromNextRequest();
+  console.log("home session", session)
+  const authed = isAuthenticated(session);
+  if (!authed) redirect("/login");
+  // const health = await fetchSafe(`${apiUrl}/health`, 3000);
 
-  
   return (
     <div>
 
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: "100px" }}>ETHOS</div>
-      <div>API: {health.status}</div>
+      {/* <div>API: {health.status}</div> */}
       {/* <div>DB: {JSON.stringify(dbCheck)}</div> */}
     </div>
   );

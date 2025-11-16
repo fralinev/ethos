@@ -1,21 +1,23 @@
 // apps/api/src/app.ts
+require('dotenv').config();
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { UpstashStore } from "./redisStore";
+import { redis } from '../../../packages/shared/redisClient'
 
-require('dotenv').config();
 import session from "express-session";
 import { db } from './db';
 import { usersRouter } from "./routes/users";
 import { authRouter } from './routes/auth';
 
-import { Redis } from '@upstash/redis'
-const redis = new Redis({
-  url: 'https://possible-trout-31818.upstash.io',
-  token: process.env.UPSTASH_REDIS_REST_TOKEN
-})
-
+// import { Redis } from '@upstash/redis'
+// const redis = new Redis({
+//   url: 'https://possible-trout-31818.upstash.io',
+//   token: process.env.UPSTASH_REDIS_REST_TOKEN
+// })
+console.log("UPSTASH URL:", process.env.UPSTASH_REDIS_REST_URL);
 export const sessionMiddleware = session({
   store: new UpstashStore(redis),
   secret: process.env.SESSION_SECRET!,

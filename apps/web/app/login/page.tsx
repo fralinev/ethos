@@ -3,14 +3,20 @@
 import { useState } from "react"
 import { getApiUrl } from "../../lib/getApiUrl"
 import { redirect } from "next/navigation";
+import { useAppSelector, useAppDispatch } from "../../store/hooks"
+import { setUser } from "../../store/slices/userSlice";
 
 
 import styles from "./login.module.css"
 
 export default function LoginPage() {
+
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [statusText, setStatusText] = useState("")
+
+  const user = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(e.target.value)
@@ -80,6 +86,17 @@ export default function LoginPage() {
           </form>
         </div>
       </main>
+      <button
+        onClick={() =>
+          dispatch(
+            setUser({
+              userId: "123",
+              name: "Evan",
+            })
+          )
+        }
+      >SETUSER</button>
+      <div style={{color: "white"}}>{user ? user.name : "no user"}</div>
     </div>
   )
 }
