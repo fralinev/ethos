@@ -5,7 +5,7 @@
     "lib": ["es2020"],
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "rootDir": "../../",
+    "rootDir": "src",
     "outDir": "dist",
     "noEmit": false,
     "types": ["node"],
