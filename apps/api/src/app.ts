@@ -5,7 +5,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { UpstashStore } from "./redisStore";
-import { redis } from '../../../packages/shared/redisClient'
+import { redis } from './redisClient';
 
 import session from "express-session";
 import { db } from './db';
@@ -17,7 +17,6 @@ import { authRouter } from './routes/auth';
 //   url: 'https://possible-trout-31818.upstash.io',
 //   token: process.env.UPSTASH_REDIS_REST_TOKEN
 // })
-console.log("UPSTASH URL:", process.env.UPSTASH_REDIS_REST_URL);
 export const sessionMiddleware = session({
   store: new UpstashStore(redis),
   secret: process.env.SESSION_SECRET!,
