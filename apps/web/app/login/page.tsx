@@ -1,8 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { getApiUrl } from "../../lib/getApiUrl"
-import { redirect } from "next/navigation";
 import { useAppSelector, useAppDispatch } from "../../store/hooks"
 import { setUser } from "../../store/slices/userSlice";
 import { useRouter } from "next/navigation";
@@ -28,16 +26,13 @@ export default function LoginPage() {
   }
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     setStatusText("");
-
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        // same-origin by default; cookies will be stored automatically
         body: JSON.stringify({ username, password }),
       });
 

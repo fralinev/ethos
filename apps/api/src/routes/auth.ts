@@ -79,24 +79,20 @@ authRouter.get("/me", (req, res) => {
 });
 
 authRouter.post("/logout", (req, res) => {
-
-  console.log("logging out user", req.session.user);
+  // sessionMiddleware must run before this route, like login
 
   req.session.destroy((err) => {
     if (err) {
-      console.error("failed to destroy session", err);
-      return res.status(500).json({ error: "failed to logout" });
+      console.error("logout error", err);
+      return res.status(500).json({ ok: false, message: "logout failed" });
     }
-    res.clearCookie("connect.sid", {
-      httpOnly: true,
-      sameSite:
-        process.env.NODE_ENV === "production" ? "none" : "lax",
-      secure: process.env.NODE_ENV === "production",
-    });
 
-    return res.status(200).json({ success: true });
+    // Optional: clear cookie for the API domain (useful if browser ever hits API directly)
+    res.clearCookie("connect.sid");
+
+    return res.json({ ok: true, message: "logged out" });
   });
-})
+});
 
 authRouter.get("/session", (req, res) => {
   console.log(req.session)
