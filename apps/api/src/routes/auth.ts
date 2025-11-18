@@ -24,22 +24,17 @@ authRouter.post("/login", async (req, res) => {
       id: user.id,
       username: user.username
     }
-    req.session.save(async (err) => {
-      if (err) {
-        console.error("Session save error:", err);
-        return res.status(500).json({ error: "Could not save session" });
-      }
 
-      try {
-        await db.query("UPDATE users SET last_login_at = now() WHERE username = $1", [normalizedUsername]);
-      } catch (e) {
-        console.error("failed to update last_login_at", e);
-      }
+    const sessionId = req.sessionID;
 
-      return res.status(200).json({
-        message: "logged in",
-        user: { id: user.id, username: user.username },
-      });
+    await db.query("UPDATE users SET last_login_at = now() WHERE username = $1", [normalizedUsername]);
+
+
+    return res.status(200).json({
+      ok: true,
+      message: "logged in",
+      user: { id: user.id, username: user.username },
+      sessionId
     });
   } catch (e) {
     console.error("login error", e);

@@ -5,6 +5,7 @@ import { getApiUrl } from "../../lib/getApiUrl"
 import { redirect } from "next/navigation";
 import { useAppSelector, useAppDispatch } from "../../store/hooks"
 import { setUser } from "../../store/slices/userSlice";
+import { useRouter } from "next/navigation";
 
 
 import styles from "./login.module.css"
@@ -17,6 +18,7 @@ export default function LoginPage() {
 
   const user = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(e.target.value)
@@ -25,28 +27,44 @@ export default function LoginPage() {
     setPassword(e.target.value)
   }
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const res = await fetch(`${getApiUrl()}/auth/login`, {
-      cache: "no-store",
-      method: "POST",
-      credentials: "include",
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({username, password})
-    });
-    if (res) {
-      const data = await res.json();
-      console.log(data)
-      setStatusText(data.message)
-      if (data.user) {
-        redirect("/")
+    e.preventDefault();
+
+    setStatusText("");
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // same-origin by default; cookies will be stored automatically
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json().catch(() => null);
+      console.log("login response", data);
+
+      if (!res.ok || !data?.ok) {
+        setStatusText(data?.message ?? "Login failed");
+        return;
       }
+
+      setStatusText(data.message ?? "logged in");
+
+      // At this point:
+      // - Next's /api/auth/login route has set the `connect.sid` cookie
+      //   on the web domain
+      // - Browser has stored that cookie (JS cannot see it because it's httpOnly)
+      // - Now we can navigate to the home page, which will SSR using that cookie
+      router.push("/");
+    } catch (err) {
+      console.error("Login error", err);
+      setStatusText("Something went wrong logging in");
     }
-  }
+  };
   const handleSignup = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
-    redirect("/signup")
+    router.push("/signup");
   }
   return (
     <div className={styles.login}>

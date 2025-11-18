@@ -25,16 +25,10 @@ async function fetchSafe(url: string, config: object, ms = 1500) {
   }
 }
 export default async function Home() {
-  const apiUrl = getApiUrl();
-  // const response = await fetchSafe(`${apiUrl}/auth/session`, {credentials: "include"})
-  // const res = await fetch(`${getApiUrl()}/auth/session`, {
-  //         credentials: "include", // <-- browser sends connect.sid
-  //       });
   const session = await getSessionFromNextRequest();
   console.log("home session", session)
   const authed = isAuthenticated(session);
   if (!authed) redirect("/login");
-  // const health = await fetchSafe(`${apiUrl}/health`, 3000);
 
   return (
     <div>
