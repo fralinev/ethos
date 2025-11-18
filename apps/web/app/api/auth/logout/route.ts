@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const API_BASE_URL = process.env.API_BASEURL ?? "http://localhost:4000";
+const API_BASE_URL = process.env.API_BASE_URL ?? "http://localhost:4000";
 
 export async function POST(req: NextRequest) {
   const sid = req.cookies.get("connect.sid")?.value;
