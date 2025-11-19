@@ -18,6 +18,7 @@ import { authRouter } from './routes/auth';
 //   token: process.env.UPSTASH_REDIS_REST_TOKEN
 // })
 export const sessionMiddleware = session({
+  name: "connect.sid",
   store: new UpstashStore(redis),
   secret: process.env.SESSION_SECRET!,
   resave: false,
@@ -26,7 +27,11 @@ export const sessionMiddleware = session({
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24, // 1 day
     secure: process.env.NODE_ENV === "production" || false,
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    sameSite: "lax",
+    domain:
+      process.env.NODE_ENV === "production"
+        ? ".ethos.fralinev.dev"
+        : undefined, // no domain in dev => host-only cookie for localhost
   },
 });
 
@@ -37,6 +42,9 @@ const allowedOrigins = [
 ];
 
 const app = express();
+
+app.set("trust proxy", 1);
+
 
 if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1); // trust first proxy

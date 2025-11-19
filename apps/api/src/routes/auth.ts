@@ -84,20 +84,28 @@ authRouter.get("/me", (req, res) => {
 });
 
 authRouter.post("/logout", (req, res) => {
-  // sessionMiddleware must run before this route, like login
-
   req.session.destroy((err) => {
     if (err) {
       console.error("logout error", err);
       return res.status(500).json({ ok: false, message: "logout failed" });
     }
 
-    // Optional: clear cookie for the API domain (useful if browser ever hits API directly)
-    res.clearCookie("connect.sid");
+    // Clear the cookie with SAME options as sessionMiddleware.cookie
+    res.clearCookie("connect.sid", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      domain:
+        process.env.NODE_ENV === "production"
+          ? ".ethos.fralinev.dev"
+          : undefined,
+      path: "/", // default but explicit
+    });
 
     return res.json({ ok: true, message: "logged out" });
   });
 });
+
 
 authRouter.get("/session", (req, res) => {
   console.log(req.session)

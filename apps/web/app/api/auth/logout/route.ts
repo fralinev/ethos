@@ -1,36 +1,38 @@
+// apps/web/app/api/auth/logout/route.ts (App Router)
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 
-const API_BASE_URL = process.env.API_BASE_URL ?? "http://localhost:4000";
+const API_BASE_URL = process.env.API_BASE_URL! ?? "http://localhost:4000"; // env handles dev vs prod
 
 export async function POST(req: NextRequest) {
-  const sid = req.cookies.get("connect.sid")?.value;
+  // Forward the cookie header so Express knows which session to destroy
+  const cookieHeader = req.headers.get("cookie") ?? "";
 
-  if (sid) {
-    try {
-      // Call Express and pass the cookie so express-session knows which session to destroy
-      await fetch(`${API_BASE_URL}/auth/logout`, {
-        method: "POST",
-        headers: {
-          Cookie: `connect.sid=${sid}`,
-        },
-      });
-    } catch (err) {
-      console.error("Error calling API /auth/logout:", err);
-      // even if API call fails, we'll still clear the browser cookie
-    }
+  let upstream;
+  try {
+    upstream = await fetch(`${API_BASE_URL}/auth/logout`, {
+      method: "POST",
+      headers: {
+        cookie: cookieHeader,
+      },
+    });
+  } catch (err) {
+    console.error("Error calling API /auth/logout:", err);
+    // We'll still clear on the client if Express is unreachable
+    const res = NextResponse.json(
+      { ok: false, message: "logout failed (api unreachable)" },
+      { status: 502 },
+    );
+    return res;
   }
 
-  // Clear the cookie on the WEB domain
-  const res = NextResponse.json({ ok: true, message: "logged out" });
+  const data = await upstream.json();
+  const res = NextResponse.json(data, { status: upstream.status });
 
-  res.cookies.set("connect.sid", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 0, // delete
-  });
+  // ★ Forward Express's Set-Cookie that clears the cookie
+  const setCookie = upstream.headers.get("set-cookie");
+  if (setCookie) {
+    res.headers.set("set-cookie", setCookie);
+  }
 
   return res;
 }
