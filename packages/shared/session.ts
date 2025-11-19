@@ -30,7 +30,6 @@ export async function getSessionById(
   if (!json) return undefined;
 
   try {
-    console.log("f getSessionById json", json)
     return json as SessionData
   } catch (e) {
     console.error("Failed to parse session JSON from Redis", e);

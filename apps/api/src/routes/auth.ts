@@ -25,11 +25,6 @@ authRouter.post("/login", async (req, res) => {
       username: user.username
     }
 
-    console.log("LOGIN session:", {
-  id: req.sessionID,
-  user: req.session.user,
-});
-
     const sessionId = req.sessionID;
 
     await db.query("UPDATE users SET last_login_at = now() WHERE username = $1", [normalizedUsername]);

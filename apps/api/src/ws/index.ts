@@ -1,50 +1,58 @@
-import type { Server } from "http";
-import type { IncomingMessage } from "http";
+// apps/api/src/ws/index.ts
 import { WebSocketServer, WebSocket } from "ws";
-import { sessionMiddleware } from "../app";
+import type { IncomingMessage } from "http";
 
-type AuthedRequest = IncomingMessage & { sessionID?: any };
-type AuthedWebSocket = WebSocket & { user?: string };
+interface SessionData {
+  user?: {
+    id: string;
+    username: string;
+  };
+}
 
-export function initWebsocketServer(server: Server) {
-    const wss = new WebSocketServer({ server });
+export interface AuthedRequest extends IncomingMessage {
+  sessionID?: string;
+  session?: SessionData;
+}
 
-    wss.on("connection", (ws: AuthedWebSocket, req: AuthedRequest) => {
-        console.log("WS raw cookies:", req.headers.cookie);
-        // Run express-session on the upgrade request
+export interface AuthedWebSocket extends WebSocket {
+  user?: SessionData["user"];
+}
 
-        sessionMiddleware(req as any, {} as any, () => {
-            const session = req.sessionID;
-            console.log("WS session on connect:", {
-                id: req.sessionID,
-                hasSession: !!session,
-                user: session?.user,
-            });
+export function initWebsocketServer() {
+  // noServer: true → we will hook this up in server.ts
+  const wss = new WebSocketServer({ noServer: true });
 
-            if (!session || !session.user) {
-                console.log("WS unauthorized, closing");
-                ws.close(1008, "Unauthorized");
-                return;
-            }
-
-            // Attach identity to the socket
-            ws.user = session.user;
-            console.log("WS connected for user:", ws.user);
-
-            ws.on("message", (msg) => {
-                console.log(`WS message from ${ws.user}:`, msg.toString());
-                ws.send(`pong from server, user=${ws.user}`);
-            });
-
-            ws.on("close", () => {
-                console.log("WS: client disconnected", ws.user);
-            });
-
-            ws.on("error", (err) => {
-                console.error("WS error:", err);
-            });
-        });
+  wss.on("connection", (ws: AuthedWebSocket, req: AuthedRequest) => {
+    console.log("WS raw cookies:", req.headers.cookie);
+    console.log("WS session on connect:", {
+      id: req.sessionID,
+      user: req.session?.user,
     });
 
-    console.log("WebSocket server initialized with session support");
+    if (!req.session?.user) {
+      console.log("WS unauthorized, closing");
+      ws.close(1008, "Unauthorized");
+      return;
+    }
+
+    ws.user = req.session.user;
+    console.log("WS connected for user:", ws.user);
+
+    ws.on("message", (msg) => {
+      console.log(`WS message from ${ws.user?.username}:`, msg.toString());
+      ws.send(`pong from server, user=${ws.user?.username}`);
+    });
+
+    ws.on("close", () => {
+      console.log("WS: client disconnected", ws.user);
+    });
+
+    ws.on("error", (err) => {
+      console.error("WS error:", err);
+    });
+  });
+
+  console.log("WebSocket server initialized with session support");
+
+  return wss;
 }

@@ -26,25 +26,22 @@ export const sessionMiddleware = session({
   cookie: {
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24, // 1 day
-    secure: process.env.NODE_ENV === "production" || false,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     domain:
       process.env.NODE_ENV === "production"
         ? ".ethos.fralinev.dev"
         : undefined, // no domain in dev => host-only cookie for localhost
+         path: "/",
   },
 });
 
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://ethos-web-jdtk.onrender.com",
   "https://ethos.fralinev.dev"
 ];
 
 const app = express();
-
-app.set("trust proxy", 1);
-
 
 if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1); // trust first proxy
@@ -60,23 +57,6 @@ app.use(sessionMiddleware);
 
 
 app.use(express.json());
-
-let sessionSecret = process.env.SESSION_SECRET;
-// app.use(
-//   session({
-//     secret: sessionSecret || "dev-secret",
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: {
-//       secure: process.env.NODE_ENV === "production" || false,
-//       httpOnly: true,
-//       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-//       maxAge: 1000 * 60 * 60, // 1 hour
-//     },
-//   })
-// );
-
-
 
 // Health check (useful for verifying the server runs)
 app.get('/health', (_req, res) => {

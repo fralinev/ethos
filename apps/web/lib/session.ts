@@ -6,7 +6,6 @@ import { SessionData } from "@/packages/shared/session";
 
 export async function getSessionFromNextRequest(): Promise<SessionData | undefined> {
   const cookieStore = await cookies();  
-  console.log("cookieStore", cookieStore)           
   const raw = cookieStore.get("connect.sid")?.value;
   if (!raw) return undefined;
 

@@ -26,7 +26,6 @@ async function fetchSafe(url: string, config: object, ms = 1500) {
 }
 export default async function Home() {
   const session = await getSessionFromNextRequest();
-  console.log("home session", session)
   const authed = isAuthenticated(session);
   if (!authed) redirect("/login");
 
