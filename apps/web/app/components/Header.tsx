@@ -1,14 +1,19 @@
 import LogoutButton from "./LogoutButton";
+import styles from "./header.module.css"
 
 export default function Header() {
 
   return (
     <div>
-      <div style={{ color: "white" }}>
-        HEADER
+      <div className={styles.header}>
+         <div className={styles.left}>
+        {/* Replace with your logo component */}
+        <span>E T H O S</span>
       </div>
-      <div>
-        <LogoutButton/>
+
+      <div className={styles.right}>
+        <LogoutButton />
+      </div>
       </div>
     </div>
   )

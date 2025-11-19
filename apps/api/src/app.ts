@@ -33,6 +33,7 @@ export const sessionMiddleware = session({
 const allowedOrigins = [
   "http://localhost:3000",
   "https://ethos-web-jdtk.onrender.com",
+  "https://ethos.fralinev.dev"
 ];
 
 const app = express();

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { getApiUrl } from "../lib/getApiUrl";
-import { getSessionFromNextRequest } from '../lib/session'
+import { getApiUrl } from "../../lib/getApiUrl";
+import { getSessionFromNextRequest } from '../../lib/session'
 import { SessionData } from "@/packages/shared/session";
 
 function isAuthenticated(session?: SessionData): boolean {

@@ -9,5 +9,5 @@ export default function LogoutButton() {
     router.push("/login"); // ✔️ works only in client components
   }
 
-  return <button onClick={handleLogout}>Logout</button>;
+  return <button style={{cursor: "pointer"}} onClick={handleLogout}>Logout</button>;
 }
