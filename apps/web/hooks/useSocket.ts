@@ -102,7 +102,7 @@ export function useSocket() {
 
   if (!clientRef.current) {
     const url =
-      process.env.NEXT_PUBLIC_API_WS_URL ?? "ws://localhost:4000/ws";
+      process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:4000/ws";
     clientRef.current = new SocketClient(url);
   }
 
