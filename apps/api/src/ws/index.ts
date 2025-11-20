@@ -1,4 +1,3 @@
-// apps/api/src/websocket.ts
 import { WebSocketServer, WebSocket } from "ws";
 import type { Server as HttpServer } from "http";
 import type { Store as SessionStore } from "express-session";
@@ -6,8 +5,7 @@ import type { Store as SessionStore } from "express-session";
 type SessionData = {
   user?: {
     id: string;
-    username: string;
-    // whatever else you store
+    email?: string;
   };
 };
 
@@ -24,7 +22,6 @@ function getSessionIdFromCookieHeader(cookieHeader: string | undefined): string 
 
   const raw = decodeURIComponent(sidCookie.split("=").slice(1).join("="));
 
-  // express-session signed cookie format: s:<sid>.<signature>
   if (raw.startsWith("s:")) {
     const unsigned = raw.slice(2);
     const dotIndex = unsigned.indexOf(".");
@@ -35,18 +32,22 @@ function getSessionIdFromCookieHeader(cookieHeader: string | undefined): string 
 }
 
 export function createWebSocketServer(httpServer: HttpServer, sessionStore: SessionStore) {
+  console.log("[ws] creating WebSocketServer at /ws");
+
   const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
 
   wss.on("connection", (ws, req) => {
     const socket = ws as AuthedWebSocket;
     socket.user = null;
 
+    console.log("[ws] connection upgrade received", req.url);
+
     const sid = getSessionIdFromCookieHeader(req.headers.cookie);
     if (sid) {
       sessionStore.get(sid, (err, session) => {
         if (!err && session && (session as SessionData).user) {
           socket.user = (session as SessionData).user!;
-          console.log("[ws] connected as authed user", socket.user.username);
+          console.log("[ws] connected as authed user", socket.user.id);
         } else {
           console.log("[ws] connected as guest (session miss)");
         }
@@ -64,44 +65,33 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
       }
 
       switch (data.type) {
-        case "health:subscribe": {
+        case "health:subscribe":
           sendInitialHealth(socket);
           break;
-        }
-        case "logs:subscribe": {
+        case "logs:subscribe":
           sendInitialLogs(socket);
           break;
-        }
-        case "chat:join": {
+        case "chat:join":
           if (!socket.user) {
             socket.send(JSON.stringify({ type: "error", error: "unauthorized" }));
             return;
           }
-          handleChatJoin(socket, data.roomId);
+          // handleChatJoin(socket, data.roomId);
           break;
-        }
-        case "chat:send": {
+        case "chat:send":
           if (!socket.user) {
             socket.send(JSON.stringify({ type: "error", error: "unauthorized" }));
             return;
           }
-          handleChatSend(socket, data.roomId, data.message);
+          // handleChatSend(socket, data.roomId, data.message);
           break;
-        }
         default:
           break;
       }
     });
-
-    socket.on("close", () => {
-      // cleanup if you want
-    });
   });
-
-  return wss;
 }
 
-// your existing stubs:
 function sendInitialHealth(socket: AuthedWebSocket) {
   socket.send(
     JSON.stringify({
@@ -126,12 +116,4 @@ function sendInitialLogs(socket: AuthedWebSocket) {
       ],
     })
   );
-}
-
-function handleChatJoin(socket: AuthedWebSocket, roomId: string) {
-  console.log("[ws] user", socket.user?.id, "joined room", roomId);
-}
-
-function handleChatSend(socket: AuthedWebSocket, roomId: string, message: string) {
-  console.log("[ws] message from", socket.user?.id, "in", roomId, ":", message);
 }
