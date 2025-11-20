@@ -1,7 +1,9 @@
 import LogoutButton from "./LogoutButton";
 import styles from "./header.module.css"
+import { getSessionFromNextRequest } from "../../lib/session";
 
-export default function Header() {
+export default async function Header() {
+  const session = await getSessionFromNextRequest();
 
   return (
     <div>
@@ -11,7 +13,7 @@ export default function Header() {
       </div>
 
       <div className={styles.right}>
-        <LogoutButton />
+        <LogoutButton session={session}/>
       </div>
       </div>
     </div>

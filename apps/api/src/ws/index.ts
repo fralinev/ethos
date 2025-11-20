@@ -64,6 +64,8 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
         return;
       }
 
+      console.log("Express ws/index", data)
+
       switch (data.type) {
         case "health:subscribe":
           sendInitialHealth(socket);
@@ -85,6 +87,8 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
           }
           // handleChatSend(socket, data.roomId, data.message);
           break;
+          case "ping":
+            socket.send(JSON.stringify({type: "pong", payload: "hello from server"}))
         default:
           break;
       }

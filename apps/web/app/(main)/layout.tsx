@@ -1,4 +1,5 @@
 import Header from "../components/Header";
+import { getSessionFromNextRequest } from "../../lib/session";
 
 export default function MainLayout({
   children,

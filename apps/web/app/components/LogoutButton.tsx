@@ -1,13 +1,21 @@
 "use client";
-import { useRouter } from "next/navigation";
 
-export default function LogoutButton() {
-  const router = useRouter();
+import type { SessionData } from "@/packages/shared/session";
+
+export default function LogoutButton({session}:{session?: SessionData}) {
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login"); 
+    window.location.href = "/login";  // full reload → cleanest
   }
 
-  return <button style={{cursor: "pointer"}} onClick={handleLogout}>Logout</button>;
+  if (!session?.user) return (
+    <button style={{ cursor: "pointer" }} onClick={() =>  window.location.href = "/login"}>Login</button>
+  );
+
+  return (
+    <button style={{ cursor: "pointer" }} onClick={handleLogout}>
+      Logout
+    </button>
+  );
 }

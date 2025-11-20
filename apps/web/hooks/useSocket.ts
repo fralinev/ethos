@@ -28,11 +28,13 @@ class SocketClient {
     ) {
       return;
     }
+    console.log("useSocket connect")
 
     const ws = new WebSocket(this.url);
     this.ws = ws;
 
     ws.onopen = () => {
+      console.log("useSocket connect open")
       this.openHandlers.forEach((fn) => fn());
     };
 
@@ -63,6 +65,7 @@ class SocketClient {
   }
 
   send(payload: any) {
+    console.log("useSocket send", payload)
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
     const data =
       typeof payload === "string" ? payload : JSON.stringify(payload);
@@ -109,6 +112,8 @@ export function useSocket() {
       }
     }
     clientRef.current = new SocketClient(url);
+    console.log("checkk clientRef (socket)", clientRef.current)
+
   }
 
   useEffect(() => {

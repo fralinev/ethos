@@ -49,9 +49,7 @@ export default function LoginPage() {
 
     setStatusText(data.message ?? "logging in...");
 
-    // 🔑 hard reload so:
-    // 1) cookie is definitely present
-    // 2) layout + useSocket run fresh and connect as authed user
+    // do hard reload so that cookie is present and ws is authenticated
     if (typeof window !== "undefined") {
       window.location.href = "/";
     } else {
