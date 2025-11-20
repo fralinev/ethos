@@ -41,7 +41,6 @@ export function unsignExpressCookie(
   signedCookieValue: string,
   secret: string
 ): string | null {
-  console.log("f unsignExpressCookie signedCookieValue", signedCookieValue)
   let value = signedCookieValue;
 
   // In case it's URL-encoded somewhere, decode it

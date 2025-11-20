@@ -22,7 +22,7 @@ export class WebSocketClient {
   private url: string;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
-  private reconnectDelayBaseMs = 500; // 0.5s, 1s, 2s, ...
+  private reconnectDelayBaseMs = 500;
   private manuallyClosed = false;
   private listeners: ListenerMap = {
     message: new Set(),
@@ -46,12 +46,10 @@ export class WebSocketClient {
     return this._instance;
   }
 
-  /** Current readyState of the socket (or CLOSED if none) */
   get readyState(): number {
     return this.socket?.readyState ?? WebSocket.CLOSED;
   }
 
-  /** Connect the socket (no-op if already open/connecting) */
   connect() {
     if (typeof window === "undefined") return; // SSR guard
 
@@ -77,7 +75,6 @@ export class WebSocketClient {
       try {
         payload = JSON.parse(ev.data);
       } catch {
-        // leave as raw string/binary
       }
       this.listeners.message.forEach((fn) => fn(payload, ev));
     });
@@ -99,7 +96,6 @@ export class WebSocketClient {
     this.socket = socket;
   }
 
-  /** Close the socket and stop any auto-reconnect */
   disconnect(code?: number, reason?: string) {
     this.manuallyClosed = true;
     if (this.socket) {
@@ -108,7 +104,6 @@ export class WebSocketClient {
     }
   }
 
-  /** Send a JSON-serializable message */
   send(message: OutgoingMessage) {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
       console.warn("WebSocket is not open; cannot send", message);
@@ -117,7 +112,6 @@ export class WebSocketClient {
     this.socket.send(JSON.stringify(message));
   }
 
-  /** Send raw data (string / ArrayBuffer / Blob) */
   sendRaw(data: string | ArrayBufferLike | Blob | ArrayBufferView) {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
       console.warn("WebSocket is not open; cannot send raw", data);
@@ -126,7 +120,6 @@ export class WebSocketClient {
     this.socket.send(data);
   }
 
-  /** Register event listeners; returns an unsubscribe function */
   onMessage(listener: MessageListener): () => void {
     this.listeners.message.add(listener);
     return () => {
@@ -155,7 +148,6 @@ export class WebSocketClient {
     };
   }
 
-  /** Internal: schedule a reconnect with simple backoff */
   private scheduleReconnect() {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       console.warn("Max WebSocket reconnect attempts reached");

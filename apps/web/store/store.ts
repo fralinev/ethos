@@ -7,6 +7,5 @@ export const store = configureStore({
   },
 });
 
-// Types — auto-inferred by RTK
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

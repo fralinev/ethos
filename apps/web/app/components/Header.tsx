@@ -7,7 +7,6 @@ export default function Header() {
     <div>
       <div className={styles.header}>
          <div className={styles.left}>
-        {/* Replace with your logo component */}
         <span>E T H O S</span>
       </div>
 

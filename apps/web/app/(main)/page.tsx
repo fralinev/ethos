@@ -9,21 +9,6 @@ function isAuthenticated(session?: SessionData): boolean {
   return false
 }
 
-
-async function fetchSafe(url: string, config: object, ms = 1500) {
-  const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), ms);
-  try {
-    const r = await fetch(url, { cache: "no-store", signal: ctrl.signal, ...config });
-    const json = await r.json();
-    if (!r.ok) return { status: `api ${r.status}` };
-    return json;
-  } catch (err) {
-    return { status: "unavailable" };
-  } finally {
-    clearTimeout(t);
-  }
-}
 export default async function Home() {
   const session = await getSessionFromNextRequest();
   const authed = isAuthenticated(session);

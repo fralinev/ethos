@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useAppSelector, useAppDispatch } from "../../store/hooks"
 import { setUser } from "../../store/slices/userSlice";
 import { useRouter } from "next/navigation";
-
+import { useSocket } from "../../hooks/useSocket";
 
 import styles from "./login.module.css"
 
@@ -17,6 +17,8 @@ export default function LoginPage() {
   const user = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
   const router = useRouter();
+
+  const { reconnectAfterAuth } = useSocket();
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(e.target.value)
@@ -37,20 +39,13 @@ export default function LoginPage() {
       });
 
       const data = await res.json().catch(() => null);
-      console.log("login response", data);
 
       if (!res.ok || !data?.ok) {
         setStatusText(data?.message ?? "Login failed");
         return;
       }
-
-      setStatusText(data.message ?? "logged in");
-
-      // At this point:
-      // - Next's /api/auth/login route has set the `connect.sid` cookie
-      //   on the web domain
-      // - Browser has stored that cookie (JS cannot see it because it's httpOnly)
-      // - Now we can navigate to the home page, which will SSR using that cookie
+      reconnectAfterAuth();
+      setStatusText(data.message ?? "logging in...");
       router.push("/");
     } catch (err) {
       console.error("Login error", err);
@@ -109,7 +104,7 @@ export default function LoginPage() {
           )
         }
       >SETUSER</button>
-      <div style={{color: "white"}}>{user ? user.name : "no user"}</div>
+      <div style={{ color: "white" }}>{user ? user.name : "no user"}</div>
     </div>
   )
 }

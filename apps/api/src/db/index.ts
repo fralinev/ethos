@@ -5,13 +5,9 @@ if (!connectionString) {
   throw new Error("DATABASE_URL is not set");
 }
 
-// Keep pool small for serverless/containers; tweak as needed
 export const db = new Pool({
   connectionString,
-  max: 10,
-  // Neon requires SSL; sslmode=require in the URL is usually enough.
-  // If you ever need it explicitly:
-  // ssl: { rejectUnauthorized: false },
+  max: 10
 });
 
 // Optional: a quick readiness check helper

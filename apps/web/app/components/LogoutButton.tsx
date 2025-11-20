@@ -6,7 +6,7 @@ export default function LogoutButton() {
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login"); // ✔️ works only in client components
+    router.push("/login"); 
   }
 
   return <button style={{cursor: "pointer"}} onClick={handleLogout}>Logout</button>;

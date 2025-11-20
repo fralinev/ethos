@@ -21,7 +21,6 @@ export default function LoginPage() {
   }
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log("logging in...", username)
     const res = await fetch(`${getApiUrl()}/auth/signup`, {
       cache: "no-store",
       method: "POST",
@@ -37,12 +36,7 @@ export default function LoginPage() {
             redirect("/login")
           }
         }
-    console.log("SIGNUP response", res.statusText)
   }
-  // const handleSignup = (e: React.MouseEvent<HTMLButtonElement>) => {
-  //   e.preventDefault()
-  //   console.log("signing up...", username)
-  // }
   return (
     <div className={styles.signup}>
       <main>
@@ -73,7 +67,6 @@ export default function LoginPage() {
             </div>
             <div>
               <button className={styles.signupButton} type="submit">create user</button>
-              {/* <button className={styles.loginButton} type="button" onClick={handleSignup}>signup</button> */}
             </div>
             <div>
               <h4>{statusText}</h4>
