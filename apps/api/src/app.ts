@@ -31,17 +31,31 @@ app.use(helmet());
 app.use(sessionMiddleware);
 app.use(express.json());
 
-app.get('/health', (_req, res) => {
-  res.json({ status: 'ok' });
-});
-app.get('/dbcheck', async (_req, res) => {
+app.get("/health", async (req, res) => {
+  let dbStatus = "ok";
+  let redisStatus = "ok";
+
   try {
-    const { rows } = await db.query("select 1 as ok");
-    res.json({ ok: rows[0].ok === 1 });
+    await db.query("SELECT 1"); // real DB check
   } catch (e) {
-    res.status(500).json({ ok: false, error: (e as Error).message });
+    console.error("DB health error:", e);
+    dbStatus = "error";
   }
-})
+
+  try {
+    await redis.ping();
+  } catch (e) {
+    console.error("Redis health error:", e);
+    redisStatus = "error";
+  }
+
+  res.json({
+    api: "ok",
+    db: dbStatus,
+    redis: redisStatus,
+    ws: "ok",
+  });
+});
 
 app.get('/', (_req, res) => {
   res.send('Ethos API is running');

@@ -76,7 +76,7 @@ class SocketClient {
     return this.ws ? this.ws.readyState : WebSocket.CLOSED;
   }
 
-  onMessage(handler: MessageHandler) {
+  onMessage(handler: MessageHandler): () => void {
     this.messageHandlers.add(handler);
     return () => this.messageHandlers.delete(handler);
   }

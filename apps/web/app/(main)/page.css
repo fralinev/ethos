@@ -1,0 +1,40 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  background: #0b0b0f; /* optional */
+  color: #f5f5f5;      /* optional */
+}
+
+.layout {
+  display: flex;
+  flex: 1;
+  max-width: 1200px;   /* optional center max width */
+  margin: 0 auto;      /* center on the page */
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  border-left: 5px solid yellowgreen;
+  border-right: 5px solid yellowgreen;
+}
+
+/* left + right get fixed-ish widths */
+.sidebar-left {
+  width: 200px;
+  border-left: none;
+}
+
+.sidebar-right {
+  width: 400px;
+  border-right: none;
+}
+
+/* center grows to fill remaining space */
+.main {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}

@@ -47,8 +47,8 @@ export default function WsTestPage() {
   };
 
   return (
-    <div style={{ padding: 16, fontFamily: "system-ui, sans-serif" }}>
-      <h1>WebSocket Test</h1>
+    <div style={{ padding: 16, fontFamily: "system-ui, sans-serif", width: "100%" }}>
+      {/* <h1>WebSocket Test</h1>
       <p>
         Status:{" "}
         <strong>
@@ -61,9 +61,10 @@ export default function WsTestPage() {
         </button>
         <button onClick={disconnect}>Disconnect</button>
         <button onClick={reconnect}>Reconnect</button>
-      </div>
+      </div> */}
       <pre
         style={{
+          width: "100%",  
           border: "1px solid #ccc",
           padding: 8,
           maxHeight: 300,
