@@ -1,7 +1,6 @@
-// apps/web/hooks/useSocket.ts
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type MessageHandler = (data: any) => void;
 type OpenHandler = () => void;
@@ -42,7 +41,7 @@ class SocketClient {
       try {
         data = JSON.parse(event.data);
       } catch {
-        // pass through raw if not JSON
+        // allow non-JSON messages too
       }
       this.messageHandlers.forEach((fn) => fn(data));
     };
@@ -99,9 +98,7 @@ export function useSocket() {
   const clientRef = useRef<SocketClient | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [readyState, setReadyState] = useState<number>(WebSocket.CLOSED);
-  const [pendingAuthReconnect, setPendingAuthReconnect] = useState(false);
 
-  // Create client instance once
   if (!clientRef.current) {
     let url = process.env.NEXT_PUBLIC_WS_URL;
     if (!url) {
@@ -121,8 +118,7 @@ export function useSocket() {
     const offOpen = client.onOpen(() => {
       setIsConnected(true);
       setReadyState(client.readyState);
-
-      // subscribe to telemetry on every (re)connect
+      // subscribe to telemetry for every connection
       client.send({ type: "health:subscribe" });
       client.send({ type: "logs:subscribe" });
     });
@@ -130,12 +126,6 @@ export function useSocket() {
     const offClose = client.onClose(() => {
       setIsConnected(false);
       setReadyState(client.readyState);
-
-      // if we requested an auth-aware reconnect, do it now
-      if (pendingAuthReconnect) {
-        setPendingAuthReconnect(false);
-        client.connect();
-      }
     });
 
     const offMsg = client.onMessage(() => {
@@ -153,20 +143,11 @@ export function useSocket() {
       offErr();
       client.disconnect(1000, "unmount");
     };
-  }, [pendingAuthReconnect]);
-
-  const reconnectAfterAuth = useCallback(() => {
-    const client = clientRef.current;
-    if (!client) return;
-    // mark that after this close we should reconnect
-    setPendingAuthReconnect(true);
-    client.disconnect(1000, "reconnect after auth");
   }, []);
 
   return {
     client: clientRef.current!,
     isConnected,
     readyState,
-    reconnectAfterAuth,
   };
 }

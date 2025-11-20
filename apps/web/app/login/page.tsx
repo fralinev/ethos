@@ -18,7 +18,7 @@ export default function LoginPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const { reconnectAfterAuth } = useSocket();
+  // const { reconnectAfterAuth } = useSocket();
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(e.target.value)
@@ -27,31 +27,42 @@ export default function LoginPage() {
     setPassword(e.target.value)
   }
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setStatusText("");
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-      });
+  e.preventDefault();
+  setStatusText("");
 
-      const data = await res.json().catch(() => null);
+  try {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+      credentials: "include", // optional, but fine to be explicit
+    });
 
-      if (!res.ok || !data?.ok) {
-        setStatusText(data?.message ?? "Login failed");
-        return;
-      }
-      reconnectAfterAuth();
-      setStatusText(data.message ?? "logging in...");
-      router.push("/");
-    } catch (err) {
-      console.error("Login error", err);
-      setStatusText("Something went wrong logging in");
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok || !data?.ok) {
+      setStatusText(data?.message ?? "Login failed");
+      return;
     }
-  };
+
+    setStatusText(data.message ?? "logging in...");
+
+    // 🔑 hard reload so:
+    // 1) cookie is definitely present
+    // 2) layout + useSocket run fresh and connect as authed user
+    if (typeof window !== "undefined") {
+      window.location.href = "/";
+    } else {
+      // fallback for SSR safety
+      router.push("/");
+    }
+  } catch (err) {
+    console.error("Login error", err);
+    setStatusText("Something went wrong logging in");
+  }
+};
   const handleSignup = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     router.push("/signup");
