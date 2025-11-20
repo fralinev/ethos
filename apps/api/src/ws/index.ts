@@ -73,7 +73,7 @@ function startHealthLoopIfNeeded() {
     } catch (err) {
       console.error("[health] periodic health check failed:", err);
     }
-  }, 60_000); // e.g. every 10 seconds
+  }, 20_000); // e.g. every 10 seconds
 }
 
 function stopHealthLoopIfIdle() {

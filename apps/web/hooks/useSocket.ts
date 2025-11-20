@@ -97,33 +97,28 @@ class SocketClient {
   }
 }
 
+let sharedClient: SocketClient | null = null;
+
+function getSocketClient(): SocketClient {
+  if (!sharedClient) {
+    let url = process.env.NEXT_PUBLIC_WS_URL;
+    sharedClient = new SocketClient(url as string);
+    console.log("created shared SocketClient", sharedClient);
+  }
+  return sharedClient;
+}
+
 export function useSocket() {
-  const clientRef = useRef<SocketClient | null>(null);
+  const client = getSocketClient();
   const [isConnected, setIsConnected] = useState(false);
   const [readyState, setReadyState] = useState<number>(WebSocket.CLOSED);
 
-  if (!clientRef.current) {
-    let url = process.env.NEXT_PUBLIC_WS_URL;
-    if (!url) {
-      if (process.env.NODE_ENV === "development") {
-        url = "ws://localhost:4000/ws";
-      } else {
-        throw new Error("NEXT_PUBLIC_WS_URL is not set in production");
-      }
-    }
-    clientRef.current = new SocketClient(url);
-    console.log("checkk clientRef (socket)", clientRef.current)
-
-  }
-
   useEffect(() => {
-    const client = clientRef.current!;
     client.connect();
 
     const offOpen = client.onOpen(() => {
       setIsConnected(true);
       setReadyState(client.readyState);
-      // subscribe to telemetry for every connection
       client.send({ type: "health:subscribe" });
       client.send({ type: "logs:subscribe" });
     });
@@ -146,12 +141,12 @@ export function useSocket() {
       offClose();
       offMsg();
       offErr();
-      client.disconnect(1000, "unmount");
+      // ❌ don't disconnect here, or you'd kill the socket for other components
     };
-  }, []);
+  }, [client]);
 
   return {
-    client: clientRef.current!,
+    client,
     isConnected,
     readyState,
   };
