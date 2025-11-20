@@ -99,10 +99,18 @@ export function useSocket() {
   const clientRef = useRef<SocketClient | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [readyState, setReadyState] = useState<number>(WebSocket.CLOSED);
+  const [pendingAuthReconnect, setPendingAuthReconnect] = useState(false);
 
+  // Create client instance once
   if (!clientRef.current) {
-    const url =
-      process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:4000/ws";
+    let url = process.env.NEXT_PUBLIC_WS_URL;
+    if (!url) {
+      if (process.env.NODE_ENV === "development") {
+        url = "ws://localhost:4000/ws";
+      } else {
+        throw new Error("NEXT_PUBLIC_WS_URL is not set in production");
+      }
+    }
     clientRef.current = new SocketClient(url);
   }
 
@@ -113,7 +121,8 @@ export function useSocket() {
     const offOpen = client.onOpen(() => {
       setIsConnected(true);
       setReadyState(client.readyState);
-      // auto-subscribe telemetry
+
+      // subscribe to telemetry on every (re)connect
       client.send({ type: "health:subscribe" });
       client.send({ type: "logs:subscribe" });
     });
@@ -121,6 +130,12 @@ export function useSocket() {
     const offClose = client.onClose(() => {
       setIsConnected(false);
       setReadyState(client.readyState);
+
+      // if we requested an auth-aware reconnect, do it now
+      if (pendingAuthReconnect) {
+        setPendingAuthReconnect(false);
+        client.connect();
+      }
     });
 
     const offMsg = client.onMessage(() => {
@@ -138,19 +153,20 @@ export function useSocket() {
       offErr();
       client.disconnect(1000, "unmount");
     };
-  }, []);
+  }, [pendingAuthReconnect]);
 
   const reconnectAfterAuth = useCallback(() => {
     const client = clientRef.current;
     if (!client) return;
+    // mark that after this close we should reconnect
+    setPendingAuthReconnect(true);
     client.disconnect(1000, "reconnect after auth");
-    client.connect(); // new handshake with updated cookie
   }, []);
 
   return {
     client: clientRef.current!,
     isConnected,
     readyState,
-    reconnectAfterAuth, // use this in your login handler
+    reconnectAfterAuth,
   };
 }
