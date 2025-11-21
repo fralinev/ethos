@@ -9,7 +9,7 @@ export default function MainLayout({
   return (
     <>
       {/* Anything you want shared across main app pages */}
-      <Header />
+      {/* <Header /> */}
       {children}
     </>
   );

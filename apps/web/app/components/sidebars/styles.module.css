@@ -1,3 +1,29 @@
 .healthCheck{
     height: 20vh;
 }
+
+.leftSidebar{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.badge{
+    display: flex;
+    justify-content: center;
+    background-color: rgb(28, 31, 35);
+    padding: 12px 0
+}
+
+.mainContent{
+    /* height: 100% */
+    flex: 1
+}
+
+.users{
+    height: 50%;
+    border-bottom: 5px solid yellowgreen;
+}
+.chats{
+    height: 50%;
+}

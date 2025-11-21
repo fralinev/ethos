@@ -186,7 +186,7 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
 
       switch (data.type) {
         case "health:subscribe":
-          handleHealthSubscribe(socket);
+          // handleHealthSubscribe(socket);
           break;
         case "logs:subscribe":
           sendInitialLogs(socket);
