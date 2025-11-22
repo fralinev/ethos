@@ -8,6 +8,7 @@ import session from "express-session";
 import { db } from './db';
 import { usersRouter } from "./routes/users";
 import { authRouter } from './routes/auth';
+import { chatsRouter } from './routes/chats';
 import { sessionMiddleware } from './session';
 
 
@@ -63,5 +64,6 @@ app.get('/', (_req, res) => {
 
 app.use("/users", usersRouter);
 app.use("/auth", authRouter)
+app.use("/chats", chatsRouter)
 
 export default app;

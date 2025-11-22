@@ -13,7 +13,7 @@ export const sessionMiddleware = session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    maxAge: 1000 * 60 * 10, // ten minutes
+    maxAge: 1000 * 60 * 60, // ten minutes
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     domain:
