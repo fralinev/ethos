@@ -2,22 +2,51 @@
 
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SessionData } from "@/packages/shared/session";
 import About from "./About";
 import ChatTypingArea from "./ChatTypingArea";
+import { useSocket } from "../../hooks/useSocket";
 
 
 export default function ChatTranscript({
   session,
   selectedChatId,
-  messages,
+  initialMessages,
 }: {
   session?: SessionData;
   selectedChatId?: number;
-  messages: any
+  initialMessages: any
 }) {
-  const [localMessages, setLocalMessages] = useState(messages);
+  const [messages, setMessages] = useState(initialMessages); // won't re-reun just because props change, hence the useEffect below
+
+  const { client } = useSocket();
+
+  console.log("ChatTranscript client instance", client);
+
+  useEffect(() => {
+    setMessages(initialMessages);
+  }, [initialMessages, selectedChatId]);
+
+  useEffect(() => {
+    if (!client) return;
+    const off = client.onMessage((msg) => {
+      if (msg?.type === "message:created") {
+        const newMsg = {
+          ...msg.payload,
+          chatId: Number(msg.payload.chatId)
+        };
+        if (session?.user && newMsg.sender.id === session.user.id) {
+          return;
+        }
+        if (newMsg.chatId === selectedChatId) {
+          setMessages((prev: any) => [...prev, newMsg]);
+        }
+      }
+    });
+    return () => off();
+  }, [client, selectedChatId]);
+
   const onSend = async (text: string) => {
     if (!selectedChatId) return;
 
@@ -38,11 +67,12 @@ export default function ChatTranscript({
 
       // This is the message as returned by Express (with id, sender, timestamp)
       const newMessage: any = await resp.json();
+      setMessages((prev: any) => [...prev, newMessage]);
       console.log("BROWSER new message", newMessage)
 
       // TEMPORARILY append it immediately (optimistic)
       // When you add sockets, you'll replace this with the WS-delivered one.
-      setLocalMessages((prev:any) => [...prev, newMessage]);
+      // setLocalMessages((prev:any) => [...prev, newMessage]);
     } catch (err) {
       console.error("Error sending message:", err);
     }
@@ -55,11 +85,11 @@ export default function ChatTranscript({
     return <About />
   }
 
-  if (messages.length === 0) {
+  if (initialMessages.length === 0) {
     return (
       <div>
         <div>No messages yet in this chat.</div>
-        <ChatTypingArea onSend={onSend}/>
+        <ChatTypingArea onSend={onSend} />
       </div>
     )
   }

@@ -123,7 +123,7 @@ export default async function Home({ searchParams }: HomeProps) {
           <ChatTranscript
             session={session}
             selectedChatId={selectedChatId}
-            messages={messages}
+            initialMessages={messages}
           />
         </main>
 

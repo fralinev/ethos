@@ -3,6 +3,8 @@ import type { WebSocketServer } from "ws";
 import WebSocket from "ws";
 import type { AuthedWebSocket } from ".";
 
+console.log("[wsHub] module loaded", __filename);
+
 let wssGlobal: WebSocketServer | null = null;
 
 // userId -> Set of sockets
@@ -21,7 +23,7 @@ export function registerUserSocket(userId: number, socket: AuthedWebSocket) {
     userSockets.set(userId, set);
   }
   set.add(socket);
-//   console.log("CHECKK HUB", set)
+//   console.log("CHECKK HUB REGISTER", set)
 }
 
 // On socket close
@@ -45,13 +47,18 @@ export function broadcastToUsers(userIds: number[], payload: any) {
   }
 
   const json = JSON.stringify(payload);
+  console.log("broadcast json", json)
 
   for (const userId of userIds) {
     const sockets = userSockets.get(userId);
+        console.log("checkk sockets", sockets === undefined ? undefined : "SocketObject")
+
     if (!sockets) continue;
 
     for (const socket of sockets) {
       if (socket.readyState === WebSocket.OPEN) {
+        console.log("checkk sockets SEND", json)
+
         socket.send(json);
       }
     }

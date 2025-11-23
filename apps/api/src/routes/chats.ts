@@ -492,6 +492,7 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
     const memberIds = membersResult.rows.map((row) => Number(row.user_id));
 
     // Let the hub send to all connected sockets for those users
+    console.log("ABOUT TO BROADCAST")
     broadcastToUsers(memberIds, {
       type: "message:created",
       payload: messageDto,

@@ -164,8 +164,10 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
     console.log("[ws] connection upgrade received", req.url);
 
     const sid = getSessionIdFromCookieHeader(req.headers.cookie);
+    console.log("CHECKK SID", sid)
     if (sid) {
       sessionStore.get(sid, (err, session) => {
+        
         if (!err && session && (session as SessionData).user) {
           socket.user = (session as SessionData).user!;
           console.log("[ws] connected as authed user", socket.user.id);

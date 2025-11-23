@@ -28,13 +28,11 @@ class SocketClient {
     ) {
       return;
     }
-    console.log("useSocket connect")
 
     const ws = new WebSocket(this.url);
     this.ws = ws;
 
     ws.onopen = () => {
-      console.log("useSocket connect open")
       this.openHandlers.forEach((fn) => fn());
     };
 
@@ -78,6 +76,7 @@ class SocketClient {
   }
 
   onMessage(handler: MessageHandler): () => void {
+    console.log("[SocketClient] onMessage registered", handler);
     this.messageHandlers.add(handler);
     return () => this.messageHandlers.delete(handler);
   }
