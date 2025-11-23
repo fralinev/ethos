@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { db } from "../db";
+import { broadcastToUsers } from "../ws/hub";
 
 type NewChat = {
   chatName: string;
@@ -272,9 +273,9 @@ chatsRouter.get("/", async (req, res) => {
         createdAt: chat.created_at,
         createdBy: creator
           ? {
-              id: creator.id,
-              username: creator.username,
-            }
+            id: creator.id,
+            username: creator.username,
+          }
           : null,
         members: members.map((m) => ({
           id: m.id,
@@ -479,17 +480,22 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
       },
     };
 
-    // ─────────────────────────────
-    // 8) (Later) emit over WebSocket here
-    //    e.g. wss.broadcast('message:created', messageDto)
-    // ─────────────────────────────
-    // const wss = req.app.get("wss");
-    // if (wss) {
-    //   wss.broadcastToChat(chatId, {
-    //     type: "message:created",
-    //     payload: messageDto,
-    //   });
-    // }
+    const membersResult = await db.query(
+      `
+      SELECT user_id
+      FROM chat_members
+      WHERE chat_id = $1
+      `,
+      [chatId]
+    );
+
+    const memberIds = membersResult.rows.map((row) => Number(row.user_id));
+
+    // Let the hub send to all connected sockets for those users
+    broadcastToUsers(memberIds, {
+      type: "message:created",
+      payload: messageDto,
+    });
 
     return res.status(201).json(messageDto);
   } catch (err) {

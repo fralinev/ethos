@@ -40,6 +40,7 @@ class SocketClient {
 
     ws.onmessage = (event) => {
       let data: any = event.data;
+      console.log("USE SOCKET INCOMING MESSAGE", data)
       try {
         data = JSON.parse(event.data);
       } catch {

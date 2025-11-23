@@ -1,6 +1,8 @@
 import { WebSocketServer, WebSocket } from "ws";
 import type { Server as HttpServer } from "http";
 import type { Store as SessionStore } from "express-session";
+import { registerWss, registerUserSocket, unregisterSocket } from "./hub";
+
 
 type SessionData = {
   user?: {
@@ -9,7 +11,7 @@ type SessionData = {
   };
 };
 
-interface AuthedWebSocket extends WebSocket {
+export interface AuthedWebSocket extends WebSocket {
   user: SessionData["user"] | null;
 }
 
@@ -153,6 +155,7 @@ function getSessionIdFromCookieHeader(cookieHeader: string | undefined): string 
 export function createWebSocketServer(httpServer: HttpServer, sessionStore: SessionStore) {
 
   const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
+   registerWss(wss);
 
   wss.on("connection", (ws, req) => {
     const socket = ws as AuthedWebSocket;
@@ -166,6 +169,7 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
         if (!err && session && (session as SessionData).user) {
           socket.user = (session as SessionData).user!;
           console.log("[ws] connected as authed user", socket.user.id);
+          registerUserSocket(Number(socket.user.id), socket);
         } else {
           console.log("[ws] connected as guest (session miss)");
         }
@@ -215,6 +219,7 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
         healthSubscribers.delete(socket);
         stopHealthLoopIfIdle();
       }
+      unregisterSocket(socket);
     });
   });
 }
