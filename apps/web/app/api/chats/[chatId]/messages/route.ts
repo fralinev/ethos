@@ -23,7 +23,7 @@ export async function POST(req: NextRequest, context: any) {
 
     const body = await req.json();
 
-    const resp = await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/chats/${chatIdNum}/messages`, {
+    const resp = await fetch(`${process.env.API_BASE_URL}/chats/${chatIdNum}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
