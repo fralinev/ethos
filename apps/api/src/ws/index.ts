@@ -182,8 +182,6 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
         return;
       }
 
-      console.log("Express ws/index", data)
-
       switch (data.type) {
         case "health:subscribe":
           // handleHealthSubscribe(socket);

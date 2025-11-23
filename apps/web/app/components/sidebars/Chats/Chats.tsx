@@ -1,6 +1,7 @@
 "use client"
 import styles from "./styles.module.css"
 import { useState, useEffect, useRef } from "react"
+import ChatList from "./ChatList"
 
 export default function Chats({chats}:{chats: any}) {
   const [isCreatingNewChat, setIsCreatingNewChat] = useState(false)
@@ -74,13 +75,9 @@ export default function Chats({chats}:{chats: any}) {
   return (
     <div className={styles.container}>
       <div>
-        Chats
+        <ChatList chats={chats}/>
       </div>
-      <div>
-        {chats.map((c:any) => {
-          return <div key={c.id}>{c.name}</div>
-        })}
-      </div>
+      
       <div className={styles.createNewChatButton}>
         {!isCreatingNewChat ? <button style={{ cursor: "pointer" }} onClick={handleNewChatClick}>+ new chat</button> : null}
         {isCreatingNewChat

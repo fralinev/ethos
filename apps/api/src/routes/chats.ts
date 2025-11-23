@@ -289,3 +289,211 @@ chatsRouter.get("/", async (req, res) => {
     return res.status(500).json({ message: "unknown" });
   }
 });
+
+chatsRouter.get("/:chatId/messages", async (req, res) => {
+  try {
+    const { headers, params } = req;
+
+    // ─────────────────────────────
+    // 1) Auth: validate requester
+    // ─────────────────────────────
+    const requesterIdRaw = headers?.["x-user-id"];
+    const requesterId = Number(requesterIdRaw);
+
+    if (!requesterIdRaw || Number.isNaN(requesterId)) {
+      return res.status(401).json({ message: "unauthorized" });
+    }
+
+    // ─────────────────────────────
+    // 2) Parse and validate chatId
+    // ─────────────────────────────
+    const chatIdRaw = params.chatId;
+    const chatId = Number(chatIdRaw);
+
+    if (!chatIdRaw || Number.isNaN(chatId)) {
+      return res.status(400).json({ message: "invalid chat id" });
+    }
+
+    // ─────────────────────────────
+    // 3) Ensure requester is a member of this chat
+    // ─────────────────────────────
+    const membership = await db.query(
+      `
+      SELECT 1
+      FROM chat_members
+      WHERE chat_id = $1 AND user_id = $2
+      LIMIT 1
+      `,
+      [chatId, requesterId]
+    );
+
+    if (!membership.rowCount) {
+      // Either chat doesn't exist or user isn't in it
+      return res.status(403).json({ message: "forbidden" });
+    }
+
+    // ─────────────────────────────
+    // 4) Fetch messages for this chat
+    // ─────────────────────────────
+    const messagesResult = await db.query(
+      `
+      SELECT
+        m.id,
+        m.chat_id,
+        m.content,
+        m.created_at,
+        u.id AS sender_id,
+        u.username AS sender_username
+      FROM messages m
+      INNER JOIN users u ON u.id = m.sender_id
+      WHERE m.chat_id = $1
+      ORDER BY m.created_at ASC
+      `,
+      [chatId]
+    );
+
+    const messages = messagesResult.rows.map((row) => ({
+      id: row.id,
+      chatId: row.chat_id,
+      body: row.content,
+      createdAt: row.created_at,
+      sender: {
+        id: row.sender_id,
+        username: row.sender_username,
+      },
+    }));
+
+    return res.status(200).json(messages);
+  } catch (err) {
+    console.error("error fetching chat messages:", err);
+    return res.status(500).json({ message: "unknown" });
+  }
+});
+
+chatsRouter.post("/:chatId/messages", async (req, res) => {
+  try {
+    const { headers, params, body } = req;
+
+    // ─────────────────────────────
+    // 1) Auth: validate requester
+    // ─────────────────────────────
+    const requesterIdRaw = headers?.["x-user-id"];
+    const requesterId = Number(requesterIdRaw);
+
+    if (!requesterIdRaw || Number.isNaN(requesterId)) {
+      return res.status(401).json({ message: "unauthorized" });
+    }
+
+    // ─────────────────────────────
+    // 2) Parse and validate chatId
+    // ─────────────────────────────
+    const chatIdRaw = params.chatId;
+    const chatId = Number(chatIdRaw);
+
+    if (!chatIdRaw || Number.isNaN(chatId)) {
+      return res.status(400).json({ message: "invalid chat id" });
+    }
+
+    // ─────────────────────────────
+    // 3) Validate body: { content: string }
+    // ─────────────────────────────
+    const content = body?.content;
+
+    if (typeof content !== "string") {
+      return res.status(400).json({ message: "invalid payload" });
+    }
+
+    const trimmed = content.trim();
+
+    if (trimmed.length === 0) {
+      return res.status(400).json({ message: "message cannot be empty" });
+    }
+
+    // optional: max length guard
+    if (trimmed.length > 4000) {
+      return res.status(400).json({ message: "message too long" });
+    }
+
+    // ─────────────────────────────
+    // 4) Ensure requester is a member of this chat
+    // ─────────────────────────────
+    const membership = await db.query(
+      `
+      SELECT 1
+      FROM chat_members
+      WHERE chat_id = $1 AND user_id = $2
+      LIMIT 1
+      `,
+      [chatId, requesterId]
+    );
+
+    if (!membership.rowCount) {
+      // Either the chat doesn't exist or user isn't in it
+      return res.status(403).json({ message: "forbidden" });
+    }
+
+    // ─────────────────────────────
+    // 5) Fetch sender info (for DTO)
+    // ─────────────────────────────
+    const senderResult = await db.query(
+      `
+      SELECT id, username
+      FROM users
+      WHERE id = $1
+      `,
+      [requesterId]
+    );
+
+    if (!senderResult.rowCount) {
+      return res.status(401).json({ message: "sender not found" });
+    }
+
+    const senderRow = senderResult.rows[0];
+
+    // ─────────────────────────────
+    // 6) Insert message into DB
+    // ─────────────────────────────
+    const insertResult = await db.query(
+      `
+      INSERT INTO messages (chat_id, sender_id, content)
+      VALUES ($1, $2, $3)
+      RETURNING id, chat_id, sender_id, content, created_at
+      `,
+      [chatId, requesterId, trimmed]
+    );
+
+    const msg = insertResult.rows[0];
+
+    // ─────────────────────────────
+    // 7) Build DTO to return
+    //    (matches your Next.js Message type)
+    // ─────────────────────────────
+    const messageDto = {
+      id: msg.id,
+      chatId: msg.chat_id,
+      body: msg.content,
+      createdAt: msg.created_at,
+      sender: {
+        id: senderRow.id,
+        username: senderRow.username,
+      },
+    };
+
+    // ─────────────────────────────
+    // 8) (Later) emit over WebSocket here
+    //    e.g. wss.broadcast('message:created', messageDto)
+    // ─────────────────────────────
+    // const wss = req.app.get("wss");
+    // if (wss) {
+    //   wss.broadcastToChat(chatId, {
+    //     type: "message:created",
+    //     payload: messageDto,
+    //   });
+    // }
+
+    return res.status(201).json(messageDto);
+  } catch (err) {
+    console.error("error creating message:", err);
+    return res.status(500).json({ message: "unknown" });
+  }
+});

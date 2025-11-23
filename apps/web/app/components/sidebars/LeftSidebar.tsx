@@ -4,8 +4,9 @@ import { SessionData } from "@/packages/shared/session"
 import Users from "./Users"
 import Chats from "./Chats/Chats"
 import styles from "./styles.module.css"
+import type { Chat } from "../../(main)/page"
 
-export default function LeftSidebar({ session, chats }: { session: SessionData | undefined, chats: any }) {
+export default function LeftSidebar({ session, chats }: { session: SessionData | undefined, chats: Chat[] }) {
   console.log("LEFT", chats)
   return (
     <div className={styles.leftSidebar}>
