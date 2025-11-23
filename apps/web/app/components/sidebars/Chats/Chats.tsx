@@ -2,7 +2,7 @@
 import styles from "./styles.module.css"
 import { useState, useEffect, useRef } from "react"
 
-export default function Chats() {
+export default function Chats({chats}:{chats: any}) {
   const [isCreatingNewChat, setIsCreatingNewChat] = useState(false)
   const [chatName, setChatName] = useState("")
   const [participants, setParticipants] = useState("");
@@ -75,6 +75,11 @@ export default function Chats() {
     <div className={styles.container}>
       <div>
         Chats
+      </div>
+      <div>
+        {chats.map((c:any) => {
+          return <div key={c.id}>{c.name}</div>
+        })}
       </div>
       <div className={styles.createNewChatButton}>
         {!isCreatingNewChat ? <button style={{ cursor: "pointer" }} onClick={handleNewChatClick}>+ new chat</button> : null}

@@ -5,7 +5,8 @@ import Users from "./Users"
 import Chats from "./Chats/Chats"
 import styles from "./styles.module.css"
 
-export default function LeftSidebar({ session }: { session: SessionData | undefined }) {
+export default function LeftSidebar({ session, chats }: { session: SessionData | undefined, chats: any }) {
+  console.log("LEFT", chats)
   return (
     <div className={styles.leftSidebar}>
         <div className={styles.badge}>
@@ -17,7 +18,7 @@ export default function LeftSidebar({ session }: { session: SessionData | undefi
           </div>
           <div className={styles.chats}>
 
-            <Chats />
+            <Chats chats={chats}/>
           </div>
         </div>
 
