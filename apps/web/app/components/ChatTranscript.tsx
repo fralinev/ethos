@@ -22,8 +22,6 @@ export default function ChatTranscript({
 
   const { client } = useSocket();
 
-  console.log("ChatTranscript client instance", client);
-
   useEffect(() => {
     setMessages(initialMessages);
   }, [initialMessages, selectedChatId]);
@@ -49,7 +47,6 @@ export default function ChatTranscript({
 
   const onSend = async (text: string) => {
     if (!selectedChatId) return;
-
     try {
       const resp = await fetch(`/api/chats/${selectedChatId}/messages`, {
         method: "POST",
@@ -58,25 +55,18 @@ export default function ChatTranscript({
         },
         body: JSON.stringify({ content: text }),
       });
-
       if (!resp.ok) {
         console.error("Failed to send message", resp.status);
         return;
       }
-
-
-      // This is the message as returned by Express (with id, sender, timestamp)
       const newMessage: any = await resp.json();
+      console.log("checkk new message", newMessage)
       setMessages((prev: any) => [...prev, newMessage]);
-      console.log("BROWSER new message", newMessage)
-
-      // TEMPORARILY append it immediately (optimistic)
-      // When you add sockets, you'll replace this with the WS-delivered one.
-      // setLocalMessages((prev:any) => [...prev, newMessage]);
     } catch (err) {
       console.error("Error sending message:", err);
     }
   };
+
   if (!session?.user) {
     return <About />
   }
@@ -85,18 +75,13 @@ export default function ChatTranscript({
     return <About />
   }
 
-  if (initialMessages.length === 0) {
-    return (
-      <div>
-        <div>No messages yet in this chat.</div>
-        <ChatTypingArea onSend={onSend} />
-      </div>
-    )
-  }
-
   return (
-    <div>
-      <h2>Chat {selectedChatId}</h2>
+  <div>
+    <h2>Chat {selectedChatId}</h2>
+
+    {messages.length === 0 ? (
+      <div>No messages yet in this chat.</div>
+    ) : (
       <ul>
         {messages.map((m: any) => (
           <li key={m.id}>
@@ -105,7 +90,9 @@ export default function ChatTranscript({
           </li>
         ))}
       </ul>
-      <ChatTypingArea onSend={onSend} />
-    </div>
-  );
+    )}
+
+    <ChatTypingArea onSend={onSend} />
+  </div>
+);
 }

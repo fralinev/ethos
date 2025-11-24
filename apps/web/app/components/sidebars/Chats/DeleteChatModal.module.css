@@ -1,0 +1,97 @@
+/* app/components/DeleteChatModal.module.css */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  background: #111827; /* dark gray-ish */
+  color: #f9fafb;
+  border-radius: 12px;
+  padding: 24px 24px 20px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow:
+    0 20px 25px rgba(0, 0, 0, 0.25),
+    0 8px 10px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(249, 250, 251, 0.08);
+}
+
+.title {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.description {
+  margin: 0 0 20px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #e5e7eb;
+}
+
+.chatName {
+  font-weight: 600;
+  color: #f97373; /* soft red */
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.cancelButton,
+.deleteButton {
+  min-width: 100px;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.08s ease,
+    box-shadow 0.15s ease;
+}
+
+.cancelButton {
+  background: #111827;
+  color: #e5e7eb;
+  border: 1px solid #4b5563;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: #1f2937;
+}
+
+.deleteButton {
+  background: #ef4444;
+  color: #f9fafb;
+}
+
+.deleteButton:hover:not(:disabled) {
+  background: #dc2626;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.5);
+}
+
+.cancelButton:disabled,
+.deleteButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+  box-shadow: none;
+  transform: none;
+}
+
+.cancelButton:active:not(:disabled),
+.deleteButton:active:not(:disabled) {
+  transform: translateY(1px);
+}

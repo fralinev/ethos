@@ -2,8 +2,11 @@
 import styles from "./styles.module.css"
 import { useState, useEffect, useRef } from "react"
 import ChatList from "./ChatList"
+import { useSocket } from "@/apps/web/hooks/useSocket"
+import type { Chat } from "../../../(main)/page"
 
-export default function Chats({chats}:{chats: any}) {
+export default function Chats({ initialChats, session }:{initialChats: Chat[], session: any}) {
+  const [chats, setChats] = useState(initialChats || []);
   const [isCreatingNewChat, setIsCreatingNewChat] = useState(false)
   const [chatName, setChatName] = useState("")
   const [participants, setParticipants] = useState("");
@@ -13,6 +16,12 @@ export default function Chats({chats}:{chats: any}) {
 
   const MAX_LENGTH = 15
   const regex = /^[a-z]$/
+
+  const { client } = useSocket();
+
+   useEffect(() => {
+    setChats(initialChats);
+  }, [initialChats]);
 
   useEffect(() => {
     if (isCreatingNewChat && chatNameInputRef.current) {
@@ -32,6 +41,23 @@ export default function Chats({chats}:{chats: any}) {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isCreatingNewChat]);
+
+
+  useEffect(() => {
+    if (!client) return;
+    const off = client.onMessage((msg) => {
+      if (msg?.type === "chat:created") {
+        const newChat = msg.payload
+        setChats((prev:any) => {
+          if (prev.some((c:Chat) => c.id === newChat.id)) return prev;
+          return [...prev, newChat]
+        })
+      }
+    });
+    return () => off();
+  }, [client]);
+
+
 
   const handleNewChatClick = () => {
     setIsCreatingNewChat(true)
@@ -75,9 +101,14 @@ export default function Chats({chats}:{chats: any}) {
   return (
     <div className={styles.container}>
       <div>
-        <ChatList chats={chats}/>
+        <ChatList chats={chats} />
+        {/* {chats.map((c:any) => {
+          return (
+            <div>{c.id}</div>
+          )
+        })} */}
       </div>
-      
+
       <div className={styles.createNewChatButton}>
         {!isCreatingNewChat ? <button style={{ cursor: "pointer" }} onClick={handleNewChatClick}>+ new chat</button> : null}
         {isCreatingNewChat

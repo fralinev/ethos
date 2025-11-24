@@ -109,7 +109,6 @@ chatsRouter.post("/create", async (req, res) => {
       uniqueById.set(u.id, u);
     }
     const finalMembers = Array.from(uniqueById.values());
-    console.log("checkk finalMembers", finalMembers)
 
     // ─────────────────────────────
     // DB TRANSACTION: create chat + members
@@ -146,7 +145,7 @@ chatsRouter.post("/create", async (req, res) => {
       await client.query("COMMIT");
 
       // build chat DTO to return
-      const chatDto = {
+      const chatDTO = {
         id: chat.id,
         name: chat.name,
         createdAt: chat.created_at,
@@ -160,7 +159,15 @@ chatsRouter.post("/create", async (req, res) => {
         })),
       };
 
-      return res.status(201).json(chatDto);
+    console.log("CHECKK API for new chat", finalMembers)
+
+
+      broadcastToUsers(finalMembers.map(u => Number(u.id)), {
+      type: "chat:created",
+      payload: chatDTO,
+    });
+
+      return res.status(201).json(chatDTO);
     } catch (txErr) {
       await client.query("ROLLBACK");
       console.error("chat create transaction error:", txErr);
@@ -492,7 +499,8 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
     const memberIds = membersResult.rows.map((row) => Number(row.user_id));
 
     // Let the hub send to all connected sockets for those users
-    console.log("ABOUT TO BROADCAST")
+
+    console.log("CHECKK API for message", memberIds)
     broadcastToUsers(memberIds, {
       type: "message:created",
       payload: messageDto,
@@ -501,6 +509,64 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
     return res.status(201).json(messageDto);
   } catch (err) {
     console.error("error creating message:", err);
+    return res.status(500).json({ message: "unknown" });
+  }
+});
+
+// chatsRouter.delete("/:chatId", async (req, res) => { ... })
+
+chatsRouter.delete("/:chatId", async (req, res) => {
+  try {
+    // 1) Auth from header (BFF already enforces, but we double-check)
+    const userIdHeader = req.header("x-user-id");
+    const userId = Number(userIdHeader);
+
+    if (!userIdHeader || Number.isNaN(userId)) {
+      return res.status(401).json({ message: "unauthorized" });
+    }
+
+    // 2) Validate chatId
+    const { chatId: chatIdParam } = req.params;
+    const chatId = Number(chatIdParam);
+
+    if (!chatIdParam || Number.isNaN(chatId)) {
+      return res.status(400).json({ message: "invalid chat id" });
+    }
+
+    // 3) Ensure the user is a member of this chat (or you can enforce "owner" later)
+    const membershipResult = await db.query(
+      `
+      SELECT 1
+      FROM chat_members
+      WHERE chat_id = $1 AND user_id = $2
+      LIMIT 1
+      `,
+      [chatId, userId]
+    );
+
+    if (membershipResult.rowCount === 0) {
+      return res.status(403).json({ message: "forbidden" });
+    }
+
+    // 4) Delete the chat.
+    // If you have FKs with ON DELETE CASCADE on messages/chat_members,
+    // this one delete will clean up everything.
+    const deleteResult = await db.query(
+      `
+      DELETE FROM chats
+      WHERE id = $1
+      RETURNING id
+      `,
+      [chatId]
+    );
+
+    if (deleteResult.rowCount === 0) {
+      return res.status(404).json({ message: "chat not found" });
+    }
+
+    return res.status(200).json({ message: "chat deleted" });
+  } catch (err) {
+    console.error("DELETE /chats/:chatId error:", err);
     return res.status(500).json({ message: "unknown" });
   }
 });

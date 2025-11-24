@@ -41,19 +41,11 @@ type HomeProps = {
 export default async function Home({ searchParams }: HomeProps) {
   const session: SessionData | undefined = await getSessionFromNextRequest();
 
-  // ─────────────────────────────
-  // 1) Read selected chat from URL
-  //    e.g. /?chatId=123
-  // ─────────────────────────────
-
   const { chatId } = await searchParams;
  const selectedChatId =
     chatId && !Number.isNaN(Number(chatId)) ? Number(chatId) : undefined;
 
-  // ─────────────────────────────
-  // 2) Fetch chats for this user
-  // ─────────────────────────────
-  let chats: Chat[] = [];
+  let initialChats: Chat[] = [];
 
   if (session?.user) {
     try {
@@ -71,21 +63,16 @@ export default async function Home({ searchParams }: HomeProps) {
           response.statusText
         );
       } else {
-        chats = await response.json();
+        initialChats = await response.json();
       }
     } catch (err) {
       console.error("Error fetching chats:", err);
     }
   }
-
-  // ─────────────────────────────
-  // 3) Fetch messages for selected chat (if any)
-  // ─────────────────────────────
   let messages: Message[] = [];
 
   if (session?.user && selectedChatId) {
     try {
-      console.log("fetch messages for chat", selectedChatId)
       const resp = await fetch(
         `${process.env.API_BASE_URL}/chats/${selectedChatId}/messages`,
         {
@@ -116,7 +103,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
       <div className={styles.layout}>
         <aside className={clsx(styles.sidebar, styles.sidebarLeft)}>
-          <LeftSidebar session={session} chats={chats} />
+          <LeftSidebar session={session} initialChats={initialChats} />
         </aside>
 
         <main className={styles.main}>

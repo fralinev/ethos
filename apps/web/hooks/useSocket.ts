@@ -7,6 +7,12 @@ type OpenHandler = () => void;
 type CloseHandler = (ev: CloseEvent) => void;
 type ErrorHandler = (ev: Event) => void;
 
+type SocketMessageToUI = {
+  type: string;
+  payload?: object;
+  events?: [];
+}
+
 class SocketClient {
   private url: string;
   private ws: WebSocket | null = null;
@@ -37,8 +43,8 @@ class SocketClient {
     };
 
     ws.onmessage = (event) => {
-      let data: any = event.data;
-      console.log("USE SOCKET INCOMING MESSAGE", data)
+      console.log("checkk event", event.data)
+      let data: SocketMessageToUI = event.data;
       try {
         data = JSON.parse(event.data);
       } catch {
@@ -64,7 +70,6 @@ class SocketClient {
   }
 
   send(payload: any) {
-    console.log("useSocket send", payload)
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
     const data =
       typeof payload === "string" ? payload : JSON.stringify(payload);
@@ -76,7 +81,6 @@ class SocketClient {
   }
 
   onMessage(handler: MessageHandler): () => void {
-    console.log("[SocketClient] onMessage registered", handler);
     this.messageHandlers.add(handler);
     return () => this.messageHandlers.delete(handler);
   }
@@ -103,7 +107,6 @@ function getSocketClient(): SocketClient {
   if (!sharedClient) {
     let url = process.env.NEXT_PUBLIC_WS_URL;
     sharedClient = new SocketClient(url as string);
-    console.log("created shared SocketClient", sharedClient);
   }
   return sharedClient;
 }

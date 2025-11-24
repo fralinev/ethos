@@ -55,8 +55,6 @@ function startHealthLoopIfNeeded() {
     try {
       const health = await fetchHealthFromApi();
       lastHealth = health;
-    console.log("HEALTH INTERVAL", new Date(), health)
-
 
       // broadcast to all current subscribers
       for (const socket of healthSubscribers) {
@@ -161,10 +159,7 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
     const socket = ws as AuthedWebSocket;
     socket.user = null;
 
-    console.log("[ws] connection upgrade received", req.url);
-
     const sid = getSessionIdFromCookieHeader(req.headers.cookie);
-    console.log("CHECKK SID", sid)
     if (sid) {
       sessionStore.get(sid, (err, session) => {
         

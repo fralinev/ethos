@@ -6,8 +6,7 @@ import Chats from "./Chats/Chats"
 import styles from "./styles.module.css"
 import type { Chat } from "../../(main)/page"
 
-export default function LeftSidebar({ session, chats }: { session: SessionData | undefined, chats: Chat[] }) {
-  console.log("LEFT", chats)
+export default function LeftSidebar({ session, initialChats }: { session: SessionData | undefined, initialChats: Chat[] }) {
   return (
     <div className={styles.leftSidebar}>
         <div className={styles.badge}>
@@ -19,7 +18,7 @@ export default function LeftSidebar({ session, chats }: { session: SessionData |
           </div>
           <div className={styles.chats}>
 
-            <Chats chats={chats}/>
+            <Chats initialChats={initialChats} session={session}/>
           </div>
         </div>
 
