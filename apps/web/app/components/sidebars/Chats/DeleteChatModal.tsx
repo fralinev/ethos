@@ -44,7 +44,7 @@ export default function DeleteChatModal({
         </h2>
         <p id="delete-chat-description" className={styles.description}>
           Are you sure you want to permanently delete{" "}
-          <span className={styles.chatName}>&quot;{chat}&quot;</span>?
+          <span className={styles.chatName}>&quot;{chat.name}&quot;</span>?
           <br />
           This will remove all messages in this chat for all participants.
         </p>

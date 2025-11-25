@@ -1,0 +1,21 @@
+  .chatRow{
+    display: flex;
+    justify-content: space-between;
+    /* position: relative; */
+    height: 35px;
+    padding: 0 10 0 20
+}
+.chatRow:hover{
+    /* background-color: yellowgreen; */
+}
+.chatRowName{
+    cursor: pointer;
+    padding: 8px 12p;
+    margin-bottom: 4;
+    flex: 1
+}
+.chatRowName:hover{
+    background-color: yellowgreen;
+    color: black;
+    font-weight: 600;
+}
