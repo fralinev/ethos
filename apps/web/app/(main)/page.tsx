@@ -42,7 +42,7 @@ export default async function Home({ searchParams }: HomeProps) {
   const session: SessionData | undefined = await getSessionFromNextRequest();
 
   const { chatId } = await searchParams;
- const selectedChatId =
+  const selectedChatId =
     chatId && !Number.isNaN(Number(chatId)) ? Number(chatId) : undefined;
 
   let initialChats: Chat[] = [];

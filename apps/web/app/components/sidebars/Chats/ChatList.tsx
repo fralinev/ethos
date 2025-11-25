@@ -4,6 +4,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import DeleteChatModal from "./DeleteChatModal";
 import { useState } from "react";
 import type { Chat } from "../../../(main)/page";
+import SectionHeader from "../../SectionHeader";
+import styles from "./ChatList.module.css"
+import { FaEllipsisH } from "react-icons/fa";
+import ChatRowOptions from "./ChatRowOptions";
 
 export default function ChatList({ chats }: {chats: Chat[]}) {
   const [chatPendingDelete, setChatPendingDelete] = useState(null);
@@ -23,7 +27,6 @@ export default function ChatList({ chats }: {chats: Chat[]}) {
     const response = await fetch(`/api/chats/${chat}`, {
       method: "DELETE"
     })
-    console.log("check chat", chat)
     if (!response.ok) {
       console.error("Failed to delete chat:", await response.text());
       return; // optionally show toast, etc.
@@ -37,8 +40,8 @@ export default function ChatList({ chats }: {chats: Chat[]}) {
   }
 
   return (
-    <div>
-      <div>CHATLIST</div>
+    <div id="chat-list-container" className={styles.chatListContainer}>
+      <SectionHeader text="chats"/>
       <div>
         {chatPendingDelete && (
           <DeleteChatModal
@@ -49,25 +52,20 @@ export default function ChatList({ chats }: {chats: Chat[]}) {
         )}
       </div>
 
-      <div>
-        {chats.length > 0 && chats.map((c:any) => {
-          const isSelected = currentChatId === c.id.toString();
+      <div id="chat-list">
+        {chats.length > 0 && chats.map((chat:Chat) => {
+          const isSelected = currentChatId === chat.id.toString();
 
           return (
-            <div key={c.id} style={{ display: "flex", justifyContent: "space-between" }}>
+            <div key={chat.id} className={styles.chatRow}>
               <div
-                onClick={() => handleChatClick(c.id)}
-                style={{
-                  cursor: "pointer",
-                  padding: "8px 12px",
-                  background: isSelected ? "#e0e0e0" : "transparent",
-                  borderRadius: 6,
-                  marginBottom: 4,
-                }}
+                onClick={() => handleChatClick(chat.id)}
+                className={styles.chatRowName}
               >
-                {c.name}
+                {chat.name}
               </div>
-              <button key={`delete-button-${c.id}`} onClick={() => handleDeleteChatClick(c)}>delete</button>
+              <button key={`delete-button-${chat.id}`} className={styles.optionsButton} onClick={() => handleDeleteChatClick(chat)}><FaEllipsisH /></button>
+              {/* <ChatRowOptions/> */}
             </div>
           );
         })}

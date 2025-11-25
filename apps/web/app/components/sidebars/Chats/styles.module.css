@@ -12,22 +12,3 @@
     padding: 12px 0
 }
 
-.newChatContainer{
-    display:flex;
-    flex-direction: column;
-}
-
-
-.chatName{
-    border: 2px solid white;
-    margin: 10px 10px
-}
-.newChatFields{
-    display: flex;
-    flex-direction: column;
-}
-.newChatButtons{
-    display:flex;
-    /* justify-content: space-between; */
-    gap:20px;
-}

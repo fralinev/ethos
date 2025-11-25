@@ -44,17 +44,15 @@ export function broadcastToUsers(userIds: number[], payload: any) {
   }
 
   const json = JSON.stringify(payload);
-  console.log("CHECKK BROADCASTER", json, userIds)
 
   for (const userId of userIds) {
     const sockets = userSockets.get(userId);
-    console.log("checkk SOCKETS", sockets === undefined ? undefined : "SocketObject")
+    // console.log("checkk SOCKETS", sockets === undefined ? undefined : "SocketObject")
 
     if (!sockets) continue;
 
     for (const socket of sockets) {
       if (socket.readyState === WebSocket.OPEN) {
-        console.log("SENDING")
         socket.send(json);
       }
     }

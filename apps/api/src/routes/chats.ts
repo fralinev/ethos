@@ -533,6 +533,15 @@ chatsRouter.delete("/:chatId", async (req, res) => {
       return res.status(400).json({ message: "invalid chat id" });
     }
 
+    const chatMembers = await db.query(
+      `
+      SELECT user_id
+      FROM chat_members
+      WHERE chat_id = $1
+      `,
+      [chatId]
+    );
+
     // 3) Ensure the user is a member of this chat (or you can enforce "owner" later)
     const membershipResult = await db.query(
       `
@@ -559,6 +568,15 @@ chatsRouter.delete("/:chatId", async (req, res) => {
       `,
       [chatId]
     );
+
+    
+
+    const memberIds = chatMembers.rows.map((row) => Number(row.user_id));
+    console.log("CHECKK API for message", memberIds)
+    broadcastToUsers(memberIds, {
+      type: "chat:deleted",
+      payload: {chatId},
+    });
 
     if (deleteResult.rowCount === 0) {
       return res.status(404).json({ message: "chat not found" });
