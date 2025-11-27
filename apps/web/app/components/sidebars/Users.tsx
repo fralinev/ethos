@@ -12,22 +12,22 @@ export default function Users() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const getUsers = async () => {
-      try {
-        const res = await fetch("/api/users");
-        if (!res.ok) throw new Error("Failed to fetch users");
-        const data: User[] = await res.json();
-        setUsers(data);
-      } catch (err) {
-        setError("Could not load users");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    getUsers();
-  }, [])
+  // useEffect(() => {
+  //   const getUsers = async () => {
+  //     try {
+  //       const res = await fetch("/api/users");
+  //       if (!res.ok) throw new Error("Failed to fetch users");
+  //       const data: User[] = await res.json();
+  //       setUsers(data);
+  //     } catch (err) {
+  //       setError("Could not load users");
+  //       console.error(err);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   getUsers();
+  // }, [])
 
   if (loading) return <div>Loading users…</div>;
   if (error) return <div>{error}</div>;

@@ -1,4 +1,3 @@
-// app/components/ChatTranscript.tsx (server component, no "use client")
 
 "use client"
 
@@ -7,18 +6,23 @@ import { SessionData } from "@/packages/shared/session";
 import About from "./About";
 import ChatTypingArea from "./ChatTypingArea";
 import { useSocket } from "../../hooks/useSocket";
+import type { Message } from "../page";
+import styles from "./ChatTranscript.module.css"
+import SectionHeader from "./SectionHeader";
 
 
 export default function ChatTranscript({
   session,
   selectedChatId,
   initialMessages,
+  chatName
 }: {
-  session?: SessionData;
-  selectedChatId?: number;
-  initialMessages: any
+  session?: SessionData,
+  selectedChatId?: number,
+  initialMessages: Message[],
+  chatName: string | undefined,
 }) {
-  const [messages, setMessages] = useState(initialMessages); // won't re-reun just because props change, hence the useEffect below
+  const [messages, setMessages] = useState(initialMessages);
 
   const { client } = useSocket();
 
@@ -76,23 +80,26 @@ export default function ChatTranscript({
   }
 
   return (
-  <div>
-    <h2>Chat {selectedChatId}</h2>
-
-    {messages.length === 0 ? (
-      <div>No messages yet in this chat.</div>
-    ) : (
-      <ul>
-        {messages.map((m: any) => (
-          <li key={m.id}>
-            <strong>{m.sender.username}</strong>: {m.body}{" "}
-            <small>{m.createdAt}</small>
-          </li>
-        ))}
-      </ul>
-    )}
-
-    <ChatTypingArea onSend={onSend} />
-  </div>
-);
+    <div id="transcript-container" className={styles.transcriptContainer}>
+      {/* <h2>Chat {chatName}</h2> */}
+      <SectionHeader text={chatName} closable={true}/>
+      <div>
+        <div className={styles.messagesArea}>
+          {messages.length === 0 ? (
+            <div>No messages yet in this chat.</div>
+          ) : (
+            <ul>
+              {messages.map((m: any) => (
+                <li key={m.id}>
+                  <strong>{m.sender.username}</strong>: {m.body}{" "}
+                  <small>{m.createdAt}</small>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <ChatTypingArea onSend={onSend} />
+      </div>
+    </div>
+  );
 }

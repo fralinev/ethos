@@ -1,10 +1,10 @@
-import { getSessionFromNextRequest } from "../../lib/session";
+import { getSessionFromNextRequest } from "../lib/session";
 import { SessionData } from "@/packages/shared/session";
-import RightSidebar from "../components/sidebars/RightSidebar";
-import LeftSidebar from "../components/sidebars/LeftSidebar";
-import ChatTranscript from "../components/ChatTranscript";
+import RightSidebar from "./components/sidebars/RightSidebar";
+import LeftSidebar from "./components/sidebars/LeftSidebar";
+import ChatTranscript from "./components/ChatTranscript";
 import styles from "./page.module.css";
-import Header from "../components/Header";
+import Header from "./components/Header";
 import clsx from "clsx";
 
 export type Chat = {
@@ -19,6 +19,7 @@ export type Chat = {
     id: number;
     username: string;
   }[];
+  newName?: string
 };
 
 export type Message = {
@@ -35,13 +36,14 @@ export type Message = {
 type HomeProps = {
   searchParams: Promise<{
     chatId?: string;
+    chatName?: string | undefined
   }>;
 };
 
 export default async function Home({ searchParams }: HomeProps) {
   const session: SessionData | undefined = await getSessionFromNextRequest();
 
-  const { chatId } = await searchParams;
+  const { chatId, chatName } = await searchParams;
   const selectedChatId =
     chatId && !Number.isNaN(Number(chatId)) ? Number(chatId) : undefined;
 
@@ -110,6 +112,7 @@ export default async function Home({ searchParams }: HomeProps) {
           <ChatTranscript
             session={session}
             selectedChatId={selectedChatId}
+            chatName={chatName}
             initialMessages={messages}
           />
         </main>

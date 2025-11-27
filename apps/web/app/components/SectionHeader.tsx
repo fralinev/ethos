@@ -1,12 +1,35 @@
-export default function SectionHeader({text}: {text:string}) {
-    return (
-        <div style={{
-            display: "flex",
-            justifyContent: "center",
-            backgroundColor:"rgb(28, 31, 35)",
-            padding: "12px 0"
-            }}>
-            {text}
-        </div>
-    )
+"use client"
+
+import { GrFormClose } from "react-icons/gr";
+import { useRouter,  } from "next/navigation";
+
+export default function SectionHeader({ text, closable }: { text: string | undefined, closable?: boolean }) {
+  const router = useRouter();
+
+  const exitChat = () => {
+    router.push("/");
+  }
+
+  return (
+    <div>
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        backgroundColor: "rgb(28, 31, 35)",
+        padding: "12px 20px"
+      }}>
+        <div>{text}</div>
+        {closable &&
+          <div
+            onClick={exitChat}
+            style={{ display: "flex", alignItems: "center" }}
+          >
+            <GrFormClose />
+          </div>}
+
+
+      </div>
+
+    </div>
+  )
 }

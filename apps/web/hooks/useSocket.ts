@@ -43,7 +43,6 @@ class SocketClient {
     };
 
     ws.onmessage = (event) => {
-      console.log("checkk event", event.data)
       let data: SocketMessageToUI = event.data;
       try {
         data = JSON.parse(event.data);
@@ -70,6 +69,7 @@ class SocketClient {
   }
 
   send(payload: any) {
+    console.log("SEND PAYLOAD", payload)
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
     const data =
       typeof payload === "string" ? payload : JSON.stringify(payload);
@@ -102,6 +102,7 @@ class SocketClient {
 }
 
 let sharedClient: SocketClient | null = null;
+let isConnected = false
 
 function getSocketClient(): SocketClient {
   if (!sharedClient) {
@@ -122,8 +123,8 @@ export function useSocket() {
     const offOpen = client.onOpen(() => {
       setIsConnected(true);
       setReadyState(client.readyState);
-      client.send({ type: "health:subscribe" });
-      client.send({ type: "logs:subscribe" });
+      // client.send({ type: "health:subscribe" });
+      // client.send({ type: "logs:subscribe" });
     });
 
     const offClose = client.onClose(() => {
@@ -144,7 +145,6 @@ export function useSocket() {
       offClose();
       offMsg();
       offErr();
-      // ❌ don't disconnect here, or you'd kill the socket for other components
     };
   }, [client]);
 

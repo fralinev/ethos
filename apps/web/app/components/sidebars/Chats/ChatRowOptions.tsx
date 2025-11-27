@@ -1,6 +1,6 @@
 "use client"
 
-export default function ChatRowOptions({chat, onDelete}:any) {
+export default function ChatRowOptions({chat, onDelete, onRename}:any) {
   return (
     <div
     // style={{position: "relative"}}
@@ -8,7 +8,7 @@ export default function ChatRowOptions({chat, onDelete}:any) {
       <div
         style={{ position: "absolute", background: "black", padding: "20px" }}
       >
-        <div>Rename</div>
+        <div style={{cursor: "pointer"}} onClick={() => onRename(chat)}>Rename</div>
         <div style={{cursor: "pointer"}} onClick={() => onDelete(chat)}>Delete</div>
       </div>
     </div>

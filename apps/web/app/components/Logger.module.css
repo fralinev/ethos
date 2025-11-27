@@ -1,0 +1,12 @@
+.loggerComponentWrapper{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.outputContainer{
+  display: flex;
+  flex-direction: column-reverse;
+  flex: 1;
+  padding: 12px;
+  font-size: small;
+}

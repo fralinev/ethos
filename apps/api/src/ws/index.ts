@@ -22,21 +22,16 @@ type HealthPayload = {
   ws: string;
 };
 
-// All sockets that care about health updates
 const healthSubscribers = new Set<AuthedWebSocket>();
 
-// Last known health snapshot (so new subscribers get something immediately)
 let lastHealth: HealthPayload | null = null;
 
-// One interval timer shared by all subscribers
 let healthInterval: NodeJS.Timeout | null = null;
 
-// Helper to call the Express /health endpoint
 async function fetchHealthFromApi(): Promise<HealthPayload> {
   const res = await fetch(`${process.env.API_BASE_URL}/health`, {
     method: "GET",
-    // node-fetch / undici don't really use this, but harmless:
-    cache: "no-store" as any,
+    cache: "no-store",
   });
 
   const data = await res.json();
@@ -44,19 +39,13 @@ async function fetchHealthFromApi(): Promise<HealthPayload> {
 }
 
 function startHealthLoopIfNeeded() {
-  // if we're already polling, or nobody cares, do nothing
   if (healthInterval || healthSubscribers.size === 0) return;
-
-  console.log("[health] starting health loop");
-
-  
 
   healthInterval = setInterval(async () => {
     try {
       const health = await fetchHealthFromApi();
       lastHealth = health;
 
-      // broadcast to all current subscribers
       for (const socket of healthSubscribers) {
         if (socket.readyState === WebSocket.OPEN) {
           socket.send(
@@ -73,7 +62,7 @@ function startHealthLoopIfNeeded() {
     } catch (err) {
       console.error("[health] periodic health check failed:", err);
     }
-  }, 20_000); // e.g. every 10 seconds
+  }, 15_000); // e.g. every 10 seconds
 }
 
 function stopHealthLoopIfIdle() {
@@ -86,13 +75,8 @@ function stopHealthLoopIfIdle() {
 }
 
 async function handleHealthSubscribe(socket: AuthedWebSocket) {
-  // track this socket as someone who cares about health
   healthSubscribers.add(socket);
-
-  // kick off the periodic loop if this is the first subscriber
   startHealthLoopIfNeeded();
-
-  // if we already have a cached value, send it immediately
   if (lastHealth) {
     socket.send(
       JSON.stringify({
@@ -102,8 +86,6 @@ async function handleHealthSubscribe(socket: AuthedWebSocket) {
     );
     return;
   }
-
-  // otherwise, do a one-off fetch so the user doesn't wait for the first interval tick
   try {
     const health = await fetchHealthFromApi();
     lastHealth = health;
@@ -153,7 +135,7 @@ function getSessionIdFromCookieHeader(cookieHeader: string | undefined): string 
 export function createWebSocketServer(httpServer: HttpServer, sessionStore: SessionStore) {
 
   const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
-   registerWss(wss);
+  registerWss(wss);
 
   wss.on("connection", (ws, req) => {
     const socket = ws as AuthedWebSocket;
@@ -162,7 +144,7 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
     const sid = getSessionIdFromCookieHeader(req.headers.cookie);
     if (sid) {
       sessionStore.get(sid, (err, session) => {
-        
+
         if (!err && session && (session as SessionData).user) {
           socket.user = (session as SessionData).user!;
           console.log("[ws] connected as authed user", socket.user.id);
@@ -173,9 +155,13 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
       });
     } else {
       console.log("[ws] connected as guest (no cookie)");
+      
     }
 
     socket.on("message", (raw) => {
+      const test = JSON.parse(raw.toString());
+      console.log("WS ON MESSAGE", test)
+
       let data: any;
       try {
         data = JSON.parse(raw.toString());
@@ -185,7 +171,7 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
 
       switch (data.type) {
         case "health:subscribe":
-          // handleHealthSubscribe(socket);
+          handleHealthSubscribe(socket);
           break;
         case "logs:subscribe":
           sendInitialLogs(socket);
@@ -195,14 +181,12 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
             socket.send(JSON.stringify({ type: "error", error: "unauthorized" }));
             return;
           }
-          // handleChatJoin(socket, data.roomId);
           break;
         case "chat:send":
           if (!socket.user) {
             socket.send(JSON.stringify({ type: "error", error: "unauthorized" }));
             return;
           }
-          // handleChatSend(socket, data.roomId, data.message);
           break;
         case "ping":
           socket.send(JSON.stringify({ type: "pong", payload: "hello from server" }))
@@ -211,7 +195,6 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
       }
     });
     socket.on("close", () => {
-      // remove from health subscribers (guest or authed, doesn’t matter)
       if (healthSubscribers.has(socket)) {
         healthSubscribers.delete(socket);
         stopHealthLoopIfIdle();
@@ -221,56 +204,12 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
   });
 }
 
-async function sendInitialHealth(socket: AuthedWebSocket) {
-  try {
-    const res = await fetch(`${process.env.API_BASE_URL}/health`, {
-      method: "GET",
-      // no-store so you don't get a cached response in Render
-      cache: "no-store" as any
-    });
-
-    const data = await res.json();
-
-    socket.send(JSON.stringify({
-      type: "health:update",
-      payload: data, // <-- the real health object from Express
-    }));
-  } catch (err) {
-    console.error("[ws] API health check failed:", err);
-
-    socket.send(JSON.stringify({
-      type: "health:update",
-      payload: {
-        api: "error",
-        db: "unknown",
-        redis: "unknown",
-        ws: "ok",
-      },
-    }));
-  }
-}
-
-// function sendInitialHealth(socket: AuthedWebSocket) {
-//   socket.send(
-//     JSON.stringify({
-//       type: "health:update",
-//       payload: {
-//         api: "ok",
-//         db: "ok",
-//         redis: "ok",
-//         ws: "ok",
-//       },
-//     })
-//   );
-// }
-
 function sendInitialLogs(socket: AuthedWebSocket) {
   socket.send(
     JSON.stringify({
       type: "logs:init",
       events: [
-        { level: "info", message: "Welcome to Ethos" },
-        { level: "info", message: "Connected to live telemetry" },
+        { level: "info", message: "Welcome to Ethos! Connected to live telemetry" },
       ],
     })
   );

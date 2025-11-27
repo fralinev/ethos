@@ -110,15 +110,11 @@ chatsRouter.post("/create", async (req, res) => {
     }
     const finalMembers = Array.from(uniqueById.values());
 
-    // ─────────────────────────────
-    // DB TRANSACTION: create chat + members
-    // ─────────────────────────────
     const client = await db.connect();
 
     try {
       await client.query("BEGIN");
 
-      // insert chat
       const chatInsert = await client.query(
         `
         INSERT INTO chats (name, created_by)
@@ -130,7 +126,6 @@ chatsRouter.post("/create", async (req, res) => {
 
       const chat = chatInsert.rows[0];
 
-      // insert members
       for (const member of finalMembers) {
         await client.query(
           `
@@ -144,7 +139,6 @@ chatsRouter.post("/create", async (req, res) => {
 
       await client.query("COMMIT");
 
-      // build chat DTO to return
       const chatDTO = {
         id: chat.id,
         name: chat.name,
@@ -159,13 +153,10 @@ chatsRouter.post("/create", async (req, res) => {
         })),
       };
 
-    console.log("CHECKK API for new chat", finalMembers)
-
-
       broadcastToUsers(finalMembers.map(u => Number(u.id)), {
-      type: "chat:created",
-      payload: chatDTO,
-    });
+        type: "chat:created",
+        payload: chatDTO,
+      });
 
       return res.status(201).json(chatDTO);
     } catch (txErr) {
@@ -382,9 +373,6 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
   try {
     const { headers, params, body } = req;
 
-    // ─────────────────────────────
-    // 1) Auth: validate requester
-    // ─────────────────────────────
     const requesterIdRaw = headers?.["x-user-id"];
     const requesterId = Number(requesterIdRaw);
 
@@ -392,9 +380,7 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
       return res.status(401).json({ message: "unauthorized" });
     }
 
-    // ─────────────────────────────
-    // 2) Parse and validate chatId
-    // ─────────────────────────────
+
     const chatIdRaw = params.chatId;
     const chatId = Number(chatIdRaw);
 
@@ -402,9 +388,6 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
       return res.status(400).json({ message: "invalid chat id" });
     }
 
-    // ─────────────────────────────
-    // 3) Validate body: { content: string }
-    // ─────────────────────────────
     const content = body?.content;
 
     if (typeof content !== "string") {
@@ -417,14 +400,10 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
       return res.status(400).json({ message: "message cannot be empty" });
     }
 
-    // optional: max length guard
     if (trimmed.length > 4000) {
       return res.status(400).json({ message: "message too long" });
     }
 
-    // ─────────────────────────────
-    // 4) Ensure requester is a member of this chat
-    // ─────────────────────────────
     const membership = await db.query(
       `
       SELECT 1
@@ -436,13 +415,9 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
     );
 
     if (!membership.rowCount) {
-      // Either the chat doesn't exist or user isn't in it
       return res.status(403).json({ message: "forbidden" });
     }
 
-    // ─────────────────────────────
-    // 5) Fetch sender info (for DTO)
-    // ─────────────────────────────
     const senderResult = await db.query(
       `
       SELECT id, username
@@ -458,9 +433,6 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
 
     const senderRow = senderResult.rows[0];
 
-    // ─────────────────────────────
-    // 6) Insert message into DB
-    // ─────────────────────────────
     const insertResult = await db.query(
       `
       INSERT INTO messages (chat_id, sender_id, content)
@@ -472,10 +444,6 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
 
     const msg = insertResult.rows[0];
 
-    // ─────────────────────────────
-    // 7) Build DTO to return
-    //    (matches your Next.js Message type)
-    // ─────────────────────────────
     const messageDto = {
       id: msg.id,
       chatId: msg.chat_id,
@@ -498,7 +466,6 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
 
     const memberIds = membersResult.rows.map((row) => Number(row.user_id));
 
-    // Let the hub send to all connected sockets for those users
 
     console.log("CHECKK API for message", memberIds)
     broadcastToUsers(memberIds, {
@@ -513,11 +480,9 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
   }
 });
 
-// chatsRouter.delete("/:chatId", async (req, res) => { ... })
 
 chatsRouter.delete("/:chatId", async (req, res) => {
   try {
-    // 1) Auth from header (BFF already enforces, but we double-check)
     const userIdHeader = req.header("x-user-id");
     const userId = Number(userIdHeader);
 
@@ -525,7 +490,6 @@ chatsRouter.delete("/:chatId", async (req, res) => {
       return res.status(401).json({ message: "unauthorized" });
     }
 
-    // 2) Validate chatId
     const { chatId: chatIdParam } = req.params;
     const chatId = Number(chatIdParam);
 
@@ -542,12 +506,12 @@ chatsRouter.delete("/:chatId", async (req, res) => {
       [chatId]
     );
 
-    // 3) Ensure the user is a member of this chat (or you can enforce "owner" later)
     const membershipResult = await db.query(
       `
-      SELECT 1
-      FROM chat_members
-      WHERE chat_id = $1 AND user_id = $2
+      SELECT u.id, u.username
+      FROM chat_members cm
+      JOIN users u ON u.id = cm.user_id
+      WHERE cm.chat_id = $1 AND cm.user_id = $2
       LIMIT 1
       `,
       [chatId, userId]
@@ -557,25 +521,25 @@ chatsRouter.delete("/:chatId", async (req, res) => {
       return res.status(403).json({ message: "forbidden" });
     }
 
-    // 4) Delete the chat.
-    // If you have FKs with ON DELETE CASCADE on messages/chat_members,
-    // this one delete will clean up everything.
+
     const deleteResult = await db.query(
       `
       DELETE FROM chats
       WHERE id = $1
-      RETURNING id
+      RETURNING id, name
       `,
       [chatId]
     );
 
-    
+    const { name } = deleteResult.rows[0]
+    const deletedBy = membershipResult.rows[0].username
+
+
 
     const memberIds = chatMembers.rows.map((row) => Number(row.user_id));
-    console.log("CHECKK API for message", memberIds)
     broadcastToUsers(memberIds, {
       type: "chat:deleted",
-      payload: {chatId},
+      payload: { chatId, name, deletedBy },
     });
 
     if (deleteResult.rowCount === 0) {
@@ -588,3 +552,62 @@ chatsRouter.delete("/:chatId", async (req, res) => {
     return res.status(500).json({ message: "unknown" });
   }
 });
+
+chatsRouter.patch("/:chatId", async (req, res) => {
+  try {
+
+    const userIdHeader = req.header("x-user-id");
+    const userId = Number(userIdHeader);
+
+    if (!userIdHeader || Number.isNaN(userId)) {
+      return res.status(401).json({ message: "unauthorized" });
+    }
+
+    const { chatId: chatIdParam } = req.params;
+    const chatId = Number(chatIdParam);
+
+    if (!chatIdParam || Number.isNaN(chatId)) {
+      return res.status(400).json({ message: "invalid chat id" });
+    }
+
+    const requester = await db.query(
+      "SELECT id, username FROM users WHERE id = $1",
+      [userId]
+    );
+
+    const { name: oldName, newName } = req.body
+
+    const result = await db.query(
+      `
+      UPDATE chats
+      SET name = $1
+      WHERE id = $2
+      RETURNING id, name, created_by, created_at
+      `,
+      [newName, chatId]
+    );
+
+    // const name = result.rows[0].name
+
+    const chatMembers = await db.query(
+      `
+      SELECT user_id
+      FROM chat_members
+      WHERE chat_id = $1
+      `,
+      [chatId]
+    );
+
+    const memberIds = chatMembers.rows.map((row) => Number(row.user_id));
+    broadcastToUsers(memberIds, {
+      type: "chat:renamed",
+      payload: { chatId, renamedBy: requester.rows[0].username, oldName, newName },
+    });
+
+    return res.status(200).json({ result });
+  } catch (e) {
+    console.error(e)
+    return res.status(500).json({ message: "unknown" });
+  }
+
+})

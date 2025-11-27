@@ -1,36 +1,54 @@
 "use client"
 import { useEffect, useState } from "react"
-import styles from "./styles.module.css"
+import styles from "./RightSidebar.module.css"
 import { useSocket } from "@/apps/web/hooks/useSocket"
 import WsTestPage from "../../test/page"
+import Logger from "../Logger"
+import HealthCheck from "../HealthChecks"
 
 
 
 export default function RightSidebar({ initialHealth }: { initialHealth: any }) {
-  const [health, setHealth] = useState(null)
-  const { client } = useSocket();
+  
 
-  useEffect(() => {
-    
-    const off = client.onMessage((msg) => {
-      if (msg?.type === "health:update") {
-        setHealth(msg.payload);
-      }
-    });
-    return () => {
-      off()
+  const debounce = (fn: any, delay: number) => {
+    let timeout: NodeJS.Timeout | undefined;
+    return (...args: any[]) => {
+      if (timeout) clearTimeout(timeout)
+      timeout = setTimeout(() => {
+        fn(...args)
+      }, delay);
     }
-      
-  }, [client]);
+  }
+
+  const logger = debounce((num: number, num2: number) => {
+    console.log(`#${num} and #${num2}`)
+  }, 3000)
+
+
+  const throttle = (fn: any, delay: number) => {
+    let called: boolean = false;
+    return (...args: any[]) => {
+      if (!called) {
+        called = true
+        fn(...args)
+        setTimeout(() => { called = false }, delay)
+      }
+    }
+  }
+
+  const click = throttle(() => {
+    console.log("throttle")
+  }, 3000)
 
   return (
-    <div>
+    <div className={styles.rightSidebarContentContainer}>
       <div className={styles.healthCheck}>
-        healthCheck: {JSON.stringify(health)}
+        <HealthCheck />
       </div>
-      <div style={{width: "100%"}}>
-        logs
-        <WsTestPage/>
+
+      <div className={styles.logger}>
+        <Logger />
       </div>
     </div>
   )

@@ -5,7 +5,7 @@ import { useRef,useEffect } from "react"
 import { FaEllipsisH } from "react-icons/fa";
 import ChatRowOptions from "./ChatRowOptions";
 
-export default function ChatRow({ chat, isSelected, handleChatClick, handleEllipsesClick, openId, setOpenId, onDelete }: any) {
+export default function ChatRow({ chat, isSelected, handleChatClick, handleEllipsesClick, openId, setOpenId, onDelete, onRename }: any) {
 
   const dropdownRef = useRef<HTMLDivElement | null>(null)
 
@@ -24,7 +24,7 @@ export default function ChatRow({ chat, isSelected, handleChatClick, handleEllip
     <div ref={dropdownRef}>
       <div className={styles.chatRow}>
         <div
-          onClick={() => handleChatClick(chat.id)}
+          onClick={() => handleChatClick(chat.id, chat.name)}
           className={styles.chatRowName}
         >
           {chat.name}
@@ -37,7 +37,7 @@ export default function ChatRow({ chat, isSelected, handleChatClick, handleEllip
           onClick={() => handleEllipsesClick(chat.id)}
         >
           <FaEllipsisH />
-          {openId === chat.id && <ChatRowOptions onDelete={onDelete} chat={chat} />}
+          {openId === chat.id && <ChatRowOptions onDelete={onDelete} chat={chat} onRename={onRename} />}
 
         </div>
       </div>

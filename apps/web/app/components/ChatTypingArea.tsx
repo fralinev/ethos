@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, KeyboardEvent, ChangeEvent } from "react";
+import styles from "./ChatTypingArea.module.css"
 
 type ChatTypingAreaProps = {
   onSend: (text: string) => void;
@@ -48,31 +49,9 @@ export default function ChatTypingArea({
   };
 
   return (
-    <div
-      style={{
-        borderTop: "1px solid rgba(0,0,0,0.08)",
-        padding: "12px 16px",
-        background: "rgba(53, 40, 40, 0.9)",
-        backdropFilter: "blur(8px)",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 800,
-          margin: "0 auto",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-end",
-            gap: 8,
-            borderRadius: 999,
-            border: "1px solid rgba(0,0,0,0.12)",
-            padding: "8px 12px",
-            background: "#48545fff",
-          }}
-        >
+    <div className={styles.wrapper}>
+      <div className={styles.inner}>
+        <div className={styles.inputRow}>
           <textarea
             ref={textareaRef}
             value={value}
@@ -81,51 +60,20 @@ export default function ChatTypingArea({
             disabled={disabled}
             placeholder={placeholder}
             rows={1}
-            style={{
-              flex: 1,
-              resize: "none",
-              border: "none",
-              outline: "none",
-              background: "transparent",
-              fontSize: 14,
-              lineHeight: 1.5,
-              paddingTop: "6px",
-              paddingBottom: "6px",
-              paddingLeft: "2px",   // optional, for aesthetics
-              paddingRight: "2px",
-              maxHeight,
-            }}
+            className={styles.textarea}
+            style={{ maxHeight }}
           />
           <button
             type="button"
             onClick={sendMessage}
             disabled={disabled || !value.trim()}
-            style={{
-              borderRadius: "999px",
-              border: "none",
-              padding: "6px 12px",
-              fontSize: 14,
-              cursor: disabled || !value.trim() ? "not-allowed" : "pointer",
-              opacity: disabled || !value.trim() ? 0.5 : 1,
-              background: "#10a37f",
-              color: "white",
-              fontWeight: 500,
-              whiteSpace: "nowrap",
-            }}
+            className={styles.sendButton}
           >
             Send
           </button>
         </div>
-        <div
-          style={{
-            fontSize: 11,
-            color: "rgba(0,0,0,0.45)",
-            marginTop: 6,
-            textAlign: "center",
-          }}
-        >
-          Press <kbd>Enter</kbd> to send, <kbd>Shift</kbd> + <kbd>Enter</kbd> for a new line
-        </div>
+
+        
       </div>
     </div>
   );

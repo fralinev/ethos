@@ -1,0 +1,11 @@
+.rightSidebarContentContainer{
+  height: 100%;
+}
+
+.healthCheck{
+    height: 30%;
+    border-bottom: 5px solid yellowgreen;
+}
+.logger{
+  height: 70%
+}
