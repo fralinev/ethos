@@ -1,6 +1,6 @@
 "use client"
 import styles from "./styles.module.css"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import ChatList from "./ChatList"
 import type { Chat } from "../../../page"
 import NewChatForm from "./NewChatForm"
@@ -24,11 +24,18 @@ export default function Chats({
   const { client } = useSocket();
   const router = useRouter();
 
+  const currentChatIdRef = useRef<number | undefined>(currentChatId);
+
+  console.log("ccid chats", currentChatId)
 
 
   useEffect(() => {
     setChats(initialChats);
   }, [initialChats]);
+
+  useEffect(() => {
+  currentChatIdRef.current = currentChatId;
+}, [currentChatId]);
 
   useEffect(() => {
     if (!client) return;
@@ -44,8 +51,7 @@ export default function Chats({
 
       if (msg.type === "chat:renamed") {
         const { chatId, newName } = msg.payload;
-        console.log("CHECKK", msg.payload, typeof chatId, chatId, currentChatId)
-        if (chatId === currentChatId) {
+        if (chatId === currentChatIdRef.current) {
           router.push(`/?chatId=${chatId}&chatName=${encodeURIComponent(newName)}`)
         } else {
           setChats((prev: Chat[]) => {

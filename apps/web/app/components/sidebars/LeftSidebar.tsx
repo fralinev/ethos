@@ -14,6 +14,9 @@ export default function LeftSidebar({
     initialChats: Chat[],
     currentChatId: number | undefined
   }) {
+
+  console.log("ccid leftsidebar", currentChatId)
+
   return (
     <div className={styles.leftSidebar}>
       <div className={styles.badge}>
