@@ -1,6 +1,6 @@
 "use client"
 
-import { SessionUser } from "@/packages/shared/session"
+import { SessionUser } from "../../lib/session"
 import { useState, useEffect } from "react"
 
 export default function Badge({username}:{username:string}) {

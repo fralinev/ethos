@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SessionData } from "@/packages/shared/session";
+import { SessionData } from "@/apps/web/lib/session";
 import { getSessionFromNextRequest } from "@/apps/web/lib/session";
 
 export async function DELETE(req: NextRequest, context: any) {

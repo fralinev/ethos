@@ -1,6 +1,6 @@
 "use client";
 
-import type { SessionData } from "@/packages/shared/session";
+import type { SessionData } from "../../lib/session";
 
 export default function LogoutButton({session}:{session?: SessionData}) {
 

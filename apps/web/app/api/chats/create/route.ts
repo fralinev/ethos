@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromNextRequest } from "@/apps/web/lib/session";
-import { SessionData } from "@/packages/shared/session";
+import { SessionData } from "@/apps/web/lib/session";
 
 
 const API_BASE_URL = process.env.API_BASE_URL
