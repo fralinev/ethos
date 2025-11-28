@@ -32,7 +32,7 @@ export default function Logger() {
           chat: message.payload.name,
           message: ""
         }
-        setLogs((prev: EventLog[]) => [...prev, log])
+        setLogs((prev: EventLog[]) => [log, ...prev])
       }
       if (message?.type === "chat:deleted") {
         const log: EventLog = {
@@ -41,7 +41,7 @@ export default function Logger() {
           chat: message.payload.name,
           message: ""
         }
-        setLogs((prev: EventLog[]) => [...prev, log])
+        setLogs((prev: EventLog[]) => [log, ...prev])
       }
       if (message?.type === "chat:renamed") {
         const log: EventLog = {
@@ -51,7 +51,7 @@ export default function Logger() {
           newChat: message.payload.newName,
           message: ""
         }
-        setLogs((prev: EventLog[]) => [...prev, log])
+        setLogs((prev: EventLog[]) => [log, ...prev])
       }
     });
     return () => {

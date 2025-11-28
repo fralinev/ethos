@@ -1,5 +1,6 @@
 .page {
   min-height: 100vh;
+  max-height: 100vh;
   display: flex;
   flex-direction: column;
   background: #0b0b0f; 
@@ -9,6 +10,7 @@
 
 .layout {
   display: flex;
+  height: calc(100vh - 40px);
   flex: 1;
   width: 100vw; 
   /* margin: 0 auto;       */
@@ -34,6 +36,7 @@
 
 .main {
   flex: 1;
+  max-height: 100%;
   /* padding: 16px; */
   display: flex;
   flex-direction: column;

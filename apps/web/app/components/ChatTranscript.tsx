@@ -2,7 +2,7 @@
 "use client"
 
 import { useState, useEffect } from "react";
-import { SessionData } from "@/packages/shared/session";
+import { SessionData } from "../../lib/session";
 import About from "./About";
 import ChatTypingArea from "./ChatTypingArea";
 import { useSocket } from "../../hooks/useSocket";
@@ -13,12 +13,12 @@ import SectionHeader from "./SectionHeader";
 
 export default function ChatTranscript({
   session,
-  selectedChatId,
+  currentChatId,
   initialMessages,
   chatName
 }: {
   session?: SessionData,
-  selectedChatId?: number,
+  currentChatId?: number,
   initialMessages: Message[],
   chatName: string | undefined,
 }) {
@@ -28,7 +28,7 @@ export default function ChatTranscript({
 
   useEffect(() => {
     setMessages(initialMessages);
-  }, [initialMessages, selectedChatId]);
+  }, [initialMessages, currentChatId]);
 
   useEffect(() => {
     if (!client) return;
@@ -41,18 +41,18 @@ export default function ChatTranscript({
         if (session?.user && newMsg.sender.id === session.user.id) {
           return;
         }
-        if (newMsg.chatId === selectedChatId) {
+        if (newMsg.chatId === currentChatId) {
           setMessages((prev: any) => [...prev, newMsg]);
         }
       }
     });
     return () => off();
-  }, [client, selectedChatId]);
+  }, [client, currentChatId]);
 
   const onSend = async (text: string) => {
-    if (!selectedChatId) return;
+    if (!currentChatId) return;
     try {
-      const resp = await fetch(`/api/chats/${selectedChatId}/messages`, {
+      const resp = await fetch(`/api/chats/${currentChatId}/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,7 +75,7 @@ export default function ChatTranscript({
     return <About />
   }
 
-  if (!selectedChatId) {
+  if (!currentChatId) {
     return <About />
   }
 
@@ -83,12 +83,11 @@ export default function ChatTranscript({
     <div id="transcript-container" className={styles.transcriptContainer}>
       {/* <h2>Chat {chatName}</h2> */}
       <SectionHeader text={chatName} closable={true}/>
-      <div>
         <div className={styles.messagesArea}>
           {messages.length === 0 ? (
             <div>No messages yet in this chat.</div>
           ) : (
-            <ul>
+            <ul style={{padding:"20px"}}>
               {messages.map((m: any) => (
                 <li key={m.id}>
                   <strong>{m.sender.username}</strong>: {m.body}{" "}
@@ -99,7 +98,6 @@ export default function ChatTranscript({
           )}
         </div>
         <ChatTypingArea onSend={onSend} />
-      </div>
     </div>
   );
 }

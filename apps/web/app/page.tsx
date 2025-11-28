@@ -1,5 +1,5 @@
 import { getSessionFromNextRequest } from "../lib/session";
-import { SessionData } from "@/packages/shared/session";
+import { SessionData } from "../lib/session";
 import RightSidebar from "./components/sidebars/RightSidebar";
 import LeftSidebar from "./components/sidebars/LeftSidebar";
 import ChatTranscript from "./components/ChatTranscript";
@@ -44,7 +44,7 @@ export default async function Home({ searchParams }: HomeProps) {
   const session: SessionData | undefined = await getSessionFromNextRequest();
 
   const { chatId, chatName } = await searchParams;
-  const selectedChatId =
+  const currentChatId: number | undefined =
     chatId && !Number.isNaN(Number(chatId)) ? Number(chatId) : undefined;
 
   let initialChats: Chat[] = [];
@@ -73,10 +73,10 @@ export default async function Home({ searchParams }: HomeProps) {
   }
   let messages: Message[] = [];
 
-  if (session?.user && selectedChatId) {
+  if (session?.user && currentChatId) {
     try {
       const resp = await fetch(
-        `${process.env.API_BASE_URL}/chats/${selectedChatId}/messages`,
+        `${process.env.API_BASE_URL}/chats/${currentChatId}/messages`,
         {
           headers: {
             "x-user-id": session.user.id.toString(),
@@ -105,13 +105,16 @@ export default async function Home({ searchParams }: HomeProps) {
 
       <div className={styles.layout}>
         <aside className={clsx(styles.sidebar, styles.sidebarLeft)}>
-          <LeftSidebar session={session} initialChats={initialChats} />
+          <LeftSidebar
+            session={session}
+            initialChats={initialChats}
+            currentChatId={currentChatId} />
         </aside>
 
         <main className={styles.main}>
           <ChatTranscript
             session={session}
-            selectedChatId={selectedChatId}
+            currentChatId={currentChatId}
             chatName={chatName}
             initialMessages={messages}
           />

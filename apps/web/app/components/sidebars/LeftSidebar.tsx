@@ -1,12 +1,19 @@
 "use client"
 import Badge from "../Badge"
-import { SessionData } from "@/packages/shared/session"
+import { SessionData } from "@/apps/web/lib/session"
 import Users from "./Users"
 import Chats from "./Chats/Chats"
 import styles from "./LeftSidebar.module.css"
 import type { Chat } from "../../page"
 
-export default function LeftSidebar({ session, initialChats }: { session: SessionData | undefined, initialChats: Chat[] }) {
+export default function LeftSidebar({
+  session,
+  initialChats,
+  currentChatId }: {
+    session: SessionData | undefined,
+    initialChats: Chat[],
+    currentChatId: number | undefined
+  }) {
   return (
     <div className={styles.leftSidebar}>
       <div className={styles.badge}>
@@ -18,7 +25,7 @@ export default function LeftSidebar({ session, initialChats }: { session: Sessio
         </div>
         <div className={styles.chats}>
 
-          <Chats initialChats={initialChats} session={session} />
+          <Chats initialChats={initialChats} session={session} currentChatId={currentChatId} />
         </div>
       </div>
     </div>

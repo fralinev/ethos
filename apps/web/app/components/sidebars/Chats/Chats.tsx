@@ -5,14 +5,25 @@ import ChatList from "./ChatList"
 import type { Chat } from "../../../page"
 import NewChatForm from "./NewChatForm"
 import { useSocket } from "@/apps/web/hooks/useSocket"
-import type { SessionData } from "@/packages/shared/session"
+import type { SessionData } from "@/apps/web/lib/session"
+import { useRouter, } from "next/navigation";
 
-export default function Chats({ initialChats, session }: { initialChats: Chat[], session: SessionData | undefined }) {
+
+export default function Chats({
+  initialChats,
+  session,
+  currentChatId }: {
+    initialChats: Chat[],
+    session: SessionData | undefined,
+    currentChatId: number | undefined
+  }) {
   const [chats, setChats] = useState(initialChats);
   const [showNewChatForm, setShowNewChatForm] = useState(false)
   const [message, setMessage] = useState("+ new chat")
 
   const { client } = useSocket();
+  const router = useRouter();
+
 
 
   useEffect(() => {
@@ -32,20 +43,24 @@ export default function Chats({ initialChats, session }: { initialChats: Chat[],
       }
 
       if (msg.type === "chat:renamed") {
-        const { chatId, newName } = msg.payload; // make sure server sends both
-        setChats((prev: Chat[]) => {
-          const targetId = String(chatId);
-        console.log("CHECKK", msg.payload, targetId, chatId)
+        const { chatId, newName } = msg.payload;
+        console.log("CHECKK", msg.payload, typeof chatId, chatId, currentChatId)
+        if (chatId === currentChatId) {
+          router.push(`/?chatId=${chatId}&chatName=${encodeURIComponent(newName)}`)
+        } else {
+          setChats((prev: Chat[]) => {
+            const targetId = String(chatId);
+            return prev.map((c) =>
+              String(c.id) === targetId
+                ? { ...c, name: newName }
+                : c
+            );
+          });
+        }
 
-          return prev.map((c) =>
-            String(c.id) === targetId
-              ? { ...c, name: newName }
-              : c
-          );
-        });
       }
       if (msg.type === "chat:deleted") {
-        const { chatId } = msg.payload; // make sure server sends both
+        const { chatId } = msg.payload;
         setChats((prev: Chat[]) => {
           const targetId = String(chatId);
           return prev.filter((c) =>

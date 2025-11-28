@@ -6,10 +6,6 @@ import { useRouter,  } from "next/navigation";
 export default function SectionHeader({ text, closable }: { text: string | undefined, closable?: boolean }) {
   const router = useRouter();
 
-  const exitChat = () => {
-    router.push("/");
-  }
-
   return (
     <div>
       <div style={{
@@ -21,8 +17,8 @@ export default function SectionHeader({ text, closable }: { text: string | undef
         <div>{text}</div>
         {closable &&
           <div
-            onClick={exitChat}
-            style={{ display: "flex", alignItems: "center" }}
+            onClick={() => router.push("/")}
+            style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
           >
             <GrFormClose />
           </div>}
