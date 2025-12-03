@@ -46,7 +46,6 @@ export default async function Home({ searchParams }: HomeProps) {
   const { chatId, chatName } = await searchParams;
   const currentChatId: number | undefined =
     chatId && !Number.isNaN(Number(chatId)) ? Number(chatId) : undefined;
-  console.log("ccid home", currentChatId)
   let initialChats: Chat[] = [];
 
   if (session?.user) {
@@ -113,6 +112,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
         <main className={styles.main}>
           <ChatTranscript
+            key={currentChatId ?? "no-chat"} // <-- resets loading to false
             session={session}
             currentChatId={currentChatId}
             chatName={chatName}

@@ -17,24 +17,21 @@ export default function Chats({
     session: SessionData | undefined,
     currentChatId: number | undefined
   }) {
-  const [chats, setChats] = useState(initialChats);
+  const [chats, setChats] = useState<Chat[]>(initialChats);
   const [showNewChatForm, setShowNewChatForm] = useState(false)
   const [message, setMessage] = useState("+ new chat")
 
   const { client } = useSocket();
   const router = useRouter();
 
-  const currentChatIdRef = useRef<number | undefined>(currentChatId);
-
-  console.log("ccid chats", currentChatId)
-
+  const activeChatIdRef = useRef<number | undefined>(currentChatId);
 
   useEffect(() => {
     setChats(initialChats);
   }, [initialChats]);
 
   useEffect(() => {
-  currentChatIdRef.current = currentChatId;
+  activeChatIdRef.current = currentChatId;
 }, [currentChatId]);
 
   useEffect(() => {
@@ -51,7 +48,7 @@ export default function Chats({
 
       if (msg.type === "chat:renamed") {
         const { chatId, newName } = msg.payload;
-        if (chatId === currentChatIdRef.current) {
+        if (chatId === activeChatIdRef.current) {
           router.push(`/?chatId=${chatId}&chatName=${encodeURIComponent(newName)}`)
         } else {
           setChats((prev: Chat[]) => {

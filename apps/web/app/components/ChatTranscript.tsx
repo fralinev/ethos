@@ -9,6 +9,9 @@ import { useSocket } from "../../hooks/useSocket";
 import type { Message } from "../page";
 import styles from "./ChatTranscript.module.css"
 import SectionHeader from "./SectionHeader";
+import Spinner from "./Spinner";
+import { useRouter, } from "next/navigation";
+
 
 
 export default function ChatTranscript({
@@ -23,8 +26,10 @@ export default function ChatTranscript({
   chatName: string | undefined,
 }) {
   const [messages, setMessages] = useState(initialMessages);
+  const [loading, setLoading] = useState<boolean>(false)
 
   const { client } = useSocket();
+  const router = useRouter();
 
   useEffect(() => {
     setMessages(initialMessages);
@@ -71,6 +76,11 @@ export default function ChatTranscript({
     }
   };
 
+  const exitChat = () => {
+    setLoading(true)
+    return router.push("/")
+  }
+
   if (!session?.user) {
     return <About />
   }
@@ -81,13 +91,14 @@ export default function ChatTranscript({
 
   return (
     <div id="transcript-container" className={styles.transcriptContainer}>
-      {/* <h2>Chat {chatName}</h2> */}
-      <SectionHeader text={chatName} closable={true}/>
-        <div className={styles.messagesArea}>
+      <SectionHeader text={chatName} onClose={exitChat} />
+      {loading 
+        ? <div style={{flex: 1, display: "flex", justifyContent: "center", alignItems: "center"}}> <Spinner size={60}/> </div>
+        : <div className={styles.messagesArea}>
           {messages.length === 0 ? (
             <div>No messages yet in this chat.</div>
           ) : (
-            <ul style={{padding:"20px"}}>
+            <ul style={{ padding: "20px" }}>
               {messages.map((m: any) => (
                 <li key={m.id}>
                   <strong>{m.sender.username}</strong>: {m.body}{" "}
@@ -96,8 +107,9 @@ export default function ChatTranscript({
               ))}
             </ul>
           )}
-        </div>
-        <ChatTypingArea onSend={onSend} />
+        </div>}
+
+      <ChatTypingArea onSend={onSend} />
     </div>
   );
 }

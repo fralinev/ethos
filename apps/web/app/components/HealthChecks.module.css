@@ -1,8 +1,50 @@
-.servicesContainer{
-  height: 80%;
-  display:flex;
-  flex-direction: column;
+.outer {
+  display: flex;
   justify-content: center;
   align-items: center;
-  flex:1
+  width: 100%;
+  height: 80%;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+}
+
+/* Left column: service label */
+.serviceName {
+  flex: 1;              /* takes remaining space */
+  text-align: right;    /* align last letters vertically */
+  padding-right: 12px;  /* space between text and dot */
+}
+
+/* Right column: dot wrapper */
+.indicator {
+  width: 20px;          /* fixed column width */
+  display: flex;
+  justify-content: flex-start; /* dot on left edge of this column */
+  align-items: center;
+}
+
+.healthDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.ok {
+  background: limegreen;
+}
+
+.assumeOK {
+  background: gold;
+}
+
+.error {
+  background: crimson;
 }

@@ -1,9 +1,9 @@
 "use client"
 
 import { GrFormClose } from "react-icons/gr";
-import { useRouter,  } from "next/navigation";
+import { useRouter, } from "next/navigation";
 
-export default function SectionHeader({ text, closable }: { text: string | undefined, closable?: boolean }) {
+export default function SectionHeader({ text, onClose }: { text: string | undefined, onClose?: () => void }) {
   const router = useRouter();
 
   return (
@@ -15,9 +15,9 @@ export default function SectionHeader({ text, closable }: { text: string | undef
         padding: "12px 20px"
       }}>
         <div>{text}</div>
-        {closable &&
+        {onClose &&
           <div
-            onClick={() => router.push("/")}
+            onClick={onClose}
             style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
           >
             <GrFormClose />

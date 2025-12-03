@@ -1,14 +1,14 @@
   .chatRow{
     display: flex;
     justify-content: space-between;
-    /* position: relative; */
     height: 35px;
     padding: 0 10 0 20
 }
 .chatRow:hover{
-    /* background-color: yellowgreen; */
 }
 .chatRowName{
+    display: flex;
+    align-items: center;
     cursor: pointer;
     padding: 8px 12p;
     margin-bottom: 4;
@@ -18,4 +18,9 @@
     background-color: yellowgreen;
     color: black;
     font-weight: 600;
+}
+.ellipses{
+    display: flex;
+    align-items: center;
+    cursor: pointer;
 }

@@ -1,41 +1,53 @@
 "use client"
 import styles from "./RenameChat.module.css"
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import { Chat } from "../../../page"
+import Spinner from "../../Spinner"
 
-export default function RenameChatModal({ chat, onCancelRename, handleConfirmRename }: any) {
+type RenameChatProps = {
+  chat: Chat;
+  onConfirm: (chatId: number, name: string, newName: string) => Promise<void>;
+}
 
-  const [newName, setNewName] = useState("")
+export default function RenameChatModal({ chat, onConfirm }: RenameChatProps) {
 
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      onCancelRename()
+  const [newName, setNewName] = useState<string>("")
+  const [message, setMessage] = useState<string>("")
+  const [loading, setLoading] = useState<boolean>(false)
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const trimmed = newName.trim();
+    if (trimmed.length < 3) {
+      setMessage("Must be at least 3 letters");
+      return;
+    }
+    setMessage("");
+    setLoading(true);
+    try {
+      await onConfirm(chat.id, chat.name, trimmed);
+    } catch (err) {
+      setMessage("Something went wrong");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   }
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewName(e.target.value)
-  }
-
   return (
-    <div
-      className={styles.backdrop}
-      role="dialog"
-      aria-modal="true"
-      onClick={handleBackdropClick}
-    >
-      <div className={styles.modal}>
-        <h3>rename chat {chat.name}</h3>
-        <form onSubmit={(e) => handleConfirmRename(e, chat.id, chat.name, newName)}>
-          <input
-            type="text"
-            onChange={handleNameChange}
-            value={newName}
-          />
-          <button type="submit">Submit</button>
-        </form>
-
-
-      </div>
-    </div>
+    <>
+      <h1>Rename Chat <span style={{ color: "violet" }}>{chat.name}</span></h1>
+      <form className={styles.form} onSubmit={onSubmit}>
+        <input
+          className={styles.modalTextInput}
+          type="text"
+          onChange={(e) => setNewName(e.target.value)}
+          value={newName}
+        />
+        <button type="submit" disabled={loading} className={styles.modalButton}>Submit</button>
+      </form>
+      {message && message}
+      {loading && <Spinner />}
+    </>
   )
 }
