@@ -6,9 +6,10 @@ import { useEscape } from "../../hooks/useEscape"
 type ModalProps = {
   children: ReactNode;
   onCancel: () => void;
+  onCloseDropdown?: () => {} | undefined
 };
 
-export const Modal = ({children, onCancel}:ModalProps) => {
+export const Modal = ({children, onCancel, onCloseDropdown}:ModalProps) => {
     useEscape(onCancel)
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -18,7 +19,7 @@ export const Modal = ({children, onCancel}:ModalProps) => {
   }
   return (
     <div onClick={handleBackdropClick} className={styles.backdrop}>
-      <div className={styles.modal}>
+      <div onClick={onCloseDropdown} className={styles.modal}>
           {children}
       </div>
     </div>

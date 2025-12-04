@@ -2,10 +2,12 @@ import { getSessionFromNextRequest } from "../lib/session";
 import { SessionData } from "../lib/session";
 import RightSidebar from "./components/sidebars/RightSidebar";
 import LeftSidebar from "./components/sidebars/LeftSidebar";
-import ChatTranscript from "./components/ChatTranscript";
 import styles from "./page.module.css";
 import Header from "./components/Header";
 import clsx from "clsx";
+import { Suspense } from "react";
+import Spinner from "./components/Spinner";
+import ChatTranscript from "./components/ChatTranscript";
 
 export type Chat = {
   id: number;
@@ -36,7 +38,7 @@ export type Message = {
 type HomeProps = {
   searchParams: Promise<{
     chatId?: string;
-    chatName?: string | undefined
+    chatName?: string
   }>;
 };
 
@@ -44,7 +46,7 @@ export default async function Home({ searchParams }: HomeProps) {
   const session: SessionData | undefined = await getSessionFromNextRequest();
 
   const { chatId, chatName } = await searchParams;
-  const currentChatId: number | undefined =
+  const activeChatId: number | undefined =
     chatId && !Number.isNaN(Number(chatId)) ? Number(chatId) : undefined;
   let initialChats: Chat[] = [];
 
@@ -70,33 +72,8 @@ export default async function Home({ searchParams }: HomeProps) {
       console.error("Error fetching chats:", err);
     }
   }
-  let messages: Message[] = [];
 
-  if (session?.user && currentChatId) {
-    try {
-      const resp = await fetch(
-        `${process.env.API_BASE_URL}/chats/${currentChatId}/messages`,
-        {
-          headers: {
-            "x-user-id": session.user.id.toString(),
-          },
-          cache: "no-store",
-        }
-      );
-
-      if (!resp.ok) {
-        console.error(
-          "Failed to fetch messages:",
-          resp.status,
-          resp.statusText
-        );
-      } else {
-        messages = await resp.json();
-      }
-    } catch (err) {
-      console.error("Error fetching messages:", err);
-    }
-  }
+  
 
   return (
     <div className={styles.page}>
@@ -107,19 +84,19 @@ export default async function Home({ searchParams }: HomeProps) {
           <LeftSidebar
             session={session}
             initialChats={initialChats}
-            currentChatId={currentChatId} />
+            activeChatId={activeChatId} />
         </aside>
-
         <main className={styles.main}>
+          
           <ChatTranscript
-            key={currentChatId ?? "no-chat"} // <-- resets loading to false
+            key={activeChatId ?? "no-chat"} // <-- resets loading to false
             session={session}
-            currentChatId={currentChatId}
+            activeChatId={activeChatId}
             chatName={chatName}
-            initialMessages={messages}
+          
           />
+          {/* </Suspense> */}
         </main>
-
         <aside className={clsx(styles.sidebar, styles.sidebarRight)}>
           <RightSidebar initialHealth={"OK"} />
         </aside>

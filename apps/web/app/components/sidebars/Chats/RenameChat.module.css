@@ -1,5 +1,6 @@
 .modalTextInput {
   border: 1px solid white;
+  height: 35px;
 }
 
 .modalButton {
@@ -20,4 +21,5 @@
 .form{
   display: flex;
   gap: 10px;
+  align-items: center;
 }

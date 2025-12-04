@@ -1,19 +1,22 @@
 "use client"
 
-import { useEffect, useRef, Dispatch, SetStateAction } from "react"
+import { useEffect, useRef, useState } from "react"
 import styles from "./NewChatForm.module.css"
 import { useNewChatForm } from "../../../../hooks/useNewChatForm"
+import AddUsersDropdown from "./AddUsersDropdown"
+import type { User } from "../LeftSidebar"
 
-export default function NewChatForm({ setShowNewChatForm }: { setShowNewChatForm: Dispatch<SetStateAction<boolean>> }) {
+export default function NewChatForm({ users, onCancel }: { users: User[], onCancel: React.Dispatch<React.SetStateAction<boolean>> }) {
+  const [showDropdown, setShowDropdown] = useState(false)
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([])
 
-  const { 
-    chatName, 
-    participants, 
+
+  const {
+    chatName,
     handleCancel,
     handleCreate,
     handleChatNameChange,
-    handlePartsChange 
-  } = useNewChatForm(setShowNewChatForm)
+  } = useNewChatForm(onCancel, selectedUsers)
 
   const chatNameInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -24,35 +27,61 @@ export default function NewChatForm({ setShowNewChatForm }: { setShowNewChatForm
     }
   }, []);
 
+ 
+  const onCloseDropdown = (e: React.MouseEvent<HTMLDivElement>) => {
+    console.log("e.target and e.currentTarget", e.target, e.currentTarget)
+  }
+
+  const addUser = (user: User) => {
+    console.log(user)
+  }
+  const removeUser = (user: User) => {
+
+  }
+  
+
   return (
-    <div>
+    <>
+      <h1>Create new chat <span style={{ color: "lightgreen" }}>{chatName}</span> {chatName.length > 0 ? "?" : null}</h1>
       <form
         onSubmit={handleCreate}
         className={styles.newChatContainer}
       >
         <div className={styles.newChatFields}>
-          <label htmlFor="chat_name">chat name </label>
-          <input
-            id="chat_name"
-            className={styles.chatName}
-            value={chatName}
-            onChange={handleChatNameChange}
-            ref={chatNameInputRef}
-            maxLength={30}
-          />
-          <label htmlFor="participants">comma-separated usernames </label>
-          <input
-            id="participants"
-            className={styles.chatName}
-            value={participants}
-            onChange={handlePartsChange}
-          />
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <label style={{ textAlign: "right", flex: 1, paddingRight: "12px" }} htmlFor="chat-name">Name this chat: </label>
+            <input
+              id="chat-name"
+              type="text"
+              className={styles.chatName}
+              value={chatName}
+              onChange={handleChatNameChange}
+              ref={chatNameInputRef}
+              maxLength={30}
+              spellCheck="false"
+            />
+          </div>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <label style={{ textAlign: "right", flex: 1, paddingRight: "12px" }} htmlFor="participants">Add users: </label>
+            <div style={{position: "relative"}}>
+              <input
+                type="text"
+                placeholder="Click here to add users"
+                id="participants"
+                className={styles.chatName}
+                onClick={() => setShowDropdown(!showDropdown)}
+              // value={participants}
+              // onChange={handlePartsChange}
+
+              />{showDropdown && <AddUsersDropdown users={users} selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} handleCreate={handleCreate}/>}
+            </div>
+          </div>
         </div>
         <div className={styles.newChatButtons}>
-          <button type="submit" style={{ cursor: "pointer" }}>create</button>
-          <button type="button" style={{ cursor: "pointer" }} onClick={handleCancel}>cancel</button>
+          <button type="submit" style={{ cursor: "pointer" }} className={styles.modalButton}>Create</button>
+          <button type="button" style={{ cursor: "pointer" }} onClick={handleCancel} className={styles.modalButton}>Cancel</button>
         </div>
       </form>
-    </div>
+    </>
   )
 }

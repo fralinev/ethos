@@ -14,7 +14,6 @@
   display: flex;
   align-items: flex-end;
   gap: 8px;
-  border-radius: 999px;
   border: 1px solid rgba(0, 0, 0, 0.12);
   padding: 8px 12px;
   background: #48545fff;
@@ -35,13 +34,12 @@
 }
 
 .sendButton {
-  border-radius: 999px;
   border: none;
   padding: 6px 12px;
   font-size: 14px;
   font-weight: 800;
   white-space: nowrap;
-  background: violet;
+  background: yellowgreen;
   color: black;
   cursor: pointer;
 }

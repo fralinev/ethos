@@ -1,19 +1,38 @@
 "use client"
 
 import styles from "./ChatRow.module.css"
-import { useRef,useEffect } from "react"
+import { useRef, useEffect } from "react"
 import { FaEllipsisH } from "react-icons/fa";
 import ChatRowOptions from "./ChatRowOptions";
+import { Chat } from "../../../page";
 
-export default function ChatRow({ chat, isSelected, handleChatClick, handleEllipsesClick, openId, setOpenId, onDelete, onRename }: any) {
+type ChatRowProps = {
+  chat: Chat,
+  getChat: (chatId: number, chatName: string) => void,
+  handleEllipsesClick: (chatId: number) => void,
+  openId: number | null;
+  setOpenId: React.Dispatch<React.SetStateAction<number | null>>,
+  onDelete: (chat: Chat) => void,
+  onRename: (chat: Chat) => void
+}
+
+export default function ChatRow({
+  chat,
+  getChat,
+  handleEllipsesClick,
+  openId,
+  setOpenId,
+  onDelete,
+  onRename
+}: ChatRowProps) {
 
   const dropdownRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     if (openId !== chat.id) return
-    const handleOutsideClick = (e: any) => {
+    const handleOutsideClick = (e: MouseEvent) => {
       if (!dropdownRef.current) return;
-      if (dropdownRef.current.contains(e.target)) return;
+      if (e.target instanceof Node && dropdownRef.current.contains(e.target)) return;
       setOpenId(null)
     }
     document.addEventListener("mousedown", handleOutsideClick)
@@ -24,14 +43,13 @@ export default function ChatRow({ chat, isSelected, handleChatClick, handleEllip
     <div ref={dropdownRef}>
       <div className={styles.chatRow}>
         <div
-          onClick={() => handleChatClick(chat.id, chat.name)}
+          onClick={() => getChat(chat.id, chat.name)}
           className={styles.chatRowName}
         >
           {chat.name}
         </div>
         <div
-          
-          // key={`ellipsis-${chat.id}`}
+
           id={chat.id.toString()}
           className={styles.ellipses}
           onClick={() => handleEllipsesClick(chat.id)}

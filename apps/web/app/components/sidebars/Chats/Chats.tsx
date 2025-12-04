@@ -7,32 +7,37 @@ import NewChatForm from "./NewChatForm"
 import { useSocket } from "@/apps/web/hooks/useSocket"
 import type { SessionData } from "@/apps/web/lib/session"
 import { useRouter, } from "next/navigation";
+import { Modal } from "../../Modal"
+import type { User } from "../LeftSidebar"
 
 
 export default function Chats({
   initialChats,
   session,
-  currentChatId }: {
+  activeChatId,
+  users }: {
     initialChats: Chat[],
     session: SessionData | undefined,
-    currentChatId: number | undefined
+    activeChatId: number | undefined,
+    users: User[]
   }) {
   const [chats, setChats] = useState<Chat[]>(initialChats);
   const [showNewChatForm, setShowNewChatForm] = useState(false)
   const [message, setMessage] = useState("+ new chat")
+  const [chatPendingCreation, setChatPendingCreation] = useState(false)
 
   const { client } = useSocket();
   const router = useRouter();
 
-  const activeChatIdRef = useRef<number | undefined>(currentChatId);
+  const activeChatIdRef = useRef<number | undefined>(activeChatId);
 
   useEffect(() => {
     setChats(initialChats);
   }, [initialChats]);
 
   useEffect(() => {
-  activeChatIdRef.current = currentChatId;
-}, [currentChatId]);
+    activeChatIdRef.current = activeChatId;
+  }, [activeChatId]);
 
   useEffect(() => {
     if (!client) return;
@@ -79,7 +84,7 @@ export default function Chats({
 
   const validateNewChatRequest = () => {
     if (session?.user) {
-      setShowNewChatForm(true)
+      setChatPendingCreation(true)
     } else {
       setMessage("please login first")
       setTimeout(() => {
@@ -90,15 +95,18 @@ export default function Chats({
 
   return (
     <div className={styles.container}>
-      <ChatList chats={chats} />
+      <ChatList chats={chats} activeChatId={activeChatId} />
 
       <div className={styles.createNewChatButton}>
-        {!showNewChatForm ? <button style={{ cursor: "pointer" }} onClick={validateNewChatRequest}>{message}</button> : null}
-        {showNewChatForm
+        {!chatPendingCreation ? <button style={{ cursor: "pointer" }} onClick={validateNewChatRequest}>{message}</button> : null}
+        {/* <Modal onCancel={() => setChatPendingCreation(false)}>
+          <div>example content</div>
+        </Modal> */}
+        {chatPendingCreation
           ?
-          <NewChatForm
-            setShowNewChatForm={setShowNewChatForm}
-          />
+          <Modal onCancel={() => setChatPendingCreation(false)}>
+            <NewChatForm users={users} onCancel={() => setChatPendingCreation(false)}></NewChatForm>
+          </Modal>
           : null}
       </div>
     </div>

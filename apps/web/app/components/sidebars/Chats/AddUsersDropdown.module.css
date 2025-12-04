@@ -1,0 +1,24 @@
+.wrapper {
+  position: absolute;
+  left: 0;
+  right:0;
+  background-color: rgb(28, 54, 54);
+
+}
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 12;
+}
+
+.add {
+  cursor: pointer;
+}
+.done {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  height: 40px;
+  background-color: rgb(9, 28, 28);
+}

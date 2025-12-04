@@ -9,17 +9,23 @@ import styles from "./ChatList.module.css"
 import ChatRow from "./ChatRow"
 import RenameChatModal from "./RenameChatModal";
 import { Modal } from "../../Modal";
+import { useAppDispatch } from "@/apps/web/store/hooks";
+import { startChatLoading } from "@/apps/web/store/slices/chatSlice"
 
-export default function ChatList({ chats }: { chats: Chat[] }) {
+export default function ChatList({ chats, activeChatId }: { chats: Chat[], activeChatId: number | undefined }) {
   const [chatPendingDelete, setChatPendingDelete] = useState<Chat | null>(null);
   const [chatPendingRename, setChatPendingRename] = useState<Chat | null>(null);
   const [openId, setOpenId] = useState<number | null>(null)
 
   const router = useRouter();
+  const dispatch = useAppDispatch();  
   const searchParams = useSearchParams();
-  const currentChatId = Number(searchParams.get("chatId"));
+  // const currentChatId = Number(searchParams.get("chatId"));
 
-  const handleChatClick = (chatId: number, chatName: string) => {
+  const getChat = (chatId: number, chatName: string) => {
+    // TODO: fix this.  Either explicitly make chat.id a string, or force it into a number early on
+    if (Number(chatId) === activeChatId) return;
+    dispatch(startChatLoading());
     router.push(`/?chatId=${chatId}&chatName=${encodeURIComponent(chatName)}`);
   };
 
@@ -32,24 +38,19 @@ export default function ChatList({ chats }: { chats: Chat[] }) {
   }
 
   const confirmDelete = async (chatId: number) => {
-    const response = await fetch(`/api/chats/${chatId}`, {
-      method: "DELETE"
-    })
-    if (!response.ok) {
-      console.error("Failed to delete chat:", await response.text());
-      return;
+    try {
+      const response = await fetch(`/api/chats/${chatId}`, {
+        method: "DELETE"
+      })
+      setChatPendingDelete(null)
+      // TODO: fix this.  Figure out when they are numbers and when they are strings
+      if (activeChatId?.toString() === chatId.toString()) {
+        router.push("/")
+      }
+    } catch (err) {
+      console.error(err)
     }
-    setChatPendingDelete(null)
-    // TODO: fix this.  Figure out when they are numbers and when they are strings
-    if (currentChatId.toString() === chatId.toString()) {
-      router.push("/")
-    } else {
-      // router.refresh()
-    }
-  }
-
-  const onCancelRename = () => {
-    setChatPendingRename(null)
+    
   }
 
   const handleConfirmRename = async (chatId: number, name: string, newName: string) => {
@@ -71,7 +72,7 @@ export default function ChatList({ chats }: { chats: Chat[] }) {
 
   return (
     <div id="chat-list-container" className={styles.chatListContainer}>
-      <SectionHeader text="chats" />
+      {/* <SectionHeader text="chats" /> */}
       <div>
         {chatPendingDelete && (
           <Modal onCancel={() => setChatPendingDelete(null)}>
@@ -93,16 +94,14 @@ export default function ChatList({ chats }: { chats: Chat[] }) {
         )}
       </div>
 
-      <div id="chat-list">
+      <div id="chat-list" style={{ padding: "10px" }}>
         {chats.length > 0 && chats.map((chat: Chat) => {
-          const isSelected = currentChatId === chat.id;
 
           return (
             <div key={chat.id}>
               <ChatRow
                 chat={chat}
-                isSelected={isSelected}
-                handleChatClick={handleChatClick}
+                getChat={getChat}
                 handleEllipsesClick={handleEllipsesClick}
                 openId={openId}
                 onDelete={onDelete}

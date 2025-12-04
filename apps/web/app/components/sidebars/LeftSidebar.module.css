@@ -19,6 +19,8 @@
 }
 
 .users{
+    display: flex;
+    
     height: 50%;
     border-bottom: 5px solid yellowgreen;
 }

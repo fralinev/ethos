@@ -2,7 +2,7 @@
     display: flex;
     justify-content: space-between;
     height: 35px;
-    padding: 0 10 0 20
+    /* padding: 0 10 0 20 */
 }
 .chatRow:hover{
 }

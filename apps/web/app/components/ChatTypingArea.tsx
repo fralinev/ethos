@@ -7,7 +7,7 @@ type ChatTypingAreaProps = {
   onSend: (text: string) => void;
   disabled?: boolean;
   placeholder?: string;
-  maxHeight?: number; // max px height for the textarea before it scrolls
+  maxHeight?: number;
 };
 
 export default function ChatTypingArea({
@@ -19,11 +19,9 @@ export default function ChatTypingArea({
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  // Auto-resize textarea height
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
-
     el.style.height = "auto"; // reset
     const next = Math.min(el.scrollHeight, maxHeight);
     el.style.height = `${next}px`;

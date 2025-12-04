@@ -11,29 +11,37 @@ import styles from "./ChatTranscript.module.css"
 import SectionHeader from "./SectionHeader";
 import Spinner from "./Spinner";
 import { useRouter, } from "next/navigation";
-
+import { useAppSelector } from "../../store/hooks";
+import { startChatLoading, finishChatLoading } from "@/apps/web/store/slices/chatSlice"
+import { useAppDispatch } from "@/apps/web/store/hooks";
 
 
 export default function ChatTranscript({
   session,
-  currentChatId,
-  initialMessages,
+  activeChatId,
   chatName
 }: {
   session?: SessionData,
-  currentChatId?: number,
-  initialMessages: Message[],
+  activeChatId?: number,
   chatName: string | undefined,
 }) {
-  const [messages, setMessages] = useState(initialMessages);
-  const [loading, setLoading] = useState<boolean>(false)
+  const [messages, setMessages] = useState<Message[]>([]);
+  // const [loading, setLoading] = useState<boolean>(false/)
 
   const { client } = useSocket();
+  const dispatch = useAppDispatch();
+
   const router = useRouter();
 
+  const isChatLoading = useAppSelector((s) => s.ui.isChatLoading);
+
   useEffect(() => {
-    setMessages(initialMessages);
-  }, [initialMessages, currentChatId]);
+    if (!session?.user || !activeChatId) {
+      dispatch(finishChatLoading())
+    }
+    return
+  }, [activeChatId])
+
 
   useEffect(() => {
     if (!client) return;
@@ -46,18 +54,54 @@ export default function ChatTranscript({
         if (session?.user && newMsg.sender.id === session.user.id) {
           return;
         }
-        if (newMsg.chatId === currentChatId) {
-          setMessages((prev: any) => [...prev, newMsg]);
+        if (newMsg.chatId === activeChatId) {
+          setMessages((prev) => [...prev, newMsg]);
         }
       }
     });
     return () => off();
-  }, [client, currentChatId]);
+  }, [client, activeChatId, session?.user?.id]);
+
+  useEffect(() => {
+    const getMessages = async () => {
+      if (session?.user && activeChatId) {
+        try {
+          const response = await fetch(
+            `/api/chats/${activeChatId}`,
+            {
+              headers: {
+                "x-user-id": session.user.id.toString(),
+              },
+              cache: "no-store",
+            }
+          );
+
+          if (!response.ok) {
+            console.error(
+              "Failed to fetch messages:",
+              response.status,
+              response.statusText
+            );
+          } else {
+            const data = await response.json();
+            setMessages(data)
+          }
+        } catch (err) {
+          console.error("Error fetching messages:", err);
+        } finally {
+          dispatch(finishChatLoading());
+        }
+      }
+    };
+    console.log("CHECKK TRANSCRIPT", activeChatId, session)
+    getMessages();
+
+  }, [activeChatId, session?.user?.id])
 
   const onSend = async (text: string) => {
-    if (!currentChatId) return;
+    if (!activeChatId) return;
     try {
-      const resp = await fetch(`/api/chats/${currentChatId}/messages`, {
+      const resp = await fetch(`/api/chats/${activeChatId}/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -69,7 +113,6 @@ export default function ChatTranscript({
         return;
       }
       const newMessage: any = await resp.json();
-      console.log("checkk new message", newMessage)
       setMessages((prev: any) => [...prev, newMessage]);
     } catch (err) {
       console.error("Error sending message:", err);
@@ -77,23 +120,25 @@ export default function ChatTranscript({
   };
 
   const exitChat = () => {
-    setLoading(true)
+    dispatch(startChatLoading())
     return router.push("/")
   }
 
-  if (!session?.user) {
-    return <About />
-  }
+  // if (!session?.user || !activeChatId) {
+  //   return <About />
+  // }
 
-  if (!currentChatId) {
-    return <About />
+  if (!session?.user || !activeChatId) {
+    return isChatLoading 
+    ?  <Spinner size={60} /> 
+    : <About />
   }
 
   return (
     <div id="transcript-container" className={styles.transcriptContainer}>
       <SectionHeader text={chatName} onClose={exitChat} />
-      {loading 
-        ? <div style={{flex: 1, display: "flex", justifyContent: "center", alignItems: "center"}}> <Spinner size={60}/> </div>
+      {isChatLoading
+        ?  <Spinner size={60} /> 
         : <div className={styles.messagesArea}>
           {messages.length === 0 ? (
             <div>No messages yet in this chat.</div>

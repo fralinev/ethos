@@ -13,21 +13,20 @@
 
 .row {
   display: flex;
-  align-items: center;
+  /* align-items: center; */
 }
 
-/* Left column: service label */
 .serviceName {
-  flex: 1;              /* takes remaining space */
-  text-align: right;    /* align last letters vertically */
-  padding-right: 12px;  /* space between text and dot */
+  flex: 1;              
+  text-align: right;    
+  padding-right: 12px;  
 }
 
-/* Right column: dot wrapper */
+
 .indicator {
-  width: 20px;          /* fixed column width */
+  /* width: 20px;           */
   display: flex;
-  justify-content: flex-start; /* dot on left edge of this column */
+  /* justify-content: flex-start; */
   align-items: center;
 }
 

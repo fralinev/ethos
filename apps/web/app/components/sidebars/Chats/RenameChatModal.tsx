@@ -36,7 +36,7 @@ export default function RenameChatModal({ chat, onConfirm }: RenameChatProps) {
 
   return (
     <>
-      <h1>Rename Chat <span style={{ color: "violet" }}>{chat.name}</span></h1>
+      <h1>Rename Chat <span style={{ color: "violet" }}>{chat.name}</span> ?</h1>
       <form className={styles.form} onSubmit={onSubmit}>
         <input
           className={styles.modalTextInput}
@@ -44,7 +44,7 @@ export default function RenameChatModal({ chat, onConfirm }: RenameChatProps) {
           onChange={(e) => setNewName(e.target.value)}
           value={newName}
         />
-        <button type="submit" disabled={loading} className={styles.modalButton}>Submit</button>
+        <button type="submit" disabled={loading} className={styles.modalButton}>Rename</button>
       </form>
       {message && message}
       {loading && <Spinner />}

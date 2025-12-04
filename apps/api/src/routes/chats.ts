@@ -2,9 +2,15 @@ import { Router } from "express";
 import { db } from "../db";
 import { broadcastToUsers } from "../ws/hub";
 
+export type User = {
+  id: string;
+  username: string;
+  created_at: string;
+};
+
 type NewChat = {
   chatName: string;
-  participants: string[];
+  selectedUsers: User[];
 };
 
 type ChatRow = {
@@ -29,7 +35,7 @@ chatsRouter.post("/create", async (req, res) => {
     // basic payload shape guard
     if (
       !body ||
-      !Array.isArray(body.participants) ||
+      !Array.isArray(body.selectedUsers) ||
       typeof body.chatName !== "string"
     ) {
       return res.status(400).json({ message: "invalid payload" });
@@ -47,9 +53,9 @@ chatsRouter.post("/create", async (req, res) => {
 
     // max count
     const limitedParts =
-      body.participants.length > 4
-        ? body.participants.slice(0, 4)
-        : body.participants;
+      body.selectedUsers.length > 4
+        ? body.selectedUsers.slice(0, 4)
+        : body.selectedUsers;
 
     // validate name length
     if (body.chatName.length > 15 || body.chatName.trim().length === 0) {
@@ -58,7 +64,7 @@ chatsRouter.post("/create", async (req, res) => {
 
     // normalize participants
     const normalizedParts = limitedParts
-      .map((name) => name.trim().toLowerCase())
+      .map(({username}) => username.trim().toLowerCase())
       .filter((name) => name.length > 0); // drop empty
 
     // dedupe
