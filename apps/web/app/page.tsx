@@ -1,13 +1,14 @@
 import { getSessionFromNextRequest } from "../lib/session";
-import { SessionData } from "../lib/session";
+import { SessionData, SessionUser } from "../lib/session";
 import RightSidebar from "./components/sidebars/RightSidebar";
 import LeftSidebar from "./components/sidebars/LeftSidebar";
 import styles from "./page.module.css";
 import Header from "./components/Header";
 import clsx from "clsx";
-import { Suspense } from "react";
 import Spinner from "./components/Spinner";
 import ChatTranscript from "./components/ChatTranscript";
+import About from "./components/About";
+import MiddleSection from "./components/MiddleSection";
 
 export type Chat = {
   id: number;
@@ -25,6 +26,32 @@ export type Chat = {
 };
 
 export type Message = {
+  clientId?: string
+  optimistic?: boolean,
+  id?: number;
+  chatId: number;
+  body: string;
+  createdAt: string;
+  sender: {
+    id: number;
+    username: string;
+  };
+};
+export type OptimisticMessage = {
+  clientId: string
+  optimistic: boolean,
+  chatId: number;
+  body: string;
+  createdAt: string;
+  sender: {
+    id: number;
+    username: string;
+  };
+};
+
+export type ChatMessage = ServerMessage | OptimisticMessage;
+
+export type ServerMessage = {
   id: number;
   chatId: number;
   body: string;
@@ -35,6 +62,11 @@ export type Message = {
   };
 };
 
+export type AuthedSession =
+  SessionData & {
+    user: SessionUser
+  }
+
 type HomeProps = {
   searchParams: Promise<{
     chatId?: string;
@@ -43,7 +75,7 @@ type HomeProps = {
 };
 
 export default async function Home({ searchParams }: HomeProps) {
-  const session: SessionData | undefined = await getSessionFromNextRequest();
+  const session: SessionData | AuthedSession | undefined = await getSessionFromNextRequest();
 
   const { chatId, chatName } = await searchParams;
   const activeChatId: number | undefined =
@@ -56,7 +88,7 @@ export default async function Home({ searchParams }: HomeProps) {
         headers: {
           "x-user-id": session.user.id.toString(),
         },
-        cache: "no-store",
+        next: { revalidate: 30}
       });
 
       if (!response.ok) {
@@ -72,8 +104,7 @@ export default async function Home({ searchParams }: HomeProps) {
       console.error("Error fetching chats:", err);
     }
   }
-
-  
+ 
 
   return (
     <div className={styles.page}>
@@ -87,15 +118,15 @@ export default async function Home({ searchParams }: HomeProps) {
             activeChatId={activeChatId} />
         </aside>
         <main className={styles.main}>
-          
-          <ChatTranscript
-            key={activeChatId ?? "no-chat"} // <-- resets loading to false
+          {/* {activeChatId && isAuthedSession(session) ? <ChatTranscript
             session={session}
             activeChatId={activeChatId}
             chatName={chatName}
-          
+          /> : <About />} */}
+          <MiddleSection activeChatId={activeChatId}
+          session={session}
+          chatName={chatName}
           />
-          {/* </Suspense> */}
         </main>
         <aside className={clsx(styles.sidebar, styles.sidebarRight)}>
           <RightSidebar initialHealth={"OK"} />

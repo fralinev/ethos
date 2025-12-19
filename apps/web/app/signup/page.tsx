@@ -3,6 +3,10 @@
 import { useState } from "react"
 import { getApiUrl } from "../../lib/getApiUrl"
 import { redirect } from "next/navigation";
+import SectionHeader from "../components/SectionHeader";
+import { useRouter, } from "next/navigation";
+
+
 
 
 import styles from "./signup.module.css"
@@ -12,6 +16,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [statusText, setStatusText] = useState("")
 
+  const router = useRouter();
+
+  
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(e.target.value)
@@ -27,22 +34,23 @@ export default function LoginPage() {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({username, password})
+      body: JSON.stringify({ username, password })
     });
     if (res) {
-          const data = await res.json();
-          setStatusText(data.message)
-          if (data.ok) {
-            redirect("/login")
-          }
-        }
+      const data = await res.json();
+      setStatusText(data.message)
+      if (data.ok) {
+        router.push("/login")
+      }
+    }
   }
   return (
-    <div className={styles.signup}>
-      <main>
-        <div>
-          <h1>signup</h1>
-          <form className="flex flex-col gap-5" onSubmit={handleSignup}>
+    <div className={styles.signupWrapper}>
+      <div className={styles.signup}>
+        <SectionHeader text="Create new user" />
+
+        <form className="flex flex-col gap-10 pt-5" onSubmit={handleSignup}>
+          <div id="signup-input-fields" className={styles.authInputFields}>
             <div>
               <label htmlFor="username">username: </label>
               <input
@@ -65,15 +73,16 @@ export default function LoginPage() {
                 value={password}
               />
             </div>
-            <div>
-              <button className={styles.signupButton} type="submit">create user</button>
-            </div>
-            <div>
-              <h4>{statusText}</h4>
-            </div>
-          </form>
-        </div>
-      </main>
+          </div>
+          <div id="signup-buttons" className={styles.authButtons}>
+            <button className={styles.authButton} type="button" onClick={() => router.push("/login")}>← Back to login</button>
+            <button className={styles.authButton} type="submit">Create</button>
+          </div>
+          <div>
+            <h4 style={{padding: "0 0 10px 0"}}>{statusText}</h4>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

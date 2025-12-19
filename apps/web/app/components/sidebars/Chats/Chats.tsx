@@ -22,7 +22,6 @@ export default function Chats({
     users: User[]
   }) {
   const [chats, setChats] = useState<Chat[]>(initialChats);
-  const [showNewChatForm, setShowNewChatForm] = useState(false)
   const [message, setMessage] = useState("+ new chat")
   const [chatPendingCreation, setChatPendingCreation] = useState(false)
 

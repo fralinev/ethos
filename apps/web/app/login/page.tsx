@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useAppSelector, useAppDispatch } from "../../store/hooks"
 import { setUser } from "../../store/slices/userSlice";
 import { useRouter } from "next/navigation";
+import SectionHeader from "../components/SectionHeader";
 
 import styles from "./login.module.css"
 
@@ -52,11 +53,11 @@ export default function LoginPage() {
     router.push("/signup");
   }
   return (
-    <div className={styles.login}>
-      <main>
-        <div>
-          <h1>login</h1>
-          <form className="flex flex-col gap-5" onSubmit={handleLogin}>
+    <div className={styles.loginWrapper}>
+      <div className={styles.login}>
+        <SectionHeader text="Login" />
+        <form className="flex flex-col gap-10 pt-5" onSubmit={handleLogin}>
+          <div id="login-input-fields" className={styles.authInputFields}>
             <div>
               <label htmlFor="username">username: </label>
               <input
@@ -79,27 +80,17 @@ export default function LoginPage() {
                 value={password}
               />
             </div>
-            <div>
-              <button className={styles.loginButton} type="submit">login</button>
-              <button className={styles.loginButton} type="button" onClick={handleSignup}>signup</button>
-            </div>
-            <div>
-              <h4>{statusText}</h4>
-            </div>
-          </form>
-        </div>
-      </main>
-      <button
-        onClick={() =>
-          dispatch(
-            setUser({
-              userId: "123",
-              name: "Evan",
-            })
-          )
-        }
-      >SETUSER</button>
-      <div style={{ color: "white" }}>{user ? user.name : "no user"}</div>
+          </div>
+          <div id="login-buttons" className={styles.authButtons}>
+            <button className={styles.authButton} type="button" onClick={handleSignup}>Create new user</button>
+            <button className={styles.authButton} type="submit">Login</button>
+
+          </div>
+          <div>
+            <h4 style={{ padding: "0 0 10px 0" }}>{statusText}</h4>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

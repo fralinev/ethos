@@ -1,21 +1,42 @@
 
+.signupWrapper{
+    display: flex;
+    justify-content: center;
+}
 .signup{
     display:flex;
-    height: 50vh;
-    justify-content: center;
+    flex-direction: column;
+    min-height: 35vh;
+    justify-content: space-between;
     align-items: center;
+    margin: 100px 0 0 0;
+    border: 5px solid yellowgreen;
+    width: 400px;
+}
+.authInputFields {
+    display: flex;
+    flex-direction: column;
+    margin: 20 0 0 0;
+    gap: 20px;
 }
 
 .signupInput{
-    border: 1px solid white
+    border: 1px solid white;
+    padding: 5px;
 }
-.signupButton{
+
+.authButtons{
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+}
+.authButton{
     color:yellowgreen;
     border: 1px solid white;
     margin: 5px;
-    padding: 5px;
+    padding: 12 15;
 }
-.signupButton:hover{
+.authButton:hover{
     color: black;
     background-color: yellowgreen;
     cursor: pointer;

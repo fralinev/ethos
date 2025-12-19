@@ -7,12 +7,13 @@ export default function SectionHeader({ text, onClose }: { text: string | undefi
   const router = useRouter();
 
   return (
-    <div>
+    // <div>
       <div style={{
         display: "flex",
         justifyContent: "space-between",
         backgroundColor: "rgb(28, 31, 35)",
-        padding: "12px 20px"
+        padding: "12px 20px",
+        width: "100%"
       }}>
         <div>{text}</div>
         {onClose &&
@@ -24,7 +25,7 @@ export default function SectionHeader({ text, onClose }: { text: string | undefi
           </div>}
 
 
-      </div>
+      {/* </div> */}
 
     </div>
   )

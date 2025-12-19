@@ -62,7 +62,7 @@ function startHealthLoopIfNeeded() {
     } catch (err) {
       console.error("[health] periodic health check failed:", err);
     }
-  }, 15_000); // e.g. every 10 seconds
+  }, 15_000);
 }
 
 function stopHealthLoopIfIdle() {
@@ -159,9 +159,6 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
     }
 
     socket.on("message", (raw) => {
-      const test = JSON.parse(raw.toString());
-      console.log("WS ON MESSAGE", test)
-
       let data: any;
       try {
         data = JSON.parse(raw.toString());

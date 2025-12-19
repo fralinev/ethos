@@ -23,7 +23,8 @@ export default function ChatList({ chats, activeChatId }: { chats: Chat[], activ
   // const currentChatId = Number(searchParams.get("chatId"));
 
   const getChat = (chatId: number, chatName: string) => {
-    // TODO: fix this.  Either explicitly make chat.id a string, or force it into a number early on
+    console.log("getting chat...")
+    // TODO: fix this.  Either explicitly make chat.id a string, or force it into a number earlier
     if (Number(chatId) === activeChatId) return;
     dispatch(startChatLoading());
     router.push(`/?chatId=${chatId}&chatName=${encodeURIComponent(chatName)}`);
