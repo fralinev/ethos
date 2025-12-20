@@ -1,7 +1,7 @@
-// apps/api/src/session.ts
+
 import session, { Store as SessionStore } from "express-session";
 import { UpstashStore } from "./upstashStore";
-import { redis } from "./redisClient"; // your existing redis client
+import { redis } from "./redisClient"; 
 
 export const sessionStore: SessionStore = new UpstashStore(redis);
 
@@ -13,7 +13,7 @@ export const sessionMiddleware = session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    maxAge: 1000 * 60 * 60, // ten minutes
+    maxAge: 1000 * 60 * 60, 
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     domain:

@@ -2,6 +2,7 @@ import { Router } from "express";
 import bcrypt from "bcrypt";
 import { db } from "../db";
 import { broadcastToUsers } from "../ws/hub";
+import { AUTH_ERRORS } from "../../../../packages/shared/src/constants"
 
 export const authRouter = Router();
 
@@ -14,12 +15,12 @@ authRouter.post("/login", async (req, res) => {
     const normalizedUsername = username.trim().toLowerCase();
     const result = await db.query("SELECT * FROM users WHERE username = $1", [normalizedUsername])
     if (result.rows.length === 0) {
-      return res.status(401).json({ message: "invalid username or password" })
+      return res.status(401).json({ message: AUTH_ERRORS.WRONG_FIELD })
     }
     const user = result.rows[0]
     const match = await bcrypt.compare(password, user.password_hash)
     if (!match) {
-      return res.status(401).json({ message: "invalid username or password" })
+      return res.status(401).json({ message: AUTH_ERRORS.MISSING_FIELD })
     }
     req.session.user = {
       id: user.id,
@@ -49,12 +50,12 @@ authRouter.post("/signup", async (req, res) => {
   try {
     const { username, password } = req.body;
     if (!username || !password) {
-      return res.status(400).json({ message: "please provide username and password" });
+      return res.status(400).json({ message: AUTH_ERRORS.MISSING_FIELD });
     }
     const normalizedUsername = username.trim().toLowerCase();
     const result = await db.query("SELECT * FROM users WHERE username = $1", [normalizedUsername])
     if (result.rows.length > 0) {
-      return res.status(409).json({ message: "username already exists" });
+      return res.status(409).json({ message: AUTH_ERRORS.USER_ALREADY_EXISTS });
     }
     const hash = await bcrypt.hash(password, 10);
     const newUser = await db.query(
@@ -66,7 +67,7 @@ authRouter.post("/signup", async (req, res) => {
 
   } catch (e: any) {
     if (e.code === "23505") {
-      return res.status(409).json({ message: "username already exists" });
+      return res.status(409).json({ message:AUTH_ERRORS.USER_ALREADY_EXISTS });
     }
     return res.status(500).json({ message: "internal service error" })
   }
@@ -76,7 +77,7 @@ authRouter.post("/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) {
       console.error("logout error", err);
-      return res.status(500).json({ ok: false, message: "logout failed" });
+      return res.status(500).json({ ok: false, message: AUTH_ERRORS.LOGOUT_FAILED });
     }
     res.clearCookie("connect.sid", {
       httpOnly: true,

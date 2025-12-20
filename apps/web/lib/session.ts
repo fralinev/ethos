@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 // import { SessionData } from "@/packages/shared/session";
 
 // packages/shared/session.ts
-import { redis } from "@/packages/shared/redisClient";
+import { redis } from "@/packages/shared/src/redisClient";
 import signature from "cookie-signature";
 
 // This must match what your UpstashStore uses

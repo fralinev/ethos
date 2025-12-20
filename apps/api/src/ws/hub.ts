@@ -38,6 +38,7 @@ export function unregisterSocket(socket: AuthedWebSocket) {
 
 // 🔑 This is the helper your route will use.
 export function broadcastToUsers(userIds: number[], payload: any) {
+  console.log("Checkk broadcast", userIds, payload)
   if (!wssGlobal) {
     console.warn("[wsHub] broadcastToUsers called before WSS registered");
     return;

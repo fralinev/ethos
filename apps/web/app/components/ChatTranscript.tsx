@@ -10,7 +10,7 @@ import type { Message, ServerMessage, OptimisticMessage, ChatMessage, AuthedSess
 import styles from "./ChatTranscript.module.css"
 import SectionHeader from "./SectionHeader";
 import Spinner from "./Spinner";
-import { useRouter, } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAppSelector } from "../../store/hooks";
 import { startChatLoading, finishChatLoading } from "@/apps/web/store/slices/chatSlice"
 import { useAppDispatch } from "@/apps/web/store/hooks";

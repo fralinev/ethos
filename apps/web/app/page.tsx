@@ -88,7 +88,8 @@ export default async function Home({ searchParams }: HomeProps) {
         headers: {
           "x-user-id": session.user.id.toString(),
         },
-        next: { revalidate: 30}
+        // next: { revalidate: 30}
+        cache: "no-store"
       });
 
       if (!response.ok) {

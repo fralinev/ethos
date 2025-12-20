@@ -41,7 +41,6 @@ chatsRouter.post("/create", async (req, res) => {
       return res.status(400).json({ message: "invalid payload" });
     }
 
-    // get requestor from db
     const requester = await db.query(
       "SELECT id, username FROM users WHERE id = $1",
       [requesterId]
@@ -51,43 +50,30 @@ chatsRouter.post("/create", async (req, res) => {
     }
     const requesterRow = requester.rows[0];
 
-    // max count
     const limitedParts =
       body.selectedUsers.length > 4
         ? body.selectedUsers.slice(0, 4)
         : body.selectedUsers;
 
-    // validate name length
     if (body.chatName.length > 15 || body.chatName.trim().length === 0) {
       return res.status(400).json({ message: "bad request" });
     }
 
-    // normalize participants
     const normalizedParts = limitedParts
       .map(({username}) => username.trim().toLowerCase())
       .filter((name) => name.length > 0); // drop empty
 
-    // dedupe
     const requestedSet = new Set(normalizedParts);
 
-    // delete requester if present
     requestedSet.delete(requesterRow.username.toLowerCase());
     const requestedArray = Array.from(requestedSet);
 
-    // OPTIONAL: require at least one other participant
-    // if (requestedArray.length === 0) {
-    //   return res
-    //     .status(400)
-    //     .json({ message: "at least one participant required" });
-    // }
-
-    // db lookup for participants in one query
     const result = await db.query(
       "SELECT id, username FROM users WHERE username = ANY($1::text[])",
       [requestedArray]
     );
 
-    const foundUsers = result.rows; // { id, username }[]
+    const foundUsers = result.rows; 
     const foundUsernameSet = new Set(
       foundUsers.map((u) => u.username.toLowerCase())
     );
@@ -103,13 +89,11 @@ chatsRouter.post("/create", async (req, res) => {
       });
     }
 
-    // combine requestor + participants
     const totalParts = [
       ...foundUsers.map((u) => ({ id: u.id, username: u.username })),
       { id: requesterRow.id, username: requesterRow.username },
     ];
 
-    // dedupe by id (belt & suspenders)
     const uniqueById = new Map<number, { id: number; username: string }>();
     for (const u of totalParts) {
       uniqueById.set(u.id, u);
@@ -189,7 +173,6 @@ chatsRouter.get("/", async (req, res) => {
       return res.status(401).json({ message: "unauthorized" });
     }
 
-    // Ensure requester exists
     const requester = await db.query(
       "SELECT id, username FROM users WHERE id = $1",
       [requesterId]
@@ -199,7 +182,6 @@ chatsRouter.get("/", async (req, res) => {
       return res.status(401).json({ message: "requestor not found" });
     }
 
-    // Get all chats where requester is a member
     const chatsResult = await db.query<ChatRow>(
       `
       SELECT c.id, c.name, c.created_by, c.created_at
@@ -221,7 +203,6 @@ chatsRouter.get("/", async (req, res) => {
       new Set(chats.map((c) => c.created_by))
     );
 
-    // Fetch all members for these chats
     const membersResult = await db.query(
       `
       SELECT cm.chat_id, u.id, u.username
@@ -232,7 +213,6 @@ chatsRouter.get("/", async (req, res) => {
       [chatIds]
     );
 
-    // Fetch creator usernames
     const creatorsResult = await db.query(
       `
       SELECT id, username
@@ -250,7 +230,6 @@ chatsRouter.get("/", async (req, res) => {
       creatorMap.set(row.id, { id: row.id, username: row.username });
     }
 
-    // Build map of chatId -> members[]
     const membersByChatId = new Map<
       number,
       Array<{ id: number; username: string }>
@@ -266,7 +245,6 @@ chatsRouter.get("/", async (req, res) => {
       membersByChatId.set(row.chat_id, existing);
     }
 
-    // Build DTOs matching the POST /create response shape
     const chatDtos = chats.map((chat) => {
       const creator = creatorMap.get(chat.created_by);
       const members = membersByChatId.get(chat.id) ?? [];
