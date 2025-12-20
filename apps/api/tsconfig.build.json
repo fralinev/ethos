@@ -6,7 +6,11 @@
     "module": "CommonJS",
     "target": "ES2020",
     "moduleResolution": "Node",
-    "types": ["node"]
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@ethos/shared": ["../../packages/shared/dist"]
+    }
   },
   "include": ["src/**/*.ts"]
 }

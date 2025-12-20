@@ -3,16 +3,18 @@
     "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "outDir": "dist",
-    "rootDir": "src",
+    "emitDeclarationOnly": false,
 
     "module": "CommonJS",
-    "moduleResolution": "Node",
-
     "target": "ES2020",
-    "lib": ["ES2022"],
-    "strict": true
+
+    "rootDir": "src",
+    "outDir": "dist",
+
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
   "include": ["src"],
-  
+  "exclude": ["dist", "node_modules"]
 }

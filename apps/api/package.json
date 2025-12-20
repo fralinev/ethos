@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --project tsconfig.json --respawn --transpile-only src/server.ts",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "npm run build -w @ethos/shared && tsc -p tsconfig.build.json",
     "start": "node dist/server.js"
   },
   "keywords": [],
@@ -13,6 +13,7 @@
   "description": "",
   "dependencies": {
     "@upstash/redis": "^1.35.6",
+    "@ethos/shared": "workspace:*",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",

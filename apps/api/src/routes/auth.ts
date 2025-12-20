@@ -2,7 +2,7 @@ import { Router } from "express";
 import bcrypt from "bcrypt";
 import { db } from "../db";
 import { broadcastToUsers } from "../ws/hub";
-import { AUTH_ERRORS } from "../../../../packages/shared/src/constants"
+import { AUTH_ERRORS } from "@ethos/shared"
 
 export const authRouter = Router();
 
