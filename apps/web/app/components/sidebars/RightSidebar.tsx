@@ -1,8 +1,5 @@
 "use client"
-import { useEffect, useState } from "react"
 import styles from "./RightSidebar.module.css"
-import { useSocket } from "@/apps/web/hooks/useSocket"
-import WsTestPage from "../../test/page"
 import Logger from "../Logger"
 import HealthCheck from "../HealthChecks"
 
