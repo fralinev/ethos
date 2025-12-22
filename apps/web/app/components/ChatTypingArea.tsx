@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState, useRef, useEffect, KeyboardEvent, ChangeEvent } from "react";
+import { useState, useRef, useEffect, KeyboardEvent, ChangeEvent } from "react";
 import styles from "./ChatTypingArea.module.css"
+import { throttle } from "../../lib/utils";
+import { useSocket } from "../../hooks/useSocket";
 
 type ChatTypingAreaProps = {
   onSend: (text: string) => void;
@@ -19,6 +21,15 @@ export default function ChatTypingArea({
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
+  const {client} = useSocket();
+
+  const sendTypingIndicator = useRef(
+    throttle(() => {
+      console.log("sending typing indicator");
+      client.send({type: "chat:typing"})
+    }, 3000)
+  ).current;
+
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
@@ -29,6 +40,7 @@ export default function ChatTypingArea({
   }, [value, maxHeight]);
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    sendTypingIndicator();
     setValue(e.target.value);
   };
 
@@ -70,8 +82,6 @@ export default function ChatTypingArea({
             Send
           </button>
         </div>
-
-        
       </div>
     </div>
   );

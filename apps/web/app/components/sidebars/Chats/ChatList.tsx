@@ -1,31 +1,28 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import DeleteChatModal from "./DeleteChatModal";
 import { useState } from "react";
 import type { Chat } from "../../../page";
-import SectionHeader from "../../SectionHeader";
 import styles from "./ChatList.module.css"
 import ChatRow from "./ChatRow"
 import RenameChatModal from "./RenameChatModal";
 import { Modal } from "../../Modal";
 import { useAppDispatch } from "@/apps/web/store/hooks";
 import { startChatLoading } from "@/apps/web/store/slices/chatSlice"
+import { useSocket } from "@/apps/web/hooks/useSocket";
 
-export default function ChatList({ chats, activeChatId }: { chats: Chat[], activeChatId: number | undefined }) {
+export default function ChatList({ chats, activeChatId }: { chats: Chat[], activeChatId: string | undefined }) {
   const [chatPendingDelete, setChatPendingDelete] = useState<Chat | null>(null);
   const [chatPendingRename, setChatPendingRename] = useState<Chat | null>(null);
-  const [openId, setOpenId] = useState<number | null>(null)
+  const [openId, setOpenId] = useState<string | null>(null)
 
   const router = useRouter();
   const dispatch = useAppDispatch();  
-  const searchParams = useSearchParams();
-  // const currentChatId = Number(searchParams.get("chatId"));
+  const { client } = useSocket();
 
-  const getChat = (chatId: number, chatName: string) => {
-    console.log("getting chat...")
-    // TODO: fix this.  Either explicitly make chat.id a string, or force it into a number earlier
-    if (Number(chatId) === activeChatId) return;
+  const getChat = (chatId: string, chatName: string) => {
+    if (chatId === activeChatId) return;
     dispatch(startChatLoading());
     router.push(`/?chatId=${chatId}&chatName=${encodeURIComponent(chatName)}`);
   };
@@ -38,14 +35,13 @@ export default function ChatList({ chats, activeChatId }: { chats: Chat[], activ
     setChatPendingRename(chat)
   }
 
-  const confirmDelete = async (chatId: number) => {
+  const confirmDelete = async (chatId: string) => {
     try {
       const response = await fetch(`/api/chats/${chatId}`, {
         method: "DELETE"
       })
       setChatPendingDelete(null)
-      // TODO: fix this.  Figure out when they are numbers and when they are strings
-      if (activeChatId?.toString() === chatId.toString()) {
+      if (activeChatId === chatId) {
         router.push("/")
       }
     } catch (err) {
@@ -54,7 +50,7 @@ export default function ChatList({ chats, activeChatId }: { chats: Chat[], activ
     
   }
 
-  const handleConfirmRename = async (chatId: number, name: string, newName: string) => {
+  const handleConfirmRename = async (chatId: string, name: string, newName: string) => {
     const response = await fetch(`/api/chats/${chatId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -67,7 +63,7 @@ export default function ChatList({ chats, activeChatId }: { chats: Chat[], activ
     setChatPendingRename(null)
   }
 
-  const handleEllipsesClick = (chatId: number) => {
+  const handleEllipsesClick = (chatId: string) => {
     setOpenId((prev) => (prev === chatId ? null : chatId));
   };
 

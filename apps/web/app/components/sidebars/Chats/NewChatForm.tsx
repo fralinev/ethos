@@ -26,20 +26,7 @@ export default function NewChatForm({ users, onCancel }: { users: User[], onCanc
       chatNameInputRef.current.focus();
     }
   }, []);
-
- 
-  const onCloseDropdown = (e: React.MouseEvent<HTMLDivElement>) => {
-    console.log("e.target and e.currentTarget", e.target, e.currentTarget)
-  }
-
-  const addUser = (user: User) => {
-    console.log(user)
-  }
-  const removeUser = (user: User) => {
-
-  }
   
-
   return (
     <>
       <h1>Create new chat <span style={{ color: "lightgreen" }}>{chatName}</span> {chatName.length > 0 ? "?" : null}</h1>
@@ -78,8 +65,8 @@ export default function NewChatForm({ users, onCancel }: { users: User[], onCanc
           </div>
         </div>
         <div className={styles.newChatButtons}>
-          <button type="submit" style={{ cursor: "pointer" }} className={styles.modalButton}>Create</button>
           <button type="button" style={{ cursor: "pointer" }} onClick={handleCancel} className={styles.modalButton}>Cancel</button>
+          <button type="submit" style={{ cursor: "pointer" }} className={styles.modalButton}>Create</button>
         </div>
       </form>
     </>

@@ -8,10 +8,10 @@ import { Chat } from "../../../page";
 
 type ChatRowProps = {
   chat: Chat,
-  getChat: (chatId: number, chatName: string) => void,
-  handleEllipsesClick: (chatId: number) => void,
-  openId: number | null;
-  setOpenId: React.Dispatch<React.SetStateAction<number | null>>,
+  getChat: (chatId: string, chatName: string) => void,
+  handleEllipsesClick: (chatId: string) => void,
+  openId: string | null;
+  setOpenId: React.Dispatch<React.SetStateAction<string | null>>,
   onDelete: (chat: Chat) => void,
   onRename: (chat: Chat) => void
 }

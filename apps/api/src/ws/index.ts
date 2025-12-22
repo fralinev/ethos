@@ -1,7 +1,7 @@
 import { WebSocketServer, WebSocket } from "ws";
 import type { Server as HttpServer } from "http";
 import type { Store as SessionStore } from "express-session";
-import { registerWss, registerUserSocket, unregisterSocket } from "./hub";
+import { registerWss, registerUserSocket, unregisterUserSocket, registerChatSocket, unregisterChatSocket } from "./hub";
 
 
 type SessionData = {
@@ -13,6 +13,7 @@ type SessionData = {
 
 export interface AuthedWebSocket extends WebSocket {
   user: SessionData["user"] | null;
+  chatId?: string
 }
 
 type HealthPayload = {
@@ -148,18 +149,18 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
         if (!err && session && (session as SessionData).user) {
           socket.user = (session as SessionData).user!;
           console.log("[ws] connected as authed user", socket.user.id);
-          registerUserSocket(Number(socket.user.id), socket);
+          registerUserSocket(socket.user.id, socket);
         } else {
           console.log("[ws] connected as guest (session miss)");
         }
       });
     } else {
       console.log("[ws] connected as guest (no cookie)");
-      
+
     }
 
     socket.on("message", (raw) => {
-      let data: any;
+      let data: { type: string, payload?: Record<string, unknown> };
       try {
         data = JSON.parse(raw.toString());
       } catch {
@@ -178,6 +179,19 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
             socket.send(JSON.stringify({ type: "error", error: "unauthorized" }));
             return;
           }
+          // TS guard
+          if (typeof data.payload?.chatId === "string") {
+            if (socket.chatId === data.payload?.chatId) return;
+            if (socket.chatId) {
+              unregisterChatSocket(socket)
+            }
+            socket.chatId = data.payload.chatId;
+            registerChatSocket(data.payload.chatId, socket)
+          }
+          break;
+        case "chat:leave":
+          unregisterChatSocket(socket)
+          delete socket.chatId
           break;
         case "chat:send":
           if (!socket.user) {
@@ -185,6 +199,9 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
             return;
           }
           break;
+        case "chat:typing":
+          console.log("chat typing")
+
         case "ping":
           socket.send(JSON.stringify({ type: "pong", payload: "hello from server" }))
         default:
@@ -196,7 +213,8 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
         healthSubscribers.delete(socket);
         stopHealthLoopIfIdle();
       }
-      unregisterSocket(socket);
+      unregisterUserSocket(socket);
+      unregisterChatSocket(socket);
     });
   });
 }

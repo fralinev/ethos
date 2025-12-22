@@ -10,6 +10,7 @@ import { usersRouter } from "./routes/users";
 import { authRouter } from './routes/auth';
 import { chatsRouter } from './routes/chats';
 import { sessionMiddleware } from './session';
+import { userSockets, chatSockets } from './ws/hub';
 
 
 
@@ -31,6 +32,30 @@ app.use(cors({
 app.use(helmet());
 app.use(sessionMiddleware);
 app.use(express.json());
+
+app.get("/socket-maps", (req, res) => {
+  if (process.env.NODE_ENV === "development") {
+    const userIds = [];
+    const chatIds: Record<string, { id: string, username?: string }[]> = {};
+    for (const [userId] of userSockets) {
+      userIds.push(userId)
+    }
+    for (const [chatId, set] of chatSockets) {
+      chatIds[chatId] = []
+      for (const { user } of set) {
+        if (user) {
+          chatIds[chatId].push(user)
+
+        }
+
+      }
+    }
+
+    res.status(200).json({ userIds, chatIds })
+  } else {
+    res.sendStatus(404)
+  }
+})
 
 app.get("/health", async (req, res) => {
   let dbStatus = "ok";

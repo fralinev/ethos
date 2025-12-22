@@ -56,7 +56,6 @@ export default function LoginPage() {
       if (res) {
         const data = await res.json();
         setErrorText(data.message)
-        console.log("checkk data", data)
         if (data.id) {
           router.push("/login")
         }

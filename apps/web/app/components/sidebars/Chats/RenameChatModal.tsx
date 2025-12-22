@@ -6,7 +6,7 @@ import Spinner from "../../Spinner"
 
 type RenameChatProps = {
   chat: Chat;
-  onConfirm: (chatId: number, name: string, newName: string) => Promise<void>;
+  onConfirm: (chatId: string, name: string, newName: string) => Promise<void>;
 }
 
 export default function RenameChatModal({ chat, onConfirm }: RenameChatProps) {

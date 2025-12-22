@@ -1,30 +1,46 @@
-// api/src/ws/wsHub.ts
 import type { WebSocketServer } from "ws";
 import WebSocket from "ws";
 import type { AuthedWebSocket } from ".";
+import type { SocketEvents } from "../types";
 
 let wssGlobal: WebSocketServer | null = null;
 
-// userId -> Set of sockets
-const userSockets = new Map<number, Set<AuthedWebSocket>>();
+export const userSockets = new Map<string, Set<AuthedWebSocket>>();
+export const chatSockets = new Map<string, Set<AuthedWebSocket>>();
 
+function logUserSocketKeys() {
+  for (const [userId] of userSockets) {
+    console.log("LOG current userSockets: ", userId);
+  }
+}
+function logChatSocketKeys() {
+  for (const [chatId] of chatSockets) {
+    console.log("LOG current chatSockets: ", chatId);
+  }
+}
+
+
+
+// Not used; possibly removable
 export function registerWss(instance: WebSocketServer) {
   wssGlobal = instance;
   console.log("[wsHub] WebSocketServer registered");
 }
 
-// When a socket is authenticated as a given user
-export function registerUserSocket(userId: number, socket: AuthedWebSocket) {
+export function registerUserSocket(userId: string, socket: AuthedWebSocket) {
   let set = userSockets.get(userId);
   if (!set) {
     set = new Set();
     userSockets.set(userId, set);
   }
+  // Allow multiple sockets for same user
   set.add(socket);
+  logUserSocketKeys()
+
 }
 
-// On socket close
-export function unregisterSocket(socket: AuthedWebSocket) {
+export function unregisterUserSocket(socket: AuthedWebSocket) {
+
   for (const [userId, set] of userSockets.entries()) {
     if (set.has(socket)) {
       set.delete(socket);
@@ -34,17 +50,45 @@ export function unregisterSocket(socket: AuthedWebSocket) {
       break;
     }
   }
+  logUserSocketKeys()
+
 }
 
-// 🔑 This is the helper your route will use.
-export function broadcastToUsers(userIds: number[], payload: any) {
-  console.log("Checkk broadcast", userIds, payload)
+export function registerChatSocket(chatId: string, socket: AuthedWebSocket) {
+  let set = chatSockets.get(chatId);
+  if (!set) {
+    set = new Set();
+    chatSockets.set(chatId, set);
+  }
+  set.add(socket)
+  for (const [chatId] of chatSockets) {
+    console.log("LOG current chatSockets REG: ", chatId);
+  }
+
+}
+
+export function unregisterChatSocket(socket: AuthedWebSocket) {
+  console.log("removing chatId (UNREG)", socket.chatId)
+  for (const [chatId, set] of chatSockets.entries()) {
+    if (set.has(socket)) {
+      set.delete(socket);
+      if (set.size === 0) {
+        chatSockets.delete(chatId);
+      }
+      break;
+    }
+  }
+
+}
+
+
+export function broadcastToUsers<E extends keyof SocketEvents>(userIds: string[], event: E, payload: SocketEvents[E]) {
   if (!wssGlobal) {
     console.warn("[wsHub] broadcastToUsers called before WSS registered");
     return;
   }
 
-  const json = JSON.stringify(payload);
+  const json = JSON.stringify({ type: event, payload });
 
   for (const userId of userIds) {
     const sockets = userSockets.get(userId);

@@ -4,6 +4,6 @@
     "outDir": "dist",
     "rootDir": "../../"
   },
-  "include": ["app"],
+  "include": ["app", "lib", "types"],
   "exclude": ["node_modules"]
 }

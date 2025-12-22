@@ -5,21 +5,18 @@ import LeftSidebar from "./components/sidebars/LeftSidebar";
 import styles from "./page.module.css";
 import Header from "./components/Header";
 import clsx from "clsx";
-import Spinner from "./components/Spinner";
-import ChatTranscript from "./components/ChatTranscript";
-import About from "./components/About";
 import MiddleSection from "./components/MiddleSection";
 
 export type Chat = {
-  id: number;
+  id: string;
   name: string;
   createdAt: string;
   createdBy: {
-    id: number;
+    id: string;
     username: string;
   } | null;
   members: {
-    id: number;
+    id: string;
     username: string;
   }[];
   newName?: string
@@ -28,23 +25,23 @@ export type Chat = {
 export type Message = {
   clientId?: string
   optimistic?: boolean,
-  id?: number;
-  chatId: number;
+  id?: string;
+  chatId: string;
   body: string;
   createdAt: string;
   sender: {
-    id: number;
+    id: string;
     username: string;
   };
 };
 export type OptimisticMessage = {
   clientId: string
   optimistic: boolean,
-  chatId: number;
+  chatId: string;
   body: string;
   createdAt: string;
   sender: {
-    id: number;
+    id: string;
     username: string;
   };
 };
@@ -52,12 +49,12 @@ export type OptimisticMessage = {
 export type ChatMessage = ServerMessage | OptimisticMessage;
 
 export type ServerMessage = {
-  id: number;
-  chatId: number;
+  id: string;
+  chatId: string;
   body: string;
   createdAt: string;
   sender: {
-    id: number;
+    id: string;
     username: string;
   };
 };
@@ -78,8 +75,7 @@ export default async function Home({ searchParams }: HomeProps) {
   const session: SessionData | AuthedSession | undefined = await getSessionFromNextRequest();
 
   const { chatId, chatName } = await searchParams;
-  const activeChatId: number | undefined =
-    chatId && !Number.isNaN(Number(chatId)) ? Number(chatId) : undefined;
+  const activeChatId: string | undefined = chatId  ? chatId : undefined;
   let initialChats: Chat[] = [];
 
   if (session?.user) {

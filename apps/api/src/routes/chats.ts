@@ -60,7 +60,7 @@ chatsRouter.post("/create", async (req, res) => {
     }
 
     const normalizedParts = limitedParts
-      .map(({username}) => username.trim().toLowerCase())
+      .map(({ username }) => username.trim().toLowerCase())
       .filter((name) => name.length > 0); // drop empty
 
     const requestedSet = new Set(normalizedParts);
@@ -73,7 +73,7 @@ chatsRouter.post("/create", async (req, res) => {
       [requestedArray]
     );
 
-    const foundUsers = result.rows; 
+    const foundUsers = result.rows;
     const foundUsernameSet = new Set(
       foundUsers.map((u) => u.username.toLowerCase())
     );
@@ -143,10 +143,7 @@ chatsRouter.post("/create", async (req, res) => {
         })),
       };
 
-      broadcastToUsers(finalMembers.map(u => Number(u.id)), {
-        type: "chat:created",
-        payload: chatDTO,
-      });
+      broadcastToUsers(finalMembers.map(u => Number(u.id)), "chat:created", chatDTO);
 
       return res.status(201).json(chatDTO);
     } catch (txErr) {
@@ -428,7 +425,7 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
 
     const msg = insertResult.rows[0];
 
-    const messageDto = {
+    const messageDTO = {
       id: msg.id,
       chatId: msg.chat_id,
       body: msg.content,
@@ -450,14 +447,9 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
 
     const memberIds = membersResult.rows.map((row) => Number(row.user_id));
 
+    broadcastToUsers(memberIds, "message:created", messageDTO);
 
-    console.log("CHECKK API for message", memberIds)
-    broadcastToUsers(memberIds, {
-      type: "message:created",
-      payload: messageDto,
-    });
-
-    return res.status(201).json(messageDto);
+    return res.status(201).json(messageDTO);
   } catch (err) {
     console.error("error creating message:", err);
     return res.status(500).json({ message: "unknown" });
@@ -521,10 +513,7 @@ chatsRouter.delete("/:chatId", async (req, res) => {
 
 
     const memberIds = chatMembers.rows.map((row) => Number(row.user_id));
-    broadcastToUsers(memberIds, {
-      type: "chat:deleted",
-      payload: { chatId, name, deletedBy },
-    });
+    broadcastToUsers(memberIds, "chat:deleted", { chatId, name, deletedBy });
 
     if (deleteResult.rowCount === 0) {
       return res.status(404).json({ message: "chat not found" });
@@ -583,10 +572,7 @@ chatsRouter.patch("/:chatId", async (req, res) => {
     );
 
     const memberIds = chatMembers.rows.map((row) => Number(row.user_id));
-    broadcastToUsers(memberIds, {
-      type: "chat:renamed",
-      payload: { chatId, renamedBy: requester.rows[0].username, oldName, newName },
-    });
+    broadcastToUsers(memberIds, "chat:renamed", { chatId, renamedBy: requester.rows[0].username, oldName, newName });
 
     return res.status(200).json({ result });
   } catch (e) {

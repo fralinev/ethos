@@ -31,11 +31,9 @@ export default function LoginPage() {
   
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("login check 2")
 
     setErrorText("");
     if (!isFormValid()) return;
-    console.log("login check 3")
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",

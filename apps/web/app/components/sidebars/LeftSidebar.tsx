@@ -21,7 +21,7 @@ export default function LeftSidebar({
   activeChatId }: {
     session: SessionData | undefined,
     initialChats: Chat[],
-    activeChatId: number | undefined
+    activeChatId: string | undefined
   }) {
 
   const [users, setUsers] = useState<User[]>([])

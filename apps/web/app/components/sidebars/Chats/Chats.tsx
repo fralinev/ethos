@@ -18,7 +18,7 @@ export default function Chats({
   users }: {
     initialChats: Chat[],
     session: SessionData | undefined,
-    activeChatId: number | undefined,
+    activeChatId: string | undefined,
     users: User[]
   }) {
   const [chats, setChats] = useState<Chat[]>(initialChats);
@@ -28,7 +28,7 @@ export default function Chats({
   const { client } = useSocket();
   const router = useRouter();
 
-  const activeChatIdRef = useRef<number | undefined>(activeChatId);
+  const activeChatIdRef = useRef<string | undefined>(activeChatId);
 
   useEffect(() => {
     setChats(initialChats);

@@ -9,7 +9,7 @@ import Spinner from "./Spinner";
 import { finishChatLoading } from "../../store/slices/chatSlice";
 
 
-export default function MiddleSection({ activeChatId, session, chatName }: { activeChatId: number | undefined, session: any, chatName: any }) {
+export default function MiddleSection({ activeChatId, session, chatName }: { activeChatId: string | undefined, session: any, chatName: any }) {
   const dispatch = useAppDispatch();
   const isChatLoading = useAppSelector((s) => s.ui.isChatLoading);
 

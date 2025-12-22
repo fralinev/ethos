@@ -29,10 +29,7 @@ authRouter.post("/login", async (req, res) => {
     const sessionId = req.sessionID;
     await db.query("UPDATE users SET last_login_at = now() WHERE username = $1", [normalizedUsername]);
 
-    // broadcastToUsers([user.id], {
-    //     type: "user:login",
-    //     payload: chatDTO,
-    //   });
+    broadcastToUsers([user.id], "user:login", {username: user.username});
 
     return res.status(200).json({
       ok: true,

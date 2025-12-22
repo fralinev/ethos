@@ -3,10 +3,9 @@
 
 import { useState, useEffect } from "react";
 import { SessionData } from "../../lib/session";
-import About from "./About";
 import ChatTypingArea from "./ChatTypingArea";
 import { useSocket } from "../../hooks/useSocket";
-import type { Message, ServerMessage, OptimisticMessage, ChatMessage, AuthedSession } from "../page";
+import type { Message, ChatMessage, AuthedSession } from "../page";
 import styles from "./ChatTranscript.module.css"
 import SectionHeader from "./SectionHeader";
 import Spinner from "./Spinner";
@@ -22,19 +21,15 @@ export default function ChatTranscript({
   chatName
 }: {
   session: AuthedSession,
-  activeChatId?: number,
+  activeChatId?: string,
   chatName: string | undefined,
 }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const { client } = useSocket();
   const dispatch = useAppDispatch();
-
   const router = useRouter();
   const isChatLoading = useAppSelector((s) => s.ui.isChatLoading);
-
-  
-
 
   useEffect(() => {
     if (!client) return;
@@ -42,7 +37,7 @@ export default function ChatTranscript({
       if (msg?.type === "message:created") {
         const newMsg = {
           ...msg.payload,
-          chatId: Number(msg.payload.chatId)
+          chatId: msg.payload.chatId
         };
         if (session?.user && newMsg.sender.id === session.user.id) {
           return;
@@ -78,6 +73,7 @@ export default function ChatTranscript({
           } else {
             const data = await response.json();
             setMessages(data)
+            client.send({ type: "chat:join", payload: { chatId: activeChatId, chatName } })
           }
         } catch (err) {
           console.error("Error fetching messages:", err);
@@ -94,9 +90,9 @@ export default function ChatTranscript({
     if (!activeChatId) return;
     try {
       const clientId = crypto.randomUUID();
-      setMessages((prev:ChatMessage[]) => {
+      setMessages((prev: ChatMessage[]) => {
         return [
-          ...prev, 
+          ...prev,
           {
             clientId,
             optimistic: true,
@@ -104,10 +100,10 @@ export default function ChatTranscript({
             body: text,
             createdAt: new Date().toISOString(),
             sender: {
-              id: Number(session.user.id),
+              id: session.user.id,
               username: session.user.username
             }
-        }]
+          }]
       })
       const resp = await fetch(`/api/chats/${activeChatId}/messages`, {
         method: "POST",
@@ -121,31 +117,24 @@ export default function ChatTranscript({
         return;
       }
       const newMessage: Message = await resp.json();
-      setMessages((prev: any) => 
+      setMessages((prev: any) =>
         prev.map((message: any) => message.clientId === clientId ? newMessage : message));
     } catch (err) {
       console.error("Error sending message:", err);
     }
   };
 
-  // console.log("Checkk messages", messages)
-
   const exitChat = () => {
     dispatch(startChatLoading())
+    client.send({ type: "chat:leave", payload: { chatId: activeChatId } })
     return router.push("/")
   }
-
-  // if (!session?.user || !activeChatId) {
-  //   return isChatLoading 
-  //   ?  <Spinner size={60} /> 
-  //   : <About />
-  // }
 
   return (
     <div id="transcript-container" className={styles.transcriptContainer}>
       <SectionHeader text={chatName} onClose={exitChat} />
       {isChatLoading
-        ?  <Spinner size={60} /> 
+        ? <Spinner size={60} />
         : <div className={styles.messagesArea}>
           {messages.length === 0 ? (
             <div>No messages yet in this chat.</div>
@@ -154,7 +143,6 @@ export default function ChatTranscript({
               {messages.map((m: any) => (
                 <li key={m.id ?? m.clientId}>
                   <strong>{m.sender.username}</strong>: {m.body}{" "}
-                  {/* <small>{m.createdAt}</small> */}
                 </li>
               ))}
             </ul>

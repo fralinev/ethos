@@ -27,10 +27,6 @@ export const useNewChatForm = (onCancel:React.Dispatch<React.SetStateAction<bool
 
   const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // const participantsArray = participants
-    //   .split(',')
-    //   .map(p => p.trim())
-    console.log("check new chat form", selectedUsers)
     const response = await fetch("/api/chats/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -53,6 +53,14 @@ export default function Logger() {
         }
         setLogs((prev: EventLog[]) => [log, ...prev])
       }
+      if (message?.type === "user:login") {
+        const log: EventLog = {
+          level: message.type,
+          user: message.payload.username,
+          message: ""  
+        }
+        setLogs((prev: EventLog[]) => [log, ...prev])
+      }
     });
     return () => {
       off()
@@ -88,6 +96,13 @@ export default function Logger() {
       </div>
     )
   }
+  const formatUserLogin = (log: EventLog, i: number) => {
+    return (
+      <div key={i}>Logged in as  {" "}
+        <span style={{ color: "lightblue" }}>{log.user}{" "}</span>
+      </div>
+    )
+  }
 
 
   return (
@@ -103,6 +118,9 @@ export default function Logger() {
           }
           if (log.level === "chat:renamed") {
             return formatChatRenamedLog(log, i)
+          }
+          if (log.level === "user:login") {
+            return formatUserLogin(log, i)
           }
           return <div key={i}>{log.message}</div>
         })}
