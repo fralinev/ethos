@@ -1,14 +1,14 @@
 
 export type Chat = {
-  id: number;
+  id: string;
   name: string;
   createdAt: string;
   createdBy: {
-    id: number;
+    id: string;
     username: string;
   } | null;
   members: {
-    id: number;
+    id: string;
     username: string;
   }[];
   newName?: string
@@ -17,12 +17,12 @@ export type Chat = {
 export type Message = {
   clientId?: string
   optimistic?: boolean,
-  id?: number;
-  chatId: number;
+  id?: string;
+  chatId: string;
   body: string;
   createdAt: string;
   sender: {
-    id: number;
+    id: string;
     username: string;
   };
 };
@@ -31,12 +31,12 @@ export type SocketEvents = {
   "chat:created": Chat;
   "message:created": Message;
   "chat:deleted": {
-    chatId: number,
+    chatId: string,
     name: string,
     deletedBy: string
   };
   "chat:renamed": {
-    chatId: number,
+    chatId: string,
     renamedBy: string,
     oldName: string,
     newName: string

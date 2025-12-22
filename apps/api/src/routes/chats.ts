@@ -14,9 +14,9 @@ type NewChat = {
 };
 
 type ChatRow = {
-  id: number;
+  id: string;
   name: string;
-  created_by: number;
+  created_by: string;
   created_at: string;
 };
 
@@ -26,9 +26,9 @@ chatsRouter.post("/create", async (req, res) => {
   try {
     const { body, headers }: { body: NewChat; headers: any } = req;
     const requesterIdRaw = headers?.["x-user-id"];
-    const requesterId = Number(requesterIdRaw);
+    const requesterId = requesterIdRaw;
 
-    if (!requesterIdRaw || Number.isNaN(requesterId)) {
+    if (!requesterIdRaw ) {
       return res.status(401).json({ message: "unauthorized" });
     }
 
@@ -94,7 +94,7 @@ chatsRouter.post("/create", async (req, res) => {
       { id: requesterRow.id, username: requesterRow.username },
     ];
 
-    const uniqueById = new Map<number, { id: number; username: string }>();
+    const uniqueById = new Map<string, { id: string; username: string }>();
     for (const u of totalParts) {
       uniqueById.set(u.id, u);
     }
@@ -143,7 +143,7 @@ chatsRouter.post("/create", async (req, res) => {
         })),
       };
 
-      broadcastToUsers(finalMembers.map(u => Number(u.id)), "chat:created", chatDTO);
+      broadcastToUsers(finalMembers.map(u => u.id), "chat:created", chatDTO);
 
       return res.status(201).json(chatDTO);
     } catch (txErr) {
@@ -164,9 +164,9 @@ chatsRouter.get("/", async (req, res) => {
   try {
     const { headers }: { headers: any } = req;
     const requesterIdRaw = headers?.["x-user-id"];
-    const requesterId = Number(requesterIdRaw);
+    const requesterId = requesterIdRaw;
 
-    if (!requesterIdRaw || Number.isNaN(requesterId)) {
+    if (!requesterIdRaw) {
       return res.status(401).json({ message: "unauthorized" });
     }
 
@@ -219,22 +219,22 @@ chatsRouter.get("/", async (req, res) => {
       [creatorIds]
     );
 
-    const creatorMap = new Map<number, { id: number; username: string }>();
+    const creatorMap = new Map<string, { id: string; username: string }>();
     for (const row of creatorsResult.rows as Array<{
-      id: number;
+      id: string;
       username: string;
     }>) {
       creatorMap.set(row.id, { id: row.id, username: row.username });
     }
 
     const membersByChatId = new Map<
-      number,
-      Array<{ id: number; username: string }>
+      string,
+      Array<{ id: string; username: string }>
     >();
 
     for (const row of membersResult.rows as Array<{
-      chat_id: number;
-      id: number;
+      chat_id: string;
+      id: string;
       username: string;
     }>) {
       const existing = membersByChatId.get(row.chat_id) ?? [];
@@ -278,9 +278,9 @@ chatsRouter.get("/:chatId/messages", async (req, res) => {
     // 1) Auth: validate requester
     // ─────────────────────────────
     const requesterIdRaw = headers?.["x-user-id"];
-    const requesterId = Number(requesterIdRaw);
+    const requesterId = requesterIdRaw;
 
-    if (!requesterIdRaw || Number.isNaN(requesterId)) {
+    if (!requesterIdRaw) {
       return res.status(401).json({ message: "unauthorized" });
     }
 
@@ -288,9 +288,9 @@ chatsRouter.get("/:chatId/messages", async (req, res) => {
     // 2) Parse and validate chatId
     // ─────────────────────────────
     const chatIdRaw = params.chatId;
-    const chatId = Number(chatIdRaw);
+    const chatId = chatIdRaw;
 
-    if (!chatIdRaw || Number.isNaN(chatId)) {
+    if (!chatIdRaw) {
       return res.status(400).json({ message: "invalid chat id" });
     }
 
@@ -355,17 +355,17 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
     const { headers, params, body } = req;
 
     const requesterIdRaw = headers?.["x-user-id"];
-    const requesterId = Number(requesterIdRaw);
+    const requesterId = requesterIdRaw;
 
-    if (!requesterIdRaw || Number.isNaN(requesterId)) {
+    if (!requesterIdRaw) {
       return res.status(401).json({ message: "unauthorized" });
     }
 
 
     const chatIdRaw = params.chatId;
-    const chatId = Number(chatIdRaw);
+    const chatId = chatIdRaw;
 
-    if (!chatIdRaw || Number.isNaN(chatId)) {
+    if (!chatIdRaw) {
       return res.status(400).json({ message: "invalid chat id" });
     }
 
@@ -445,7 +445,7 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
       [chatId]
     );
 
-    const memberIds = membersResult.rows.map((row) => Number(row.user_id));
+    const memberIds = membersResult.rows.map((row) =>row.user_id);
 
     broadcastToUsers(memberIds, "message:created", messageDTO);
 
@@ -460,16 +460,16 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
 chatsRouter.delete("/:chatId", async (req, res) => {
   try {
     const userIdHeader = req.header("x-user-id");
-    const userId = Number(userIdHeader);
+    const userId = userIdHeader;
 
-    if (!userIdHeader || Number.isNaN(userId)) {
+    if (!userIdHeader) {
       return res.status(401).json({ message: "unauthorized" });
     }
 
     const { chatId: chatIdParam } = req.params;
-    const chatId = Number(chatIdParam);
+    const chatId = chatIdParam;
 
-    if (!chatIdParam || Number.isNaN(chatId)) {
+    if (!chatIdParam) {
       return res.status(400).json({ message: "invalid chat id" });
     }
 
@@ -512,7 +512,7 @@ chatsRouter.delete("/:chatId", async (req, res) => {
 
 
 
-    const memberIds = chatMembers.rows.map((row) => Number(row.user_id));
+    const memberIds = chatMembers.rows.map((row) => row.user_id);
     broadcastToUsers(memberIds, "chat:deleted", { chatId, name, deletedBy });
 
     if (deleteResult.rowCount === 0) {
@@ -530,16 +530,16 @@ chatsRouter.patch("/:chatId", async (req, res) => {
   try {
 
     const userIdHeader = req.header("x-user-id");
-    const userId = Number(userIdHeader);
+    const userId = userIdHeader;
 
-    if (!userIdHeader || Number.isNaN(userId)) {
+    if (!userIdHeader) {
       return res.status(401).json({ message: "unauthorized" });
     }
 
     const { chatId: chatIdParam } = req.params;
-    const chatId = Number(chatIdParam);
+    const chatId = chatIdParam;
 
-    if (!chatIdParam || Number.isNaN(chatId)) {
+    if (!chatIdParam ) {
       return res.status(400).json({ message: "invalid chat id" });
     }
 
@@ -571,7 +571,7 @@ chatsRouter.patch("/:chatId", async (req, res) => {
       [chatId]
     );
 
-    const memberIds = chatMembers.rows.map((row) => Number(row.user_id));
+    const memberIds = chatMembers.rows.map((row) => row.user_id);
     broadcastToUsers(memberIds, "chat:renamed", { chatId, renamedBy: requester.rows[0].username, oldName, newName });
 
     return res.status(200).json({ result });
