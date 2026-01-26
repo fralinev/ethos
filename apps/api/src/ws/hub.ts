@@ -35,7 +35,6 @@ export function registerUserSocket(userId: string, socket: AuthedWebSocket) {
   }
   // Allow multiple sockets for same user
   set.add(socket);
-  logUserSocketKeys()
 
 }
 
@@ -50,7 +49,6 @@ export function unregisterUserSocket(socket: AuthedWebSocket) {
       break;
     }
   }
-  logUserSocketKeys()
 
 }
 

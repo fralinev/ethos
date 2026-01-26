@@ -34,6 +34,7 @@ app.use(sessionMiddleware);
 app.use(express.json());
 
 app.get("/socket-maps", (req, res) => {
+  console.log("CHECKK", process.env.NODE_ENV)
   if (process.env.NODE_ENV === "development") {
     const userIds = [];
     const chatIds: Record<string, { id: string, username?: string }[]> = {};

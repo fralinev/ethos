@@ -7,6 +7,13 @@ type OpenHandler = () => void;
 type CloseHandler = (ev: CloseEvent) => void;
 type ErrorHandler = (ev: Event) => void;
 
+type Status =
+  | "idle"
+  | "connecting"
+  | "open"
+  | "closed"
+  | "reconnecting";
+
 type SocketMessageToUI = {
   type: string;
   payload?: object;
@@ -15,8 +22,11 @@ type SocketMessageToUI = {
 
 class SocketClient {
   private url: string;
-  private ws: WebSocket | null = null;
-
+  private socket: WebSocket | null = null;
+  private status: Status = "idle";
+  private reconnectAttempts = 0;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private shouldReconnect: boolean = true;
   private messageHandlers = new Set<MessageHandler>();
   private openHandlers = new Set<OpenHandler>();
   private closeHandlers = new Set<CloseHandler>();
@@ -27,22 +37,25 @@ class SocketClient {
   }
 
   connect() {
-    if (
-      this.ws &&
-      (this.ws.readyState === WebSocket.OPEN ||
-        this.ws.readyState === WebSocket.CONNECTING)
-    ) {
-      return;
-    }
+    if (this.status === "open" || this.status === "connecting") return;
+    this.status = "connecting"
+    const socket = new WebSocket(this.url);
+    this.socket = socket;
+    this.shouldReconnect = true
+    const current = socket;
 
-    const ws = new WebSocket(this.url);
-    this.ws = ws;
-
-    ws.onopen = () => {
+    socket.onopen = () => {
+      if (this.socket !== current) return;
+      if (this.reconnectTimer) {
+        clearTimeout(this.reconnectTimer);
+        this.reconnectTimer = null;
+      }
+      this.status = "open";
+      this.reconnectAttempts = 0;
       this.openHandlers.forEach((fn) => fn());
     };
 
-    ws.onmessage = (event) => {
+    socket.onmessage = (event) => {
       let data: SocketMessageToUI = event.data;
       try {
         data = JSON.parse(event.data);
@@ -52,31 +65,44 @@ class SocketClient {
       this.messageHandlers.forEach((fn) => fn(data));
     };
 
-    ws.onclose = (ev) => {
+    socket.onclose = (ev) => {
+      if (this.socket !== current) return;
+      this.status = "closed"
       this.closeHandlers.forEach((fn) => fn(ev));
+      if (this.shouldReconnect) {
+        this.scheduleReconnect()
+      }
     };
 
-    ws.onerror = (ev) => {
+    socket.onerror = (ev) => {
+      if (this.socket !== current) return;
       this.errorHandlers.forEach((fn) => fn(ev));
+      socket.close()
     };
   }
 
   disconnect(code?: number, reason?: string) {
-    if (this.ws) {
-      this.ws.close(code, reason);
-      this.ws = null;
+    if (this.socket) {
+      this.shouldReconnect = false;
+      if (this.reconnectTimer) {
+        clearTimeout(this.reconnectTimer);
+        this.reconnectTimer = null;
+      }
+      this.socket.close(code, reason);
+      this.socket = null;
+      this.status = "idle"
     }
   }
 
-  send(payload: {type: string, payload?: object}) {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
+  send(payload: { type: string, payload?: object }) {
+    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
     const data =
       typeof payload === "string" ? payload : JSON.stringify(payload);
-    this.ws.send(data);
+    this.socket.send(data);
   }
 
   get readyState(): number {
-    return this.ws ? this.ws.readyState : WebSocket.CLOSED;
+    return this.socket ? this.socket.readyState : WebSocket.CLOSED;
   }
 
   onMessage(handler: MessageHandler): () => void {
@@ -98,10 +124,23 @@ class SocketClient {
     this.errorHandlers.add(handler);
     return () => this.errorHandlers.delete(handler);
   }
+
+  scheduleReconnect() {
+    if (this.status === "reconnecting") return;
+    this.status = "reconnecting";
+    this.reconnectAttempts++
+    const delay = Math.min(1000 * 2 ** this.reconnectAttempts, 15000);
+    console.log(`[ws] reconnecting in ${delay}ms`);
+    this.reconnectTimer = setTimeout(() => {
+      this.connect()
+    }, delay)
+  }
 }
 
 let sharedClient: SocketClient | null = null;
 let isConnected = false
+
+
 
 function getSocketClient(): SocketClient {
   if (!sharedClient) {
