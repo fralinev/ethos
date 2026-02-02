@@ -39,6 +39,7 @@ class SocketClient {
   connect() {
     if (this.status === "open" || this.status === "connecting") return;
     this.status = "connecting"
+    console.log("[ws] connecting")
     const socket = new WebSocket(this.url);
     this.socket = socket;
     this.shouldReconnect = true
@@ -68,6 +69,7 @@ class SocketClient {
     socket.onclose = (ev) => {
       if (this.socket !== current) return;
       this.status = "closed"
+      console.log("[ws] closing")
       this.closeHandlers.forEach((fn) => fn(ev));
       if (this.shouldReconnect) {
         this.scheduleReconnect()

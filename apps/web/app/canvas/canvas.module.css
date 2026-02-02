@@ -1,0 +1,114 @@
+.wrapper {
+  height: 100dvh;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+}
+
+.circle {
+  position: absolute;
+  width: 62vmax;
+  height: 62vmax;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%,
+      #d6ff5f,
+      yellowgreen 60%,
+      #283b02);
+  top: -20vmax;
+  right: -20vmax;
+  box-shadow:
+    0 0 240px rgba(154, 205, 50, 0.4),
+    0 0 240px rgba(154, 205, 50, 0.15);
+  /* animation: float 10s ease-in-out infinite; */
+}
+
+.logo {
+  position: absolute;
+  left: 35%;
+  top: 60%;
+  transform: translate(-50%, -50%);
+
+  font-size: clamp(48px, 8vw, 120px);
+  font-weight: 900;
+  letter-spacing: 8px;
+  color: black;
+}
+
+.rayAnchor {
+  position: absolute;
+
+  top: 50%;
+  right: 50%;
+
+  width: 50%;        /* circle radius */
+  height: 0;
+
+  transform-origin: right center;
+}
+
+.ray {
+  width: 400px;
+  height: 6px;
+
+  background: yellowgreen;
+  transform: translate(-100%, 0);
+
+  transform-origin: left center;
+  animation: grow 1.6s ease-out forwards;
+}
+.ray0 {
+transform: rotate(0deg);
+  /* display: flex;
+  justify-content: flex-start;
+  align-items: center; */
+
+}
+.ray1 {
+transform: rotate(-12deg);
+}
+.ray2 {
+transform: rotate(-24deg);
+}
+.ray3 {
+  transform: rotate(-36deg);
+}
+
+@keyframes grow {
+  from { scale: 0 1; }
+  to   { scale: 1 1; }
+}
+
+
+
+@keyframes pulse-travel {
+  from {
+    right: 0;
+    opacity: 1;
+  }
+  to {
+    right: 100%;
+    opacity: 1;
+  }
+}
+
+.btn {
+  opacity: 0;
+  transform: scale(0.8);
+
+  animation: pop 300ms ease forwards;
+  animation-delay: 1.6s; /* match ray duration */
+}
+
+@keyframes pop {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+
+/* @keyframes float {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-20px, 20px); }
+} */
