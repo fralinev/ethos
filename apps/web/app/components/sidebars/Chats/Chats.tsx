@@ -2,7 +2,7 @@
 import styles from "./styles.module.css"
 import { useState, useEffect, useRef } from "react"
 import ChatList from "./ChatList"
-import type { Chat } from "../../../page"
+import type { Chat } from "../../../home/page"
 import NewChatForm from "./NewChatForm"
 import { useSocket } from "@/apps/web/hooks/useSocket"
 import type { SessionData } from "@/apps/web/lib/session"

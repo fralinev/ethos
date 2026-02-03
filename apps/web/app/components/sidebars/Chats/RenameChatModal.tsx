@@ -1,7 +1,7 @@
 "use client"
 import styles from "./RenameChat.module.css"
 import { useState } from "react"
-import { Chat } from "../../../page"
+import { Chat } from "../../../home/page"
 import Spinner from "../../Spinner"
 
 type RenameChatProps = {
