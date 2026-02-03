@@ -9,7 +9,7 @@
     min-height: 35vh;
     justify-content: space-between;
     align-items: center;
-    margin: 100px 0 0 0;
+    /* margin: 100px 0 0 0; */
     border: 5px solid yellowgreen;
     width: 400px;
 }

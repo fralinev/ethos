@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import DeleteChatModal from "./DeleteChatModal";
 import { useState } from "react";
-import type { Chat } from "../../../page";
+import type { Chat } from "../../../home/page";
 import styles from "./ChatList.module.css"
 import ChatRow from "./ChatRow"
 import RenameChatModal from "./RenameChatModal";
@@ -24,7 +24,7 @@ export default function ChatList({ chats, activeChatId }: { chats: Chat[], activ
   const getChat = (chatId: string, chatName: string) => {
     if (chatId === activeChatId) return;
     dispatch(startChatLoading());
-    router.push(`/?chatId=${chatId}&chatName=${encodeURIComponent(chatName)}`);
+    router.push(`/home?chatId=${chatId}&chatName=${encodeURIComponent(chatName)}`);
   };
 
   const onDelete = (chat: Chat) => {
@@ -42,7 +42,7 @@ export default function ChatList({ chats, activeChatId }: { chats: Chat[], activ
       })
       setChatPendingDelete(null)
       if (activeChatId === chatId) {
-        router.push("/")
+        router.push("/home")
       }
     } catch (err) {
       console.error(err)

@@ -8,7 +8,7 @@ import { TiEye } from "react-icons/ti";
 import styles from "./signup.module.css"
 import { AUTH_ERRORS } from "@/packages/shared/src/constants";
 
-export default function LoginPage() {
+export default function SignupPage({onCancel}:{onCancel: any}) {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [passwordType, setPasswordType] = useState("password")
@@ -120,7 +120,7 @@ export default function LoginPage() {
 
           </div>
           <div id="signup-buttons" className={styles.authButtons}>
-            <button className={styles.authButton} type="button" onClick={() => router.push("/login")}>← Back to login</button>
+            <button className={styles.authButton} type="button" onClick={onCancel}>←</button>
             <button className={styles.authButton} type="submit">Create</button>
           </div>
           <div>

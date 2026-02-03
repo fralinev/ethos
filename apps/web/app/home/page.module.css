@@ -1,0 +1,43 @@
+.page {
+  min-height: 100vh;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #0b0b0f; 
+  color: #f5f5f5;      
+  flex: 1
+}
+
+.layout {
+  display: flex;
+  height: calc(100vh - 40px);
+  flex: 1;
+  width: 100vw; 
+  /* margin: 0 auto;       */
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border-left: 5px solid yellowgreen;
+  border-right: 5px solid yellowgreen;
+}
+
+.sidebarLeft {
+  width: 20vw;
+  border-left: none;
+}
+
+.sidebarRight {
+  width: 30vw;
+  border-right: none;
+}
+
+.main {
+  flex: 1;
+  max-height: 100%;
+  /* padding: 16px; */
+  display: flex;
+  flex-direction: column;
+}

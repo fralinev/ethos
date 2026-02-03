@@ -9,7 +9,7 @@ import { TiEye } from "react-icons/ti";
 
 import styles from "./login.module.css"
 
-export default function LoginPage() {
+export default function LoginPage({onCancel}:{onCancel: any}) {
 
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
@@ -49,7 +49,7 @@ export default function LoginPage() {
         return;
       }
       setErrorText(data.message ?? "logging in...");
-      router.push("/");
+      router.push("/home");
     } catch (err) {
       console.error("Login error", err);
       setErrorText("Something went wrong logging in");
@@ -109,8 +109,7 @@ export default function LoginPage() {
             </div>
           </div>
           <div id="login-buttons" className={styles.authButtons}>
-            {/* <button className={styles.authButton} type="submit">← Home</button> */}
-            <button className={styles.authButton} type="button" onClick={handleSignup}>Create new user</button>
+            <button className={styles.authButton} type="button" onClick={onCancel}>←</button>
             <button className={styles.authButton} type="submit">Login</button>
 
           </div>

@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { SessionData } from "../../lib/session";
 import ChatTypingArea from "./ChatTypingArea";
 import { useSocket } from "../../hooks/useSocket";
-import type { Message, ChatMessage, AuthedSession } from "../page";
+import type { Message, ChatMessage, AuthedSession } from "../home/page";
 import styles from "./ChatTranscript.module.css"
 import SectionHeader from "./SectionHeader";
 import Spinner from "./Spinner";
@@ -127,7 +127,7 @@ export default function ChatTranscript({
   const exitChat = () => {
     dispatch(startChatLoading())
     client.send({ type: "chat:leave", payload: { chatId: activeChatId } })
-    return router.push("/")
+    return router.push("/home")
   }
 
   return (

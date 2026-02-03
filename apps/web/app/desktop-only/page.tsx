@@ -1,16 +1,8 @@
-import styles from "./canvas.module.css"
+import styles from "./desktopOnly.module.css"
 
-export default function Canvas() {
+export default function DesktopOnly() {
   return (
-    <main className={styles.wrapper}>
-      <svg className={styles.circle} viewBox="0 0 100 100">
-        <g className={styles.ringCW}><circle cx="50" cy="50" r="48" /></g>
-        <g className={styles.ringCCW}><circle cx="50" cy="50" r="40" /></g>
-        <g className={styles.ringCW}><circle cx="50" cy="50" r="32" /></g>
-        <g className={styles.ringCCW}><circle cx="50" cy="50" r="24" /></g>
-        <g className={styles.ringCW}><circle cx="50" cy="50" r="16" /></g>
-        <g className={styles.ringCCW}><circle cx="50" cy="50" r="8" /></g>
-      </svg>
+    <div>
       <div className={styles.title}>
         <span className={styles.char}>E</span>
         <span className={styles.char}>T </span>
@@ -29,15 +21,9 @@ export default function Canvas() {
         </svg>
         <span className={styles.char}>S</span>
       </div>
-
-      <div>
-        <button>back</button>
+      <div style={{ padding: 40 }}>
+        This app is desktop only. Please use a laptop or desktop.
       </div>
-
-
-
-    </main>
-
-
+    </div>
   )
 }

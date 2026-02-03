@@ -7,7 +7,7 @@ export default function HeaderMenu({ session }: { session: any }) {
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
-    window.location.href = "/login";  // full reload
+    window.location.href = "/";  // full reload
   }
   const deleteUser = (session:any) => {
     console.log("deleting user...")

@@ -1,0 +1,16 @@
+.wrapper {
+  height: 200dvh;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  margin: 20 0 0 20
+}
+
+.char {
+  font-size: 70;
+}
