@@ -4,7 +4,7 @@ import styles from "./ChatRow.module.css"
 import { useRef, useEffect } from "react"
 import { FaEllipsisH } from "react-icons/fa";
 import ChatRowOptions from "./ChatRowOptions";
-import { Chat } from "../../../page";
+import { Chat } from "../../../home/page";
 
 type ChatRowProps = {
   chat: Chat,
