@@ -1,17 +1,17 @@
 "use client"
 import styles from "./AddUsersDropdown.module.css"
 import { useState } from "react"
-import type { User } from "../LeftSidebar"
+import type { User } from "../LeftSidebar/LeftSidebar"
 import clsx from "clsx"
 import { FaCheck } from "react-icons/fa";
 
 export default function AddUsersDropdown({
-  users,
+  allUsers,
   selectedUsers,
   setSelectedUsers,
   handleCreate
 }: {
-  users: User[],
+  allUsers: User[],
   selectedUsers: User[],
   setSelectedUsers: React.Dispatch<React.SetStateAction<User[]>>,
   handleCreate:any
@@ -32,7 +32,7 @@ export default function AddUsersDropdown({
 
   return (
     <div className={styles.wrapper}>
-      {users.map((u) => {
+      {allUsers.map((u) => {
         return (
           <div key={u.id} className={styles.row}>
 

@@ -16,7 +16,7 @@ usersRouter.get("/", async (req, res) => {
           `
           select id, username, created_at
           from users
-          where username ilike $1 or email ilike $1
+          where username ilike $1
           order by id asc
           limit $2 offset $3
         `,
@@ -36,6 +36,7 @@ usersRouter.get("/", async (req, res) => {
         )
       ).rows;
     }
+    console.log("rows", rows)
     res.json(rows);
   } catch (e) {
     res.status(500).json({ error: (e as Error).message });

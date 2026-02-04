@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react";
-import Spinner from "../Spinner";
+import Spinner from "../../../Spinner";
 
 type User = {
   id: string;
@@ -8,7 +8,7 @@ type User = {
   // rest
 };
 
-export default function Users({users}:{users:User[]}) {
+export default function UsersList({ allUsers }: { allUsers: User[] }) {
   // const [users, setUsers] = useState<User[]>([])
   // const [loading, setLoading] = useState(true);
   // const [error, setError] = useState<string | null>(null);
@@ -36,9 +36,9 @@ export default function Users({users}:{users:User[]}) {
 
   return (
     <div>
-      
-      <div style={{padding: "10px"}}>
-        {users.map(user => (
+
+      <div style={{ padding: "10px" }}>
+        {allUsers.map(user => (
           <div key={user.id}>
             {user.username}
           </div>

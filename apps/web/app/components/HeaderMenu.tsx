@@ -21,7 +21,7 @@ export default function HeaderMenu({ session }: { session: any }) {
       {isOpen && <div className="absolute right-9 top-10 bg-gray-400">
         <ul className="flex flex-col p-4 gap-2">
           <li className="border-b border-lime-500" onClick={handleLogout}>Logout</li>
-          <li className="border-b border-lime-500" onClick={deleteUser}>Delete this user</li>
+          <li className="border-b border-lime-500" onClick={deleteUser}>Profile</li>
         </ul>
       </div>}
     </>

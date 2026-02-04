@@ -8,18 +8,18 @@ import { useSocket } from "@/apps/web/hooks/useSocket"
 import type { SessionData } from "@/apps/web/lib/session"
 import { useRouter, } from "next/navigation";
 import { Modal } from "../../Modal"
-import type { User } from "../LeftSidebar"
+import type { User } from "../LeftSidebar/LeftSidebar"
 
 
 export default function Chats({
   initialChats,
   session,
   activeChatId,
-  users }: {
+  allUsers }: {
     initialChats: Chat[],
     session: SessionData | undefined,
     activeChatId: string | undefined,
-    users: User[]
+    allUsers: User[]
   }) {
   const [chats, setChats] = useState<Chat[]>(initialChats);
   const [message, setMessage] = useState("+ new chat")
@@ -104,7 +104,7 @@ export default function Chats({
         {chatPendingCreation
           ?
           <Modal onCancel={() => setChatPendingCreation(false)}>
-            <NewChatForm users={users} onCancel={() => setChatPendingCreation(false)}></NewChatForm>
+            <NewChatForm allUsers={allUsers} onCancel={() => setChatPendingCreation(false)}></NewChatForm>
           </Modal>
           : null}
       </div>

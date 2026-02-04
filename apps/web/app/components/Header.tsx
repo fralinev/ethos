@@ -19,7 +19,7 @@ export default async function Header() {
       <div className={styles.right}>
         {/* <LogoutButton session={session}/> */}
         {session?.user && <HeaderMenu session={session}/>}
-        {!session?.user &&  <HeaderLogin/>}
+        {/* {!session?.user &&  <HeaderLogin/>} */}
         {/* <HeaderMenu/> */}
         
 

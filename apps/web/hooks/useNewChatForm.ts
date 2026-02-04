@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import type { User } from "../app/components/sidebars/LeftSidebar";
+import type { User } from "../app/components/sidebars/LeftSidebar/LeftSidebar";
 
 export const useNewChatForm = (onCancel:React.Dispatch<React.SetStateAction<boolean>>, selectedUsers: User[] ) => {
   const [chatName, setChatName] = useState("")

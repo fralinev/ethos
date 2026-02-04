@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react"
 import styles from "./NewChatForm.module.css"
 import { useNewChatForm } from "../../../../hooks/useNewChatForm"
 import AddUsersDropdown from "./AddUsersDropdown"
-import type { User } from "../LeftSidebar"
+import type { User } from "../LeftSidebar/LeftSidebar"
 
-export default function NewChatForm({ users, onCancel }: { users: User[], onCancel: React.Dispatch<React.SetStateAction<boolean>> }) {
+export default function NewChatForm({ allUsers, onCancel }: { allUsers: User[], onCancel: React.Dispatch<React.SetStateAction<boolean>> }) {
   const [showDropdown, setShowDropdown] = useState(false)
   const [selectedUsers, setSelectedUsers] = useState<User[]>([])
 
@@ -60,7 +60,7 @@ export default function NewChatForm({ users, onCancel }: { users: User[], onCanc
               // value={participants}
               // onChange={handlePartsChange}
 
-              />{showDropdown && <AddUsersDropdown users={users} selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} handleCreate={handleCreate}/>}
+              />{showDropdown && <AddUsersDropdown allUsers={allUsers} selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} handleCreate={handleCreate}/>}
             </div>
           </div>
         </div>

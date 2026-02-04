@@ -1,0 +1,20 @@
+.usersSearch {
+  position: relative;
+  padding: 10px;
+  width: 100%
+
+}
+.usersSearch input {
+  /* position: relative; */
+  border: 1px solid yellowgreen;
+  width: 100%;
+  /* padding: 0 32px 0 0; */
+}
+
+.searchIcon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: yellowgreen;
+}

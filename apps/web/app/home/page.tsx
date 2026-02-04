@@ -1,11 +1,12 @@
 import { getSessionFromNextRequest } from "../../lib/session";
 import { SessionData, SessionUser } from "../../lib/session";
 import RightSidebar from "../components/sidebars/RightSidebar";
-import LeftSidebar from "../components/sidebars/LeftSidebar";
+import LeftSidebar from "../components/sidebars/LeftSidebar/LeftSidebar";
 import styles from "./page.module.css";
 import Header from "../components/Header";
 import clsx from "clsx";
 import MiddleSection from "../components/MiddleSection";
+import { redirect } from "next/navigation";
 
 export type Chat = {
   id: string;
@@ -73,6 +74,10 @@ type HomeProps = {
 
 export default async function Home({ searchParams }: HomeProps) {
   const session: SessionData | AuthedSession | undefined = await getSessionFromNextRequest();
+
+  if (!session?.user) {
+    redirect("/")
+  }
 
   const { chatId, chatName } = await searchParams;
   const activeChatId: string | undefined = chatId  ? chatId : undefined;
