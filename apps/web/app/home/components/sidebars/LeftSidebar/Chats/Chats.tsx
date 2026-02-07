@@ -54,7 +54,7 @@ export default function Chats({
       if (msg.type === "chat:renamed") {
         const { chatId, newSubject } = msg.payload;
         if (chatId === activeChatIdRef.current) {
-          router.push(`/?chatId=${chatId}&chatName=${encodeURIComponent(newSubject)}`)
+          router.push(`/home?chatId=${chatId}`)
         } else {
           setChats((prev: Chat[]) => {
             const targetId = String(chatId);
