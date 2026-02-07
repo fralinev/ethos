@@ -5,7 +5,7 @@ services:
     rootDir: .
     env: node
     buildCommand: |
-      npm ci --omit=dev
+      npm ci
       npm run build
     startCommand: npm run start --workspace=@ethos/web
     envVars:
