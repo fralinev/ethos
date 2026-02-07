@@ -1,23 +1,23 @@
 import { useState, useEffect } from "react"
-import type { User } from "../app/components/sidebars/LeftSidebar/LeftSidebar";
+import type { User } from "@ethos/shared"
 
-export const useNewChatForm = (onCancel:React.Dispatch<React.SetStateAction<boolean>>, selectedUsers: User[] ) => {
+export const useNewChatForm = (onCancel:React.Dispatch<React.SetStateAction<boolean>>, subject:string, userIds:string[] ) => {
   const [chatName, setChatName] = useState("")
   const [participants, setParticipants] = useState("");
 
   const MAX_LENGTH = 15
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        handleCancel();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
+  // useEffect(() => {
+  //   const handleKeyDown = (e: KeyboardEvent) => {
+  //     if (e.key === "Escape") {
+  //       handleCancel();
+  //     }
+  //   };
+  //   window.addEventListener("keydown", handleKeyDown);
+  //   return () => {
+  //     window.removeEventListener("keydown", handleKeyDown);
+  //   };
+  // }, []);
 
   const handleCancel = () => {
     onCancel(false)
@@ -30,7 +30,7 @@ export const useNewChatForm = (onCancel:React.Dispatch<React.SetStateAction<bool
     const response = await fetch("/api/chats/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chatName, selectedUsers }),
+      body: JSON.stringify({ subject, userIds }),
       credentials: "include"
     })
     if (!response.ok) {

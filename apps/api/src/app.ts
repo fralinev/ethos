@@ -2,17 +2,11 @@ require('dotenv').config();
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { UpstashStore } from "./upstashStore";
-import { redis } from './redisClient';
-import session from "express-session";
-import { db } from './db';
 import { usersRouter } from "./routes/users";
 import { authRouter } from './routes/auth';
 import { chatsRouter } from './routes/chats';
 import { sessionMiddleware } from './session';
 import { userSockets, chatSockets } from './ws/hub';
-
-
 
 const allowedOrigins = [
   "http://localhost:3000",

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SessionData } from "@/apps/web/lib/session";
+import { SessionData } from "@ethos/shared";
 import { getSessionFromNextRequest } from "@/apps/web/lib/session";
 
 
@@ -12,8 +12,7 @@ export async function POST(req: NextRequest, context: any) {
       return NextResponse.json({ message: "unauthorized" }, { status: 401 });
     }
 
-    // --- FIX IS HERE ---
-    const { chatId } = await context.params;   // ✅ Unwrap the Promise
+    const { chatId } = await context.params;
 
     const chatIdNum = Number(chatId);
 

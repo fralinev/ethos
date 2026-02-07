@@ -1,0 +1,11 @@
+.users {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 50%;
+  width: 100%;
+  min-height: 0;
+  border-bottom: 5px solid yellowgreen;
+
+
+}

@@ -1,0 +1,82 @@
+  .chatRow {
+      display: flex;
+      justify-content: space-between;
+      height: 35px;
+      min-width: 0;
+      /* padding: 0 10 0 20 */
+  }
+
+  .subject {
+      color: rgb(95, 124, 206);
+      font-weight: 900;
+  }
+
+  .subject:hover {
+      color: rgb(61, 88, 162);
+  }
+
+  .noSubject {
+      /* min-width: 0; */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+  }
+
+  .chatRow:hover {
+      background: rgba(43, 71, 147, 0.2);
+
+  }
+
+  .chatRowName {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      padding: 8px 12p;
+      margin-bottom: 4;
+      min-width: 0;
+      /* flex: 1 */
+  }
+
+  .chatRowName:hover {
+      color: black;
+      font-weight: 600;
+  }
+
+  .ellipses {
+      display: flex;
+      position: relative;
+      align-items: center;
+      cursor: pointer;
+  }
+
+  .chatRowDropdown {
+      position: absolute;
+      left: 0;
+      top: 25px;
+      width: 120px;
+      padding: 4px;
+      background: rgba(0, 0, 0);
+      border: 1px solid rgba(154, 205, 50, 0.35);
+      color: #E8F5C8;
+      box-shadow: 0 20px 30px rgba(0, 0, 0, 0.65);
+      z-index: 1;
+  }
+
+  .chatRowDropdownList {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+  }
+
+  .chatRowDropdownItem {
+      cursor: pointer;
+      padding: 4px 10px;
+      font-size: 14px;
+      letter-spacing: 0.04em;
+      transition: background 200ms ease, color 200ms ease;
+  }
+
+  .chatRowDropdownItem:hover {
+      background: rgba(154, 205, 50, 0.2);
+      color: #9ACD32;
+  }

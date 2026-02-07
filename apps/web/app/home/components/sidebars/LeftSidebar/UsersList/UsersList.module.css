@@ -1,0 +1,6 @@
+.usersList{
+  padding: 20px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(154, 205, 50, 0.35) rgba(0, 0, 0, 0.2);
+}

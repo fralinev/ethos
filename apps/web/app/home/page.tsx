@@ -1,69 +1,9 @@
 import { getSessionFromNextRequest } from "../../lib/session";
-import { SessionData, SessionUser } from "../../lib/session";
-import RightSidebar from "../components/sidebars/RightSidebar";
-import LeftSidebar from "../components/sidebars/LeftSidebar/LeftSidebar";
 import styles from "./page.module.css";
-import Header from "../components/Header";
-import clsx from "clsx";
-import MiddleSection from "../components/MiddleSection";
+import Header from "./components/Header";
 import { redirect } from "next/navigation";
-
-export type Chat = {
-  id: string;
-  name: string;
-  createdAt: string;
-  createdBy: {
-    id: string;
-    username: string;
-  } | null;
-  members: {
-    id: string;
-    username: string;
-  }[];
-  newName?: string
-};
-
-export type Message = {
-  clientId?: string
-  optimistic?: boolean,
-  id?: string;
-  chatId: string;
-  body: string;
-  createdAt: string;
-  sender: {
-    id: string;
-    username: string;
-  };
-};
-export type OptimisticMessage = {
-  clientId: string
-  optimistic: boolean,
-  chatId: string;
-  body: string;
-  createdAt: string;
-  sender: {
-    id: string;
-    username: string;
-  };
-};
-
-export type ChatMessage = ServerMessage | OptimisticMessage;
-
-export type ServerMessage = {
-  id: string;
-  chatId: string;
-  body: string;
-  createdAt: string;
-  sender: {
-    id: string;
-    username: string;
-  };
-};
-
-export type AuthedSession =
-  SessionData & {
-    user: SessionUser
-  }
+import type { Chat, SessionData, AuthedSession } from "@ethos/shared"
+import LayoutShell from "./LayoutShell";
 
 type HomeProps = {
   searchParams: Promise<{
@@ -79,7 +19,7 @@ export default async function Home({ searchParams }: HomeProps) {
     redirect("/")
   }
 
-  const { chatId, chatName } = await searchParams;
+  const { chatId } = await searchParams;
   const activeChatId: string | undefined = chatId  ? chatId : undefined;
   let initialChats: Chat[] = [];
 
@@ -106,33 +46,20 @@ export default async function Home({ searchParams }: HomeProps) {
       console.error("Error fetching chats:", err);
     }
   }
- 
 
+  const activeChat = activeChatId 
+    ? initialChats.find(({id}) => id === activeChatId)
+    : undefined
+ 
   return (
     <div className={styles.page}>
       <Header />
-
       <div className={styles.layout}>
-        <aside className={clsx(styles.sidebar, styles.sidebarLeft)}>
-          <LeftSidebar
-            session={session}
-            initialChats={initialChats}
-            activeChatId={activeChatId} />
-        </aside>
-        <main className={styles.main}>
-          {/* {activeChatId && isAuthedSession(session) ? <ChatTranscript
-            session={session}
-            activeChatId={activeChatId}
-            chatName={chatName}
-          /> : <About />} */}
-          <MiddleSection activeChatId={activeChatId}
-          session={session}
-          chatName={chatName}
-          />
-        </main>
-        <aside className={clsx(styles.sidebar, styles.sidebarRight)}>
-          <RightSidebar initialHealth={"OK"} />
-        </aside>
+        <LayoutShell 
+        initialChats={initialChats} 
+        session={session} 
+        activeChatId={activeChatId} 
+        />
       </div>
     </div>
   );

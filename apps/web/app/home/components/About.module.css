@@ -1,0 +1,14 @@
+.wrapper {
+  padding: 20px;
+  color: var(--color-steel)
+}
+.header {
+  margin-bottom: 20px;
+}
+.description{
+  margin-bottom: 20px;
+}
+.stackList{
+  list-style: disc;
+  margin-left: 2rem;
+}

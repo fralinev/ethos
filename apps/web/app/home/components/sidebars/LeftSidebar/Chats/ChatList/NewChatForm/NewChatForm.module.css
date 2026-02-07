@@ -1,0 +1,153 @@
+.newChatContainer {
+    width: 20vw;
+}
+.newChatForm{
+    width: 100%;
+}
+.newChatFields{
+    width: 100%;
+}
+
+.chatName {
+    position: relative;
+    border: 2px solid white;
+    margin: 10px 10px
+}
+
+
+.chatSubject {
+    display: flex;
+    align-items: center;
+}
+
+.chatSubject input {
+    border: 1px solid yellowgreen;
+    padding: 5px;
+}
+
+.usersSearch {
+    position: relative;
+    display: flex;
+    flex: 1;
+}
+
+.usersSearch input {
+    border: 1px solid yellowgreen;
+    padding: 5px;
+    margin: 0 0 0 5px;
+    /* flex: 1; */
+    width: 100%;
+
+}
+
+.searchIcon {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: yellowgreen;
+}
+
+.dropdown {
+    position: absolute;
+    right: 0;
+    top: 40px;
+    width: 100%;
+    max-height: 30vh;
+    background: rgba(0, 0, 0, 1);
+    border: 1px solid rgba(154, 205, 50, 0.35);
+    padding: 4px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.70);
+
+    z-index: 2;
+}
+
+.dropdownItem {
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 4px 6px;
+    /* border-radius: 6px; */
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+.dropdownItem:hover {
+    background: rgba(154, 205, 50, 0.2);
+    color: #9ACD32;
+}
+
+.selectedUsers {
+    display: flex;
+    max-width: 300px;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: .9rem;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.selectedUser {
+    display: inline-flex;
+    align-items: center;
+    border: 1px dashed rgb(6, 105, 243);
+    background: rgba(40, 181, 228, 0.2);
+    white-space: nowrap;
+    padding: 1px;
+}
+
+.clearAllButton {
+    border: 1px solid rgb(63, 3, 4);
+    background: rgb(137, 9, 9);
+    cursor: pointer;
+    white-space: nowrap;
+    padding: 1px 3px;
+
+
+}
+
+.addButton {
+    border: 2px solid yellowgreen;
+    width: 100%;
+    cursor: pointer;
+}
+
+.addButton:hover {
+    background: rgba(154, 205, 50, 0.2);
+    width: 100%;
+}
+
+.newChatFields {
+    display: flex;
+    flex-direction: column;
+}
+
+.newChatButtons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+    padding: 0 20;
+}
+
+.modalButton {
+    color: yellowgreen;
+    border: 1px solid white;
+    margin: 5px;
+    padding: 5 10;
+    cursor: pointer;
+    /* padding: 5px; */
+
+}
+
+.modalButton:hover {
+    color: black;
+    background-color: yellowgreen;
+    cursor: pointer;
+}
+
+.modalButton:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}

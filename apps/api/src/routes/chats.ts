@@ -1,24 +1,10 @@
 import { Router } from "express";
 import { db } from "../db";
 import { broadcastToUsers } from "../ws/hub";
+import type { NewChat, ChatRow } from "@ethos/shared"
 
-export type User = {
-  id: string;
-  username: string;
-  created_at: string;
-};
 
-type NewChat = {
-  chatName: string;
-  selectedUsers: User[];
-};
 
-type ChatRow = {
-  id: string;
-  name: string;
-  created_by: string;
-  created_at: string;
-};
 
 export const chatsRouter = Router();
 
@@ -28,15 +14,16 @@ chatsRouter.post("/create", async (req, res) => {
     const requesterIdRaw = headers?.["x-user-id"];
     const requesterId = requesterIdRaw;
 
-    if (!requesterIdRaw ) {
+    if (!requesterIdRaw) {
       return res.status(401).json({ message: "unauthorized" });
     }
+
+    if (!body.subject) body.subject = null;
 
     // basic payload shape guard
     if (
       !body ||
-      !Array.isArray(body.selectedUsers) ||
-      typeof body.chatName !== "string"
+      !Array.isArray(body.userIds)
     ) {
       return res.status(400).json({ message: "invalid payload" });
     }
@@ -51,35 +38,30 @@ chatsRouter.post("/create", async (req, res) => {
     const requesterRow = requester.rows[0];
 
     const limitedParts =
-      body.selectedUsers.length > 4
-        ? body.selectedUsers.slice(0, 4)
-        : body.selectedUsers;
+      body.userIds.length > 7
+        ? body.userIds.slice(0, 7)
+        : body.userIds;
 
-    if (body.chatName.length > 15 || body.chatName.trim().length === 0) {
+    const limitedNums = limitedParts.map((id) => {
+      return Number(id)
+    })
+
+    if (body.subject !== null && body.subject.length > 21) {
       return res.status(400).json({ message: "bad request" });
     }
 
-    const normalizedParts = limitedParts
-      .map(({ username }) => username.trim().toLowerCase())
-      .filter((name) => name.length > 0); // drop empty
-
-    const requestedSet = new Set(normalizedParts);
-
-    requestedSet.delete(requesterRow.username.toLowerCase());
-    const requestedArray = Array.from(requestedSet);
-
     const result = await db.query(
-      "SELECT id, username FROM users WHERE username = ANY($1::text[])",
-      [requestedArray]
+      "SELECT id, username FROM users WHERE id = ANY($1::bigint[])",
+      [limitedNums]
     );
 
     const foundUsers = result.rows;
-    const foundUsernameSet = new Set(
-      foundUsers.map((u) => u.username.toLowerCase())
+    const foundUsersSet = new Set(
+      foundUsers.map((u) => u.id)
     );
 
-    const missing = requestedArray.filter(
-      (name) => !foundUsernameSet.has(name)
+    const missing = limitedParts.filter(
+      (id) => !foundUsersSet.has(id)
     );
 
     if (missing.length > 0) {
@@ -107,11 +89,11 @@ chatsRouter.post("/create", async (req, res) => {
 
       const chatInsert = await client.query(
         `
-        INSERT INTO chats (name, created_by)
+        INSERT INTO chats (subject, created_by)
         VALUES ($1, $2)
-        RETURNING id, name, created_by, created_at
+        RETURNING id, subject, created_by, created_at
         `,
-        [body.chatName.trim(), requesterRow.id]
+        [body.subject === null ? null : body.subject.trim(), requesterRow.id]
       );
 
       const chat = chatInsert.rows[0];
@@ -131,7 +113,7 @@ chatsRouter.post("/create", async (req, res) => {
 
       const chatDTO = {
         id: chat.id,
-        name: chat.name,
+        subject: chat.subject,
         createdAt: chat.created_at,
         createdBy: {
           id: requesterRow.id,
@@ -181,10 +163,12 @@ chatsRouter.get("/", async (req, res) => {
 
     const chatsResult = await db.query<ChatRow>(
       `
-      SELECT c.id, c.name, c.created_by, c.created_at
+      SELECT c.id, c.subject, c.created_by, c.created_at
       FROM chats c
       INNER JOIN chat_members cm ON cm.chat_id = c.id
       WHERE cm.user_id = $1
+        AND cm.left_at IS NULL
+        AND c.archived_at IS NULL
       ORDER BY c.created_at DESC
       `,
       [requesterId]
@@ -248,7 +232,7 @@ chatsRouter.get("/", async (req, res) => {
 
       return {
         id: chat.id,
-        name: chat.name,
+        subject: chat.subject,
         createdAt: chat.created_at,
         createdBy: creator
           ? {
@@ -273,10 +257,6 @@ chatsRouter.get("/", async (req, res) => {
 chatsRouter.get("/:chatId/messages", async (req, res) => {
   try {
     const { headers, params } = req;
-
-    // ─────────────────────────────
-    // 1) Auth: validate requester
-    // ─────────────────────────────
     const requesterIdRaw = headers?.["x-user-id"];
     const requesterId = requesterIdRaw;
 
@@ -284,9 +264,6 @@ chatsRouter.get("/:chatId/messages", async (req, res) => {
       return res.status(401).json({ message: "unauthorized" });
     }
 
-    // ─────────────────────────────
-    // 2) Parse and validate chatId
-    // ─────────────────────────────
     const chatIdRaw = params.chatId;
     const chatId = chatIdRaw;
 
@@ -294,9 +271,6 @@ chatsRouter.get("/:chatId/messages", async (req, res) => {
       return res.status(400).json({ message: "invalid chat id" });
     }
 
-    // ─────────────────────────────
-    // 3) Ensure requester is a member of this chat
-    // ─────────────────────────────
     const membership = await db.query(
       `
       SELECT 1
@@ -308,13 +282,9 @@ chatsRouter.get("/:chatId/messages", async (req, res) => {
     );
 
     if (!membership.rowCount) {
-      // Either chat doesn't exist or user isn't in it
       return res.status(403).json({ message: "forbidden" });
     }
 
-    // ─────────────────────────────
-    // 4) Fetch messages for this chat
-    // ─────────────────────────────
     const messagesResult = await db.query(
       `
       SELECT
@@ -445,7 +415,7 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
       [chatId]
     );
 
-    const memberIds = membersResult.rows.map((row) =>row.user_id);
+    const memberIds = membersResult.rows.map((row) => row.user_id);
 
     broadcastToUsers(memberIds, "message:created", messageDTO);
 
@@ -457,13 +427,93 @@ chatsRouter.post("/:chatId/messages", async (req, res) => {
 });
 
 
-chatsRouter.delete("/:chatId", async (req, res) => {
+chatsRouter.post("/:chatId", async (req, res) => {
   try {
+
+    const userId = req.header("x-user-id");
+    const { chatId } = req.params;
+
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    if (!chatId) return res.status(400).json({ message: "Invalid chatId" });
+
+    const requestor = await db.query(
+      `
+      SELECT 1
+      FROM chat_members
+      WHERE chat_id = $1
+      AND user_id = $2
+      AND left_at IS NULL
+      `,
+      [chatId, userId]
+    )
+
+    if (requestor.rows.length === 0) return res.status(401).json({ message: "User not member" })
+
+    await db.query(
+      `
+      UPDATE chat_members
+      SET left_at = now()
+      WHERE chat_id = $1
+      AND user_id = $2
+      AND left_at IS NULL
+      `,
+      [chatId, userId]
+    )
+
+    const remainder = await db.query(
+      `
+      SELECT 1
+      FROM chat_members
+      WHERE chat_id = $1
+      AND left_at IS NULL
+      LIMIT 1
+      `,
+      [chatId]
+    )
+
+    if (remainder.rows.length === 0) {
+      // archive chat
+      await db.query(
+        `
+        UPDATE chats
+        SET archived_at = now()
+        WHERE chat_id = $1
+        `,
+        [chatId]
+      )
+    } else {
+      const members = await db.query(
+        `
+        SELECT user_id
+        FROM chat_members
+        WHERE chat_id = $1
+        AND left_at IS NULL
+        `,
+        [chatId]
+      ) 
+      const memberIds = members.rows.map(({user_id}) => user_id)
+      broadcastToUsers([...memberIds, userId], "chat:left", { chatId, leftBy: userId });
+
+    }
+
+
+    return res.status(200).json({ message: "Update successful" })
+
+  } catch (err) {
+    console.error(err)
+    return res.status(500).json({ message: err })
+
+  }
+})
+
+chatsRouter.patch("/:chatId", async (req, res) => {
+  try {
+
     const userIdHeader = req.header("x-user-id");
     const userId = userIdHeader;
 
     if (!userIdHeader) {
-      return res.status(401).json({ message: "unauthorized" });
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
     const { chatId: chatIdParam } = req.params;
@@ -473,91 +523,26 @@ chatsRouter.delete("/:chatId", async (req, res) => {
       return res.status(400).json({ message: "invalid chat id" });
     }
 
-    const chatMembers = await db.query(
-      `
-      SELECT user_id
-      FROM chat_members
-      WHERE chat_id = $1
-      `,
-      [chatId]
-    );
-
-    const membershipResult = await db.query(
-      `
-      SELECT u.id, u.username
-      FROM chat_members cm
-      JOIN users u ON u.id = cm.user_id
-      WHERE cm.chat_id = $1 AND cm.user_id = $2
-      LIMIT 1
-      `,
-      [chatId, userId]
-    );
-
-    if (membershipResult.rowCount === 0) {
-      return res.status(403).json({ message: "forbidden" });
-    }
-
-
-    const deleteResult = await db.query(
-      `
-      DELETE FROM chats
-      WHERE id = $1
-      RETURNING id, name
-      `,
-      [chatId]
-    );
-
-    const { name } = deleteResult.rows[0]
-    const deletedBy = membershipResult.rows[0].username
-
-
-
-    const memberIds = chatMembers.rows.map((row) => row.user_id);
-    broadcastToUsers(memberIds, "chat:deleted", { chatId, name, deletedBy });
-
-    if (deleteResult.rowCount === 0) {
-      return res.status(404).json({ message: "chat not found" });
-    }
-
-    return res.status(200).json({ message: "chat deleted" });
-  } catch (err) {
-    console.error("DELETE /chats/:chatId error:", err);
-    return res.status(500).json({ message: "unknown" });
-  }
-});
-
-chatsRouter.patch("/:chatId", async (req, res) => {
-  try {
-
-    const userIdHeader = req.header("x-user-id");
-    const userId = userIdHeader;
-
-    if (!userIdHeader) {
-      return res.status(401).json({ message: "unauthorized" });
-    }
-
-    const { chatId: chatIdParam } = req.params;
-    const chatId = chatIdParam;
-
-    if (!chatIdParam ) {
-      return res.status(400).json({ message: "invalid chat id" });
-    }
-
     const requester = await db.query(
       "SELECT id, username FROM users WHERE id = $1",
       [userId]
     );
 
-    const { name: oldName, newName } = req.body
+    // const { subject: oldSubject, newSubject } = req.body
+
+    const { body } = req;
+    const oldSubject = body.subject;
+    if (!body.newSubject) body.newSubject = null;
+    const { newSubject } = body
 
     const result = await db.query(
       `
       UPDATE chats
-      SET name = $1
+      SET subject = $1
       WHERE id = $2
-      RETURNING id, name, created_by, created_at
+      RETURNING id, subject, created_by, created_at
       `,
-      [newName, chatId]
+      [newSubject, chatId]
     );
 
     // const name = result.rows[0].name
@@ -572,7 +557,7 @@ chatsRouter.patch("/:chatId", async (req, res) => {
     );
 
     const memberIds = chatMembers.rows.map((row) => row.user_id);
-    broadcastToUsers(memberIds, "chat:renamed", { chatId, renamedBy: requester.rows[0].username, oldName, newName });
+    broadcastToUsers(memberIds, "chat:renamed", { chatId, changedBy: requester.rows[0].username, oldSubject, newSubject });
 
     return res.status(200).json({ result });
   } catch (e) {

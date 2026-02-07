@@ -1,12 +1,10 @@
 import styles from "./page.module.css"
-import { getSessionFromNextRequest, SessionData, SessionUser } from "../lib/session";
-import AuthWrapper from "./components/AuthWrapper";
-import Logo from "./components/Logo";
+import { getSessionFromNextRequest } from "../lib/session";
+import AuthWrapper from "./AuthComponents/AuthWrapper";
+import Logo from "./home/components/Logo";
+import type { SessionData, AuthedSession} from "@ethos/shared"
 
-export type AuthedSession =
-  SessionData & {
-    user: SessionUser
-  }
+
 
 export default async function Canvas() {
   const session: SessionData | AuthedSession | undefined = await getSessionFromNextRequest();
@@ -21,7 +19,7 @@ export default async function Canvas() {
         <g className={styles.ringCCW}><circle cx="50" cy="50" r="8" /></g>
       </svg>
       <div className={styles.cmd}>
-        <Logo />
+        <Logo fontSize={70} svgSize={70} color="yellowgreen"/>
         <AuthWrapper session={session} />
       </div>
 

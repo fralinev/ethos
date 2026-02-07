@@ -1,0 +1,44 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.sidebarLeft {
+  position: relative;
+  border-right: 5px solid yellowgreen;
+}
+
+.sidebarRight {
+  position: relative;
+  border-left: 5px solid yellowgreen;
+}
+
+.sidebarLeftResizer {
+  position: absolute;
+  top: 0;
+  right: -7px;
+  width: 8px;
+  height: 100%;
+  cursor: col-resize;
+  background: transparent;
+}
+.sidebarRightResizer {
+  position: absolute;
+  top: 0;
+  left: -7px;
+  width: 8px; 
+  height: 100%;
+  cursor: col-resize;
+  background: transparent;
+}
+.sidebarResizer:hover {
+  background: rgba(154, 205, 50, 0.2);
+}
+
+.main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}

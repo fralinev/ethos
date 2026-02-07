@@ -12,7 +12,7 @@ authRouter.post("/login", async (req, res) => {
     if (!username || !password) {
       return res.status(400).json({ message: "please provide username and password" });
     }
-    const normalizedUsername = username.trim().toLowerCase();
+    const normalizedUsername = username.trim()
     const result = await db.query("SELECT * FROM users WHERE username = $1", [normalizedUsername])
     if (result.rows.length === 0) {
       return res.status(401).json({ message: AUTH_ERRORS.WRONG_FIELD })
@@ -24,7 +24,8 @@ authRouter.post("/login", async (req, res) => {
     }
     req.session.user = {
       id: user.id,
-      username: user.username
+      username: user.username,
+      role: user.role
     }
     const sessionId = req.sessionID;
     await db.query("UPDATE users SET last_login_at = now() WHERE username = $1", [normalizedUsername]);
@@ -49,11 +50,7 @@ authRouter.post("/signup", async (req, res) => {
     if (!username || !password) {
       return res.status(400).json({ message: AUTH_ERRORS.MISSING_FIELD });
     }
-    const normalizedUsername = username.trim().toLowerCase();
-    const result = await db.query("SELECT * FROM users WHERE username = $1", [normalizedUsername])
-    if (result.rows.length > 0) {
-      return res.status(409).json({ message: AUTH_ERRORS.USER_ALREADY_EXISTS });
-    }
+    const normalizedUsername = username.trim()
     const hash = await bcrypt.hash(password, 10);
     const newUser = await db.query(
       "INSERT INTO users (username, password_hash) VALUES ($1, $2) RETURNING id, username, created_at",

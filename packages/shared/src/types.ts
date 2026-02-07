@@ -1,6 +1,6 @@
 export type Chat = {
   id: string;
-  name: string;
+  subject: string;
   createdAt: string;
   createdBy: {
     id: string;
@@ -31,18 +31,19 @@ export type SocketEvents = {
   "message:created": Message;
   "chat:deleted": {
     chatId: string,
-    name: string,
+    subject: string,
     deletedBy: string
   };
   "chat:renamed": {
     chatId: string,
-    renamedBy: string,
-    oldName: string,
-    newName: string
+    changedBy: string,
+    oldSubject: string,
+    newSubject: string
   },
   "user:login": {
     username: string
   }
+  "chat:left": {}
 };
 
 export type User = {
@@ -53,13 +54,13 @@ export type User = {
 };
 
 export type NewChat = {
-  chatName: string;
-  selectedUsers: User[];
+  subject: string | null;
+  userIds: string[];
 };
 
 export type ChatRow = {
   id: string;
-  name: string;
+  subject: string;
   created_by: string;
   created_at: string;
 };

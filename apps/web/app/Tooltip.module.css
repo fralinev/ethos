@@ -1,0 +1,28 @@
+/* Tooltip.module.css */
+.tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tooltipText {
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111;
+  color: #fff;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+  z-index: 999;
+}
+
+.tooltip:hover .tooltipText,
+.tooltip:focus-within .tooltipText {
+  opacity: 1;
+}

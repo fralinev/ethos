@@ -1,7 +1,7 @@
 import type { WebSocketServer } from "ws";
 import WebSocket from "ws";
 import type { AuthedWebSocket } from ".";
-import type { SocketEvents } from "../types";
+import type { SocketEvents } from "@ethos/shared"
 
 let wssGlobal: WebSocketServer | null = null;
 

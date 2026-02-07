@@ -3,18 +3,13 @@
 import { cookies } from "next/headers";
 import { redis } from "@/packages/shared/src/redisClient";
 import signature from "cookie-signature";
+import { SessionData } from "@ethos/shared"
 
 const SESSION_PREFIX = "sess:";
 
-export type SessionUser = {
-  id: string;
-  username: string;
-};
 
-export type SessionData = {
-  cookie: any;
-  user?: SessionUser;
-};
+
+
 
 function sessionKey(sessionId: string) {
   return `${SESSION_PREFIX}${sessionId}`;

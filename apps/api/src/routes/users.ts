@@ -36,7 +36,6 @@ usersRouter.get("/", async (req, res) => {
         )
       ).rows;
     }
-    console.log("rows", rows)
     res.json(rows);
   } catch (e) {
     res.status(500).json({ error: (e as Error).message });

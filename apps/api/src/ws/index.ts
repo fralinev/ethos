@@ -2,26 +2,14 @@ import { WebSocketServer, WebSocket } from "ws";
 import type { Server as HttpServer } from "http";
 import type { Store as SessionStore } from "express-session";
 import { registerWss, registerUserSocket, unregisterUserSocket, registerChatSocket, unregisterChatSocket } from "./hub";
+import { SessionData, HealthPayload } from "@ethos/shared"
 
 
-type SessionData = {
-  user?: {
-    id: string;
-    username?: string;
-  };
-};
 
-export interface AuthedWebSocket extends WebSocket {
+export type AuthedWebSocket = WebSocket & {
   user: SessionData["user"] | null;
   chatId?: string
 }
-
-type HealthPayload = {
-  api: string;
-  db: string;
-  redis: string;
-  ws: string;
-};
 
 const healthSubscribers = new Set<AuthedWebSocket>();
 
