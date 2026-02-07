@@ -23,9 +23,7 @@ export default function Chat({ session, activeChatId }: any) {
     async function load() {
       const messages = await getMessages(userId, activeChatId)
       setMessages(messages)
-      client.send({ 
-        type: "chat:join", 
-        payload: { chatId: activeChatId, chatName: "PLACEHOLDER" } })
+      client.joinChat(activeChatId)
       dispatch(finishChatLoading());
     }
     load();
@@ -96,7 +94,7 @@ export default function Chat({ session, activeChatId }: any) {
 
   const exitChat = () => {
     dispatch(startChatLoading())
-    client.send({ type: "chat:leave", payload: { chatId: activeChatId } })
+    client.exitChat(activeChatId)
     return router.push("/home")
   }
   return (

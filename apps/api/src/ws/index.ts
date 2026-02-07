@@ -138,6 +138,8 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
           socket.user = (session as SessionData).user!;
           console.log("[ws] connected as authed user", socket.user.id);
           registerUserSocket(socket.user.id, socket);
+          socket.send(JSON.stringify({ type: "auth:ready" }))
+
         } else {
           console.log("[ws] connected as guest (session miss)");
         }
@@ -148,13 +150,14 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
     }
 
     socket.on("message", (raw) => {
+
       let data: { type: string, payload?: Record<string, unknown> };
       try {
         data = JSON.parse(raw.toString());
       } catch {
         return;
       }
-
+      console.log("+++___+++___+++___", data, "user", socket.user)
       switch (data.type) {
         case "health:subscribe":
           handleHealthSubscribe(socket);
@@ -169,7 +172,9 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
           }
           // TS guard
           if (typeof data.payload?.chatId === "string") {
-            if (socket.chatId === data.payload?.chatId) return;
+            // if (socket.chatId === data.payload?.chatId) return;
+            // Always unregister current chat
+            console.log("joing chat again trying ====================================")
             if (socket.chatId) {
               unregisterChatSocket(socket)
             }
@@ -177,7 +182,7 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
             registerChatSocket(data.payload.chatId, socket)
           }
           break;
-        case "chat:leave":
+        case "chat:exit":
           unregisterChatSocket(socket)
           delete socket.chatId
           break;

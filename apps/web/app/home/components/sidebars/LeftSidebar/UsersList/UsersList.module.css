@@ -3,4 +3,27 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(154, 205, 50, 0.35) rgba(0, 0, 0, 0.2);
+
+ 
+
 }
+
+
+
+.usersList::-webkit-scrollbar {
+    width: 8px;
+}
+
+.usersList::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.usersList::-webkit-scrollbar-thumb {
+    background: rgba(154, 205, 50, 0.35);
+    border-radius: 8px;
+}
+
+.usersList::-webkit-scrollbar-thumb:hover {
+    background: rgba(154, 205, 50, 0.55);
+}
+

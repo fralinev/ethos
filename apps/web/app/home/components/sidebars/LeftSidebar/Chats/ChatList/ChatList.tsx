@@ -23,6 +23,8 @@ export default function ChatList({ chats, activeChatId }: { chats: Chat[], activ
 
   const getChat = (chatId: string) => {
     if (chatId === activeChatId) return;
+    if (activeChatId) client.exitChat(activeChatId)
+    // client.joinChat(chatId)
     dispatch(startChatLoading());
     router.push(`/home?chatId=${chatId}`);
   };

@@ -13,6 +13,32 @@ export default function AuthWrapper({ session }: { session: any }) {
 
   const router = useRouter();
 
+  function isSafari() {
+    const ua = navigator.userAgent
+    console.log("checkk", ua)
+    return /^((?!chrome|android).)*safari/i.test(ua)
+  }
+
+  if (isSafari()) {
+    document.body.innerHTML = `
+    <div style="
+      height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family:sans-serif;
+      background:#111;
+      color:white;
+    ">
+      <div>
+        <h1>Unsupported Browser</h1>
+        <p>Please use Chrome or Firefox.</p>
+      </div>
+    </div>
+  `
+    throw new Error("Safari blocked")
+  }
+
   const onCancel = () => {
     setString(null)
   }

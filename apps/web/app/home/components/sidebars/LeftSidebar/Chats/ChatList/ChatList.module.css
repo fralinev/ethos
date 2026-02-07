@@ -1,10 +1,34 @@
-
-.chatListContainer{
+.chatListContainer {
     display: flex;
     flex-direction: column;
     gap: 10px;
     flex: 1;
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(154, 205, 50, 0.35) rgba(0, 0, 0, 0.2);
+
 }
-.ellipses{
-    cursor:pointer
+
+.chatListContainer::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chatListContainer::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.chatListContainer::-webkit-scrollbar-thumb {
+    background: rgba(154, 205, 50, 0.35);
+    border-radius: 8px;
+}
+
+.chatListContainer::-webkit-scrollbar-thumb:hover {
+    background: rgba(154, 205, 50, 0.55);
+}
+
+
+
+
+.ellipses {
+    cursor: pointer
 }

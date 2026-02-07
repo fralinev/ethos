@@ -31,6 +31,7 @@ class SocketClient {
   private openHandlers = new Set<OpenHandler>();
   private closeHandlers = new Set<CloseHandler>();
   private errorHandlers = new Set<ErrorHandler>();
+  public activeChatId: string = "";
 
   constructor(url: string) {
     this.url = url;
@@ -51,6 +52,10 @@ class SocketClient {
         clearTimeout(this.reconnectTimer);
         this.reconnectTimer = null;
       }
+      // if (this.activeChatId) {
+      //   this.joinChat(this.activeChatId)
+      // }
+      console.log("[ws] connected")
       this.status = "open";
       this.reconnectAttempts = 0;
       this.openHandlers.forEach((fn) => fn());
@@ -60,6 +65,12 @@ class SocketClient {
       let data: SocketMessageToUI = event.data;
       try {
         data = JSON.parse(event.data);
+        console.log("CHECK", this.activeChatId, data)
+        if (data.type === "auth:ready" && this.activeChatId) {
+        console.log("LOLOLOLOLOLOLOLO")
+
+          this.joinChat(this.activeChatId)
+        }
       } catch {
         // allow non-JSON messages too
       }
@@ -97,6 +108,7 @@ class SocketClient {
   }
 
   send(payload: { type: string, payload?: object }) {
+    console.log("SEND", payload)
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
     const data =
       typeof payload === "string" ? payload : JSON.stringify(payload);
@@ -137,12 +149,25 @@ class SocketClient {
       this.connect()
     }, delay)
   }
+
+  // setActiveChatId(chatId: string) {
+  //   this.activeChatId = chatId
+  // }
+
+  joinChat(chatId: string) {
+    this.activeChatId = chatId
+    console.log("JOIN CHAT", this.activeChatId)
+    this.send({ type: "chat:join", payload: { chatId } })
+  }
+  exitChat(chatId: string) {
+    if (this.activeChatId === chatId) {
+      this.activeChatId = ""
+    }
+    this.send({ type: "chat:exit", payload: { chatId } })
+  }
 }
 
 let sharedClient: SocketClient | null = null;
-let isConnected = false
-
-
 
 function getSocketClient(): SocketClient {
   if (!sharedClient) {
@@ -158,6 +183,7 @@ export function useSocket() {
   const [readyState, setReadyState] = useState<number>(WebSocket.CLOSED);
 
   useEffect(() => {
+
     client.connect();
 
     const offOpen = client.onOpen(() => {

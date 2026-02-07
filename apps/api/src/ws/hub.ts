@@ -8,17 +8,6 @@ let wssGlobal: WebSocketServer | null = null;
 export const userSockets = new Map<string, Set<AuthedWebSocket>>();
 export const chatSockets = new Map<string, Set<AuthedWebSocket>>();
 
-function logUserSocketKeys() {
-  for (const [userId] of userSockets) {
-    console.log("LOG current userSockets: ", userId);
-  }
-}
-function logChatSocketKeys() {
-  for (const [chatId] of chatSockets) {
-    console.log("LOG current chatSockets: ", chatId);
-  }
-}
-
 
 
 // Not used; possibly removable
@@ -59,14 +48,9 @@ export function registerChatSocket(chatId: string, socket: AuthedWebSocket) {
     chatSockets.set(chatId, set);
   }
   set.add(socket)
-  for (const [chatId] of chatSockets) {
-    console.log("LOG current chatSockets REG: ", chatId);
-  }
-
 }
 
 export function unregisterChatSocket(socket: AuthedWebSocket) {
-  console.log("removing chatId (UNREG)", socket.chatId)
   for (const [chatId, set] of chatSockets.entries()) {
     if (set.has(socket)) {
       set.delete(socket);

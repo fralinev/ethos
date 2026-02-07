@@ -1,6 +1,8 @@
 import styles from "./desktopOnly.module.css"
 
-export default function DesktopOnly() {
+export default async function DesktopOnly({ searchParams }: any) {
+  const {reason} = await searchParams
+  console.log("REASON", reason)
   return (
     <div>
       <div className={styles.title}>
@@ -22,7 +24,8 @@ export default function DesktopOnly() {
         <span className={styles.char}>S</span>
       </div>
       <div style={{ padding: 40 }}>
-        This app is desktop only. Please use a laptop or desktop.
+        {reason === "mobile" && "This app is desktop only. Please use a laptop or desktop."}
+        {reason === "safari" && "This app does not support Safari.  Please use a real browser like Chrome or Firefox"}
       </div>
     </div>
   )

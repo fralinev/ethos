@@ -9,9 +9,30 @@ html {
 }
 body{
   color: white;
+  /* background: hotpink !important; */
 }
 :root {
   --color-dull: rgba(154, 205, 50, 0.35);
   --color-steel: #3f4a6e
 }
+.usersList{
+    background-color: red;
+}
 
+
+.usersList::-webkit-scrollbar {
+    width: 8px;
+}
+
+.usersList::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.usersList::-webkit-scrollbar-thumb {
+    background: rgba(154, 205, 50, 0.35);
+    border-radius: 8px;
+}
+
+.usersList::-webkit-scrollbar-thumb:hover {
+    background: rgba(154, 205, 50, 0.55);
+}
