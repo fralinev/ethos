@@ -13,7 +13,7 @@
     "dev:web": "npm run dev --workspace=@ethos/web",
     "dev:api": "npm run dev --workspace=@ethos/api",
     "dev:worker": "npm run dev --workspace=@ethos/worker",
-    "build": "npm run build --workspaces",
+    "build": "npm run build -w @ethos/shared && npm run build -w @ethos/api && npm run build -w @ethos/web",
     "lint": "eslint . --ext .ts,.tsx"
   },
   "devDependencies": {

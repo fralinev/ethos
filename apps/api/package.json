@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --project tsconfig.json --respawn --transpile-only src/server.ts",
-    "build": "npm run build -w @ethos/shared && tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js"
   },
   "keywords": [],
