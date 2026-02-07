@@ -65,9 +65,7 @@ class SocketClient {
       let data: SocketMessageToUI = event.data;
       try {
         data = JSON.parse(event.data);
-        console.log("CHECK", this.activeChatId, data)
         if (data.type === "auth:ready" && this.activeChatId) {
-        console.log("LOLOLOLOLOLOLOLO")
 
           this.joinChat(this.activeChatId)
         }
@@ -156,7 +154,6 @@ class SocketClient {
 
   joinChat(chatId: string) {
     this.activeChatId = chatId
-    console.log("JOIN CHAT", this.activeChatId)
     this.send({ type: "chat:join", payload: { chatId } })
   }
   exitChat(chatId: string) {

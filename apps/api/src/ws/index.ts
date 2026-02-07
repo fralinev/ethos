@@ -157,7 +157,6 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
       } catch {
         return;
       }
-      console.log("+++___+++___+++___", data, "user", socket.user)
       switch (data.type) {
         case "health:subscribe":
           handleHealthSubscribe(socket);
@@ -172,9 +171,6 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
           }
           // TS guard
           if (typeof data.payload?.chatId === "string") {
-            // if (socket.chatId === data.payload?.chatId) return;
-            // Always unregister current chat
-            console.log("joing chat again trying ====================================")
             if (socket.chatId) {
               unregisterChatSocket(socket)
             }
