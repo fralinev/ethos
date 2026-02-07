@@ -6,7 +6,7 @@ services:
     env: node
     buildCommand: |
       npm ci
-      npm run build --workspace=@ethos/web
+      npm run build
     startCommand: npm run start --workspace=@ethos/web
     envVars:
       - key: NODE_VERSION
