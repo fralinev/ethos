@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import { usersRouter } from "./routes/users";
 import { authRouter } from './routes/auth';
 import { chatsRouter } from './routes/chats';
+import { profilesRouter } from './routes/profiles';
 import { sessionMiddleware } from './session';
 import { userSockets, chatSockets } from './ws/hub';
 
@@ -84,5 +85,6 @@ app.get('/', (_req, res) => {
 app.use("/users", usersRouter);
 app.use("/auth", authRouter)
 app.use("/chats", chatsRouter)
+app.use("/profiles", profilesRouter)
 
 export default app;

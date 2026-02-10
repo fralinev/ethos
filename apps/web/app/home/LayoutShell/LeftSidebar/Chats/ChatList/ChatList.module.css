@@ -1,0 +1,16 @@
+.chatListContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(154, 205, 50, 0.35) rgba(0, 0, 0, 0.2);
+
+}
+
+
+
+.ellipses {
+    cursor: pointer
+}

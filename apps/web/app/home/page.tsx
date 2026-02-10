@@ -1,9 +1,9 @@
 import { getSessionFromNextRequest } from "../../lib/session";
 import styles from "./page.module.css";
-import Header from "./components/Header";
+import Header from "./Header/Header";
 import { redirect } from "next/navigation";
 import type { Chat, SessionData, AuthedSession } from "@ethos/shared"
-import LayoutShell from "./LayoutShell";
+import LayoutShell from "./LayoutShell/LayoutShell";
 
 type HomeProps = {
   searchParams: Promise<{

@@ -117,3 +117,9 @@ export type OptimisticMessage = {
 };
 
 export type ChatMessage = ServerMessage | OptimisticMessage;
+
+export type Profile = {
+  fullName: string;
+  avatarURL: string;
+  bio: string;
+}

@@ -1,0 +1,102 @@
+.card {
+  width: 100%;
+  max-width: 20rem;
+  /* border-radius: 1rem; */
+  border: 1px solid yellowgreen;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 1.5rem;
+  color: white;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+.header {
+  margin-bottom: 1.5rem;
+  display:flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.fields {
+  display: grid;
+  gap: 1rem;
+}
+
+.field {
+  display: block;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: whitesmoke
+}
+
+.input,
+.textarea {
+  width: 100%;
+  /* border-radius: 0.75rem; */
+  border: 1px solid #3f4a6e;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.5rem 1rem;
+  color: white;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.input:focus,
+.textarea:focus {
+  border-color: yellowgreen;
+  box-shadow: 0 0 0 2px rgba(154, 205, 50, 0.35);
+}
+
+.textarea {
+  resize: none;
+}
+
+.actions {
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end
+}
+
+.avatarPreview {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid #3f4a6e;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.button {
+  border: 1px solid yellowgreen;
+  /* border-radius: 0.75rem; */
+  background: black;
+  color: white;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 900;
+  cursor: pointer;
+  /* transition: filter 160ms ease; */
+  transition: background 400ms ease;
+
+}
+
+.button:hover {
+  /* filter: brightness(2); */
+  background: yellowgreen;
+  color: black;
+}

@@ -1,0 +1,29 @@
+.chats{
+    display:flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    /* position: relative; */
+    
+}
+
+.createNewChatButtonWrapper{
+    /* display: flex;
+    justify-content: center;
+    background-color: rgb(28, 31, 35);
+    padding: 12px 0 */
+}
+.createNewChatButton{
+    /* position: absolute; */
+    /* bottom: 0; */
+    display: flex;
+    background-color: rgb(28, 31, 35);
+    padding: 12px;
+    border-radius: 30px;
+    border: 1px solid yellowgreen;
+    cursor: pointer;
+    align-self: center;
+    margin: 0 0 20px 0;
+}
+
+

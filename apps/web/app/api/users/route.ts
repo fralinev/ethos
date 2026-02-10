@@ -12,7 +12,6 @@ export async function GET(req: Request) {
     offset: "0"
 
   })
-  console.log("query", searchParams, query, req.url)
 
   if (!query) {
     const response = await fetch(`${API_BASE_URL}/users`, { cache: "no-store" });

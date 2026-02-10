@@ -19,9 +19,7 @@ export const Modal = ({children, onCancel, onCloseDropdown}:ModalProps) => {
   }
   return (
     <div onClick={handleBackdropClick} className={styles.backdrop}>
-      <div onClick={onCloseDropdown} className={styles.modal}>
           {children}
-      </div>
     </div>
   )
 }

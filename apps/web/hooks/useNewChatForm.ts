@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react"
-import type { User } from "@ethos/shared"
+import { useState } from "react"
 
 export const useNewChatForm = (onCancel:React.Dispatch<React.SetStateAction<boolean>>, subject:string, userIds:string[] ) => {
   const [chatName, setChatName] = useState("")
@@ -7,22 +6,8 @@ export const useNewChatForm = (onCancel:React.Dispatch<React.SetStateAction<bool
 
   const MAX_LENGTH = 15
 
-  // useEffect(() => {
-  //   const handleKeyDown = (e: KeyboardEvent) => {
-  //     if (e.key === "Escape") {
-  //       handleCancel();
-  //     }
-  //   };
-  //   window.addEventListener("keydown", handleKeyDown);
-  //   return () => {
-  //     window.removeEventListener("keydown", handleKeyDown);
-  //   };
-  // }, []);
-
   const handleCancel = () => {
     onCancel(false)
-    // setChatName("");
-    // setParticipants("");
   }
 
   const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -43,9 +28,6 @@ export const useNewChatForm = (onCancel:React.Dispatch<React.SetStateAction<bool
 
   const handleChatNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value
-    // const trimmed = raw.trim();
-    // const lowered = raw.toLowerCase()
-    // const cleaned = lowered.replace(/[^a-z]/g, "")
     const limited = raw.slice(0, MAX_LENGTH)
     setChatName(limited)
   }

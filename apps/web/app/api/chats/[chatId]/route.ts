@@ -8,7 +8,7 @@ export async function GET(req: NextRequest, context: any) {
     const session: SessionData | undefined = await getSessionFromNextRequest();
 
     if (!session?.user) {
-      return NextResponse.json({ message: "unauthorized" }, { status: 401 });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
     const { chatId } = await context.params;
 
