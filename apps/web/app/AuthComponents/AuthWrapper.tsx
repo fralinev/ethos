@@ -15,7 +15,6 @@ export default function AuthWrapper({ session }: { session: any }) {
 
   function isSafari() {
     const ua = navigator.userAgent
-    console.log("checkk", ua)
     return /^((?!chrome|android).)*safari/i.test(ua)
   }
 

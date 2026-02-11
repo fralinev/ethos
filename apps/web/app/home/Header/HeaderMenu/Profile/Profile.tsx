@@ -4,6 +4,7 @@ import ProfileEdit from "../ProfileEdit/ProfileEdit"
 import ProfileView from "../ProfileView/ProfileView"
 import type { Profile } from "@ethos/shared"
 import Spinner from "../../../components/Spinner"
+import { apiFetch } from "@/apps/web/lib/apiFetch"
 
 
 export default function Profile() {
@@ -16,31 +17,43 @@ export default function Profile() {
   })
 
   useEffect(() => {
-    setLoading(true)
+    const controller = new AbortController();
+
     async function getProfile() {
       try {
-        const response = await fetch("/api/profiles")
-        const data = await response.json();
+        setLoading(true)
+        const data = await apiFetch("/api/profiles", {
+          signal: controller.signal
+        })
         setProfile(data.profile)
-      } catch (err) {
-        console.error(err)
+      } catch (err: any) {
+        if (err.name !== "AbortError") {
+          console.error(err);
+        }
       } finally {
-        setLoading(false)
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     }
     getProfile()
+    return () => {
+      controller.abort();
+    };
   }, [])
 
   const handleSave = async (profile: Profile) => {
-
     try {
       setLoading(true)
       const response = await fetch("/api/profiles", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(profile)
       })
+      if (!response.ok) throw new Error("Failed to save profile");
       const { savedProfile } = await response.json();
       setProfile(savedProfile)
+      setMode("view")
     } catch (err) {
       console.error(err)
     } finally {
@@ -53,17 +66,17 @@ export default function Profile() {
       {mode === "edit" ?
         <ProfileEdit
           profile={profile}
+          loading={loading}
           onSave={(updated: Profile) => {
             handleSave(updated)
-            setMode('view')
           }}
           onCancel={() => setMode('view')}
-        /> : loading ? <Spinner /> :
+        /> :
+        loading ?
+          <Spinner /> :
           <ProfileView
             profile={profile}
-            setMode={() => setMode('edit')} />
-
-
+            onEdit={() => setMode("edit")} />
       }
     </>
   )

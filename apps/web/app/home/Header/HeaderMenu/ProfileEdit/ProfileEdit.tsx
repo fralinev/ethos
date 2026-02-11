@@ -3,8 +3,9 @@
 import { useState } from "react";
 import styles from "./ProfileEdit.module.css";
 import type { Profile } from "@ethos/shared"
+import Spinner from "../../../components/Spinner";
 
-export default function ProfileEdit({ profile, onSave }: any) {
+export default function ProfileEdit({ profile, onSave, onCancel, loading }: {profile: Profile, onSave: (form: Profile) => void, onCancel: () => void, loading: boolean}) {
   const [form, setForm] = useState(profile)
 
   return (
@@ -24,7 +25,6 @@ export default function ProfileEdit({ profile, onSave }: any) {
               ...prev,
               fullName: e.target.value
             }))}
-            placeholder="Ada Lovelace"
             className={styles.input}
           />
         </label>
@@ -37,7 +37,6 @@ export default function ProfileEdit({ profile, onSave }: any) {
               ...prev,
               avatarURL: e.target.value
             }))}
-            placeholder="https://..."
             className={styles.input}
           />
         </label>
@@ -50,7 +49,6 @@ export default function ProfileEdit({ profile, onSave }: any) {
               ...prev,
               bio: e.target.value
             }))}
-            placeholder="Short and precise."
             rows={4}
             className={styles.textarea}
           />
@@ -58,7 +56,8 @@ export default function ProfileEdit({ profile, onSave }: any) {
       </div>
 
       <div className={styles.actions}>
-        <button onClick={() => onSave(form)} className={styles.button}>Save</button>
+        <button onClick={onCancel} className={styles.button}>Cancel</button>
+        <div>{loading ? <Spinner/> : <button onClick={() => onSave(form)} className={styles.button}>Save</button>}</div>
       </div>
     </section>
   );

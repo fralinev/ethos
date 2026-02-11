@@ -2,8 +2,9 @@ import { getSessionFromNextRequest } from "../../lib/session";
 import styles from "./page.module.css";
 import Header from "./Header/Header";
 import { redirect } from "next/navigation";
-import type { Chat, SessionData, AuthedSession } from "@ethos/shared"
+import type { Chat, SessionData, AuthedSession, User } from "@ethos/shared"
 import LayoutShell from "./LayoutShell/LayoutShell";
+import { apiFetch } from "../../lib/apiFetch";
 
 type HomeProps = {
   searchParams: Promise<{
@@ -20,45 +21,32 @@ export default async function Home({ searchParams }: HomeProps) {
   }
 
   const { chatId } = await searchParams;
-  const activeChatId: string | undefined = chatId  ? chatId : undefined;
+  const activeChatId: string | undefined = chatId ? chatId : undefined;
   let initialChats: Chat[] = [];
+  let initialUsers: User[] = [];
 
-  if (session?.user) {
-    try {
-      const response = await fetch(`${process.env.API_BASE_URL}/chats`, {
-        headers: {
-          "x-user-id": session.user.id.toString(),
-        },
-        // next: { revalidate: 30}
-        cache: "no-store"
-      });
-
-      if (!response.ok) {
-        console.error(
-          "Failed to fetch chats:",
-          response.status,
-          response.statusText
-        );
-      } else {
-        initialChats = await response.json();
-      }
-    } catch (err) {
-      console.error("Error fetching chats:", err);
-    }
+  try {
+    initialChats = await apiFetch(`${process.env.API_BASE_URL}/chats`, {
+      headers: { "x-user-id": session.user.id },
+      cache: "no-store"
+    })
+    initialUsers = await apiFetch(`${process.env.API_BASE_URL}/users`, {
+      headers: { "x-user-id": session.user.id },
+      cache: "no-store"
+    })
+  } catch (err) {
+    console.error("Error fetching chats:", err);
   }
 
-  const activeChat = activeChatId 
-    ? initialChats.find(({id}) => id === activeChatId)
-    : undefined
- 
   return (
     <div className={styles.page}>
       <Header />
       <div className={styles.layout}>
-        <LayoutShell 
-        initialChats={initialChats} 
-        session={session} 
-        activeChatId={activeChatId} 
+        <LayoutShell
+          initialChats={initialChats}
+          initialUsers={initialUsers}
+          session={session}
+          activeChatId={activeChatId}
         />
       </div>
     </div>

@@ -1,50 +1,58 @@
-.newChatContainer {
-    width: 20vw;
+.container {
+    width: 18rem;
+    border: 1px solid yellowgreen;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 1.5rem;
+    color: white;
+
 }
-.newChatForm{
-    width: 100%;
+.header {
+  margin: 0
 }
-.newChatFields{
-    width: 100%;
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin: 0;
 }
 
-.chatName {
+.fields {
+    gap: 1rem;
+}
+
+.field {
+    display: block;
     position: relative;
-    border: 2px solid white;
-    margin: 10px 10px
-}
-
-
-.chatSubject {
-    display: flex;
     align-items: center;
+    margin: 0 0 1rem 0;
+    
 }
 
-.chatSubject input {
-    border: 1px solid yellowgreen;
-    padding: 5px;
+.label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: whitesmoke;
 }
 
-.usersSearch {
-    position: relative;
-    display: flex;
-    flex: 1;
-}
-
-.usersSearch input {
-    border: 1px solid yellowgreen;
-    padding: 5px;
-    margin: 0 0 0 5px;
-    /* flex: 1; */
+.input {
     width: 100%;
+    border: 1px solid #3f4a6e;
+    background: rgba(255, 255, 255, 0.08);
+    outline: none;
 
+    padding: 0.5rem 1rem;
+    color: white;
 }
 
-.searchIcon {
+.input:focus {
+    border-color: yellowgreen;
+    box-shadow: 0 0 0 2px rgba(154, 205, 50, 0.35);
+}
+
+.icon {
     position: absolute;
-    right: 5px;
-    top: 50%;
-    transform: translateY(-50%);
+    right: 10px;
     color: yellowgreen;
 }
 
@@ -67,7 +75,6 @@
     justify-content: space-between;
     cursor: pointer;
     padding: 4px 6px;
-    /* border-radius: 6px; */
     font-size: 14px;
     font-weight: 500;
     letter-spacing: 0.02em;
@@ -103,27 +110,9 @@
     cursor: pointer;
     white-space: nowrap;
     padding: 1px 3px;
-
-
 }
 
-.addButton {
-    border: 2px solid yellowgreen;
-    width: 100%;
-    cursor: pointer;
-}
-
-.addButton:hover {
-    background: rgba(154, 205, 50, 0.2);
-    width: 100%;
-}
-
-.newChatFields {
-    display: flex;
-    flex-direction: column;
-}
-
-.newChatButtons {
+.buttons {
     display: flex;
     justify-content: space-between;
     gap: 10px;
@@ -137,8 +126,6 @@
     margin: 5px;
     padding: 5 10;
     cursor: pointer;
-    /* padding: 5px; */
-
 }
 
 .modalButton:hover {
@@ -148,6 +135,6 @@
 }
 
 .modalButton:disabled {
-  opacity: 0.5;
-  pointer-events: none;
+    opacity: 0.5;
+    pointer-events: none;
 }

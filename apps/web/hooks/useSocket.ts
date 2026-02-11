@@ -106,7 +106,6 @@ class SocketClient {
   }
 
   send(payload: { type: string, payload?: object }) {
-    console.log("SEND", payload)
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
     const data =
       typeof payload === "string" ? payload : JSON.stringify(payload);

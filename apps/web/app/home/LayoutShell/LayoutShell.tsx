@@ -5,13 +5,16 @@ import LeftSidebar from "./LeftSidebar/LeftSidebar";
 import styles from "./LayoutShell.module.css"
 import MiddleSection from "./MiddleSection/MiddleSection";
 import RightSidebar from "./RightSidebar/RightSidebar";
+import type { Chat, User} from "@ethos/shared"
 
 export default function LayoutShell({
   initialChats,
+  initialUsers,
   session,
   activeChatId,
   }: {
-    initialChats: any,
+    initialChats: Chat[],
+    initialUsers: User[],
     session: any,
     activeChatId: string | undefined,
   }) {
@@ -81,6 +84,7 @@ export default function LayoutShell({
         <LeftSidebar
           session={session}
           initialChats={initialChats}
+          initialUsers={initialUsers}
           activeChatId={activeChatId} />
         <div
           className={styles.sidebarLeftResizer}

@@ -5,7 +5,7 @@ import styles from "./ProfileView.module.css";
 import { RiEditFill } from "react-icons/ri";
 import type { Profile } from "@ethos/shared"
 
-export default function ProfileView({ profile, setMode}: { profile: Profile, setMode: React.Dispatch<React.SetStateAction<string>> }) {
+export default function ProfileView({ profile, onEdit}: { profile: Profile, onEdit: () => void }) {
 
   return (
     <section className={styles.card}>
@@ -34,7 +34,7 @@ export default function ProfileView({ profile, setMode}: { profile: Profile, set
       </div>
 
       <div className={styles.actions}>
-        <button className={styles.button} onClick={() => setMode("edit")}>Edit</button>
+        <button className={styles.button} onClick={onEdit}>Edit</button>
       </div>
     </section>
   );

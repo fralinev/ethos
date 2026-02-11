@@ -4,6 +4,9 @@ import { db } from "../db";
 export const usersRouter = Router();
 
 usersRouter.get("/", async (req, res) => {
+  const {headers} = req;
+  const requesterId = headers?.["x-user-id"];
+
   const limit = Math.min(Number(req.query.limit ?? 50), 200);
   const offset = Math.max(Number(req.query.offset ?? 0), 0);
   const q = (req.query.q as string | undefined)?.trim();
@@ -27,15 +30,18 @@ usersRouter.get("/", async (req, res) => {
       rows = (
         await db.query(
           `
-          select id, username, created_at
-          from users
-          order by id asc
-          limit $1 offset $2
-        `,
-          [limit, offset]
+          SELECT DISTINCT u.*
+          FROM users u
+          JOIN chat_members cm ON cm.user_id = u.id
+          JOIN chat_members my_cm ON my_cm.chat_id = cm.chat_id
+          WHERE my_cm.user_id = $1
+          AND u.id != $1;
+          `,
+          [requesterId]
         )
       ).rows;
     }
+
     res.json(rows);
   } catch (e) {
     res.status(500).json({ error: (e as Error).message });

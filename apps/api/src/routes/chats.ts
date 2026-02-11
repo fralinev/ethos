@@ -174,6 +174,8 @@ chatsRouter.get("/", async (req, res) => {
       [requesterId]
     );
 
+    console.log("chatsResult.rows", chatsResult.rows)
+
     if (!chatsResult.rowCount) {
       return res.status(200).json([]);
     }
@@ -190,6 +192,8 @@ chatsRouter.get("/", async (req, res) => {
       FROM chat_members cm
       INNER JOIN users u ON u.id = cm.user_id
       WHERE cm.chat_id = ANY($1::int[])
+      AND cm.left_at IS NULL
+      
       `,
       [chatIds]
     );
@@ -216,6 +220,7 @@ chatsRouter.get("/", async (req, res) => {
       Array<{ id: string; username: string }>
     >();
 
+
     for (const row of membersResult.rows as Array<{
       chat_id: string;
       id: string;
@@ -225,10 +230,13 @@ chatsRouter.get("/", async (req, res) => {
       existing.push({ id: row.id, username: row.username });
       membersByChatId.set(row.chat_id, existing);
     }
+    console.log("membersByChatId", membersByChatId)
+
 
     const chatDtos = chats.map((chat) => {
       const creator = creatorMap.get(chat.created_by);
       const members = membersByChatId.get(chat.id) ?? [];
+
 
       return {
         id: chat.id,
@@ -477,10 +485,11 @@ chatsRouter.post("/:chatId", async (req, res) => {
         `
         UPDATE chats
         SET archived_at = now()
-        WHERE chat_id = $1
+        WHERE id = $1
         `,
         [chatId]
       )
+      broadcastToUsers([userId], "chat:left", { chatId, leftBy: userId });
     } else {
       const members = await db.query(
         `

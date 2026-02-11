@@ -74,24 +74,19 @@ export default function NewChatForm({ allUsers, onCancel }: { allUsers: User[], 
       return next
     })
   }
-  const handleSubjectChange = (ev:any) => {
+  const handleSubjectChange = (ev: any) => {
     if (ev.target.value.length > 21) return;
     setSubject(ev.target.value)
   }
   return (
     <>
-      <div className={styles.newChatContainer}>
-        <h1 className="flex justify-center pb-10">Create New Chat</h1>
-        <form
-          onSubmit={handleCreate}
-          className={styles.newChatForm}
-        >
-          <div className={styles.newChatFields}>
+      <section className={styles.container}>
+        <header className={styles.header}>
+          <h1 className={styles.title}> New Chat</h1>
+        </header>
 
-            <div className={styles.chatSubject}>
-              <label htmlFor="new-chat-subject-input">Subject (optional): </label>
-              <input id="new-chat-subject-input" value={subject} onChange={handleSubjectChange} ref={chatSubjectRef} />
-            </div>
+        <form onSubmit={handleCreate}>
+          <div className={styles.fields}>
 
             <div className={styles.selectedUsers}>
               {Array.from(selectedUsers.values()).map((user) => (
@@ -103,13 +98,22 @@ export default function NewChatForm({ allUsers, onCancel }: { allUsers: User[], 
               {selectedUsers.size > 1 && <button type="button" onClick={() => setSelectedUsers(new Map())} className={styles.clearAllButton}>clear all</button>}
             </div>
 
-            <div className="flex items-center">
-              <label htmlFor="new-chat-users-search">Participants:</label>
-              <div className={styles.usersSearch}>
-                <input id="new-chat-users-search" placeholder="find a user..." onChange={(ev) => setQuery(ev.target.value)} value={query} />
-                {query.length > 0
-                  ? <button onClick={() => setQuery("")}><FaXmark className={`${styles.searchIcon} cursor-pointer`} size={18} /></button>
-                  : <FaSearch className={styles.searchIcon} />}
+            <label className={styles.field}>
+              <span className={styles.label}>Participants</span>
+              <div className="relative flex items-center">
+                <input
+                  id="new-chat-users-search"
+                  placeholder="find a user..."
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  ref={chatSubjectRef}
+                  className={styles.input}
+                />
+                {query.length === 0 ?
+                  <FaSearch className={styles.icon} /> :
+                  <button className="flex items-center" onClick={() => setQuery("")}>
+                    <FaXmark className={`${styles.icon} cursor-pointer`} size={18} />
+                  </button>}
                 {query.length > 0 && <div ref={dropdownRef} className={styles.dropdown}>
                   {loading
                     ? <div style={{ padding: "5px" }}><Spinner /></div>
@@ -126,21 +130,39 @@ export default function NewChatForm({ allUsers, onCancel }: { allUsers: User[], 
                               {selectedUsers.has(user.id) && <FaCheck color="lightgreen" />}
                             </div>
                           ))}
-                          {/* <button onClick={handleAddUsers} className={styles.addButton}>Add</button> */}
                         </div>
                         : "no users found"}
                     </div>}
                 </div>}
-
               </div>
-            </div>
+            </label>
+
+            <label className={styles.field}>
+              <span className={styles.label}>Subject (optional)</span>
+              <input
+                id="new-chat-subject-input"
+                value={subject}
+                onChange={handleSubjectChange}
+                ref={chatSubjectRef}
+                className={styles.input}
+              />
+            </label>
+
+
+
+
+
+
+
+
+
           </div>
-          <div className={styles.newChatButtons}>
+          <div className={styles.buttons}>
             <button type="button" style={{ cursor: "pointer" }} onClick={handleCancel} className={styles.modalButton}>Cancel</button>
             <button type="submit" style={{ cursor: "pointer" }} className={styles.modalButton} disabled={selectedUsers.size === 0}>Create</button>
           </div>
         </form>
-      </div>
+      </section>
     </>
   )
 }

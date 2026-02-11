@@ -3,20 +3,15 @@ import UsersSearch from "./UsersSearch"
 import styles from "./Users.module.css"
 import { useState, useEffect } from "react"
 import Spinner from "../../components/Spinner"
+import type {User} from "@ethos/shared"
 
-export type User = {
-  id: string;
-  username: string;
-  created_at: string;
-  role: string;
-};
 
-export default function Users({ allUsers }: { allUsers: User[] }) {
+export default function Users({ initialUsers }: { initialUsers: User[] }) {
   const [query, setQuery] = useState("")
   const [filteredUsers, setFilteredUsers] = useState([])
   const [loading, setLoading] = useState(false)
 
-  const displayUsers = query.trim().length > 0 ? filteredUsers : allUsers
+  const displayUsers = query.trim().length > 0 ? filteredUsers : initialUsers
 
   useEffect(() => {
     if (!query) return

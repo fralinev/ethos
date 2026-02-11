@@ -8,6 +8,7 @@ import { chatsRouter } from './routes/chats';
 import { profilesRouter } from './routes/profiles';
 import { sessionMiddleware } from './session';
 import { userSockets, chatSockets } from './ws/hub';
+import { db } from './db';
 
 const allowedOrigins = [
   "http://localhost:3000",
@@ -51,6 +52,14 @@ app.get("/socket-maps", (req, res) => {
     res.sendStatus(404)
   }
 })
+
+app.get("/archived-chats", async (req, res) => {
+  const data = (await db.query(`
+    SELECT *
+    FROM chats
+    WHERE archived_at IS NOT NULL;`)).rows
+  res.json(data)
+} )
 
 app.get("/health", async (req, res) => {
   let dbStatus = "ok";

@@ -70,11 +70,14 @@ export default function Chats({
         if (session?.user?.id === msg.payload.leftBy) {
           if (activeChatId === msg.payload.chatId) {
             router.push("/home")
+          } else {
+            console.log("chat:left", session?.user?.id, msg.payload)
+            setChats((prev: any) => {
+              const filtered = prev.filter((chat: Chat) => chat.id !== msg.payload.chatId)
+              return filtered
+            })
           }
-          setChats((prev: any) => {
-            const filtered = prev.filter((chat: any) => chat.id !== msg.payload.chatId)
-            return filtered
-          })
+
         }
       }
 
@@ -90,9 +93,9 @@ export default function Chats({
       <button
         className={styles.createNewChatButton}
         onClick={() => setChatPendingCreation(true)}>
-        <span className="test" style={{alignSelf: "center", margin: "0 4px 0 0"}}><IoMdAddCircle size={20} color="rgba(154, 205, 100, 0.50)"/></span>New Chat
+        <span className="test" style={{ alignSelf: "center", margin: "0 4px 0 0" }}><IoMdAddCircle size={20} color="rgba(154, 205, 100, 0.50)" /></span>New Chat
       </button>
-      { 
+      {
         chatPendingCreation &&
         <Modal onCancel={() => setChatPendingCreation(false)}>
           <NewChatForm allUsers={allUsers} onCancel={() => setChatPendingCreation(false)}></NewChatForm>
