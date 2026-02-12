@@ -1,7 +1,7 @@
 import type { WebSocketServer } from "ws";
 import WebSocket from "ws";
 import type { AuthedWebSocket } from ".";
-import type { SocketEvents } from "@ethos/shared"
+import type { SocketEventMap } from "@ethos/shared"
 
 let wssGlobal: WebSocketServer | null = null;
 
@@ -10,7 +10,7 @@ export const chatSockets = new Map<string, Set<AuthedWebSocket>>();
 
 
 
-// Not used; possibly removable
+// unused
 export function registerWss(instance: WebSocketServer) {
   wssGlobal = instance;
   console.log("[wsHub] WebSocketServer registered");
@@ -64,7 +64,7 @@ export function unregisterChatSocket(socket: AuthedWebSocket) {
 }
 
 
-export function broadcastToUsers<E extends keyof SocketEvents>(userIds: string[], event: E, payload: SocketEvents[E]) {
+export function broadcastToUsers<E extends keyof SocketEventMap>(userIds: string[], event: E, payload: SocketEventMap[E]) {
   if (!wssGlobal) {
     console.warn("[wsHub] broadcastToUsers called before WSS registered");
     return;

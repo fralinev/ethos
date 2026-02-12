@@ -1,6 +1,6 @@
 "use client"
 import styles from "./Modal.module.css"
-import { ReactNode } from "react";
+import { ReactNode, useRef } from "react";
 import { useEscape } from "../../../hooks/useEscape"
 
 type ModalProps = {
@@ -9,17 +9,35 @@ type ModalProps = {
   onCloseDropdown?: () => {} | undefined
 };
 
-export const Modal = ({children, onCancel, onCloseDropdown}:ModalProps) => {
-    useEscape(onCancel)
+export const Modal = ({ children, onCancel, onCloseDropdown }: ModalProps) => {
+  const startedOnBackdropRef = useRef(false);
+  useEscape(onCancel)
 
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
-      onCancel()
+      startedOnBackdropRef.current = true;
+    } else {
+      startedOnBackdropRef.current = false;
     }
-  }
+  };
+
+  const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (
+      startedOnBackdropRef.current &&
+      e.target === e.currentTarget
+    ) {
+      onCancel();
+    }
+    startedOnBackdropRef.current = false;
+  };
+
+  
   return (
-    <div onClick={handleBackdropClick} className={styles.backdrop}>
-          {children}
+    <div
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      className={styles.backdrop}>
+      {children}
     </div>
   )
 }

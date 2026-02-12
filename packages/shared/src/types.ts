@@ -1,17 +1,19 @@
 export type Chat = {
   id: string;
-  subject: string;
+  subject: string | null;
+  type: ChatType;
   createdAt: string;
   createdBy: {
     id: string;
     username: string;
-  } | null;
+  };
   members: {
     id: string;
     username: string;
   }[];
-  newName?: string
 };
+
+export type ChatType = "direct" | "group";
 
 export type Message = {
   clientId?: string
@@ -26,7 +28,7 @@ export type Message = {
   };
 };
 
-export type SocketEvents = {
+export type SocketEventMap = {
   "chat:created": Chat;
   "message:created": Message;
   "chat:deleted": {
@@ -43,8 +45,18 @@ export type SocketEvents = {
   "user:login": {
     username: string
   }
-  "chat:left": {}
+  "chat:left": {
+    chatId: string;
+    leftBy: string;
+  }
 };
+
+export type SocketMessage = {
+  [K in keyof SocketEventMap]: {
+    type: K;
+    payload: SocketEventMap[K];
+  };
+}[keyof SocketEventMap];
 
 export type User = {
   id: string;
@@ -61,6 +73,7 @@ export type NewChat = {
 export type ChatRow = {
   id: string;
   subject: string;
+  type: string;
   created_by: string;
   created_at: string;
 };

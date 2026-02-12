@@ -10,17 +10,19 @@ import type { Chat, User} from "@ethos/shared"
 export default function LayoutShell({
   initialChats,
   initialUsers,
+  activeChat,
   session,
   activeChatId,
   }: {
     initialChats: Chat[],
     initialUsers: User[],
+    activeChat: Chat | undefined,
     session: any,
     activeChatId: string | undefined,
   }) {
 
   const DEFAULT_WIDTH = 280;
-  const MIN_WIDTH = 220;
+  const MIN_WIDTH = 240;
   const MAX_WIDTH = 480;
 
   const [leftWidth, setLeftWidth] = useState<number>(DEFAULT_WIDTH);

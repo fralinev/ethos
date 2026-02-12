@@ -1,0 +1,60 @@
+/* ChatsHeader.module.css */
+.card {
+  width: 100%;
+  /* border: 1px solid yellowgreen; */
+  background: rgba(0, 0, 0, 0.8);
+  padding: 1rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10%;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.tabGroup {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tab {
+  height: 30px;
+  /* align-self: center; */
+  font-size: 12px !important;
+  border: 1px solid #3f4a6e;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  padding: 2px 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 200ms ease, color 200ms ease;
+}
+
+.tab:hover {
+  border-color: yellowgreen;
+}
+
+.tab:focus-visible {
+  outline: none;
+  border-color: yellowgreen;
+  box-shadow: 0 0 0 2px rgba(154, 205, 50, 0.35);
+}
+
+.tabActive {
+  border-color: yellowgreen;
+  background: yellowgreen;
+  color: black;
+}

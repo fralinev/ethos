@@ -1,7 +1,7 @@
 "use client"
-import SectionHeader from "./SectionHeader"
+import SectionHeader from "../../../components/SectionHeader"
 import { useEffect, useState } from "react"
-import { useSocket } from "../../../hooks/useSocket"
+import { useSocket } from "@/apps/web/hooks/useSocket"
 import styles from "./Logger.module.css"
 
 

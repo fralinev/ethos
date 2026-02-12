@@ -1,6 +1,5 @@
 "use client"
 import { useEffect } from "react";
-import About from "../../components/About";
 import { SessionData, AuthedSession } from "@ethos/shared";
 import { useAppSelector, useAppDispatch } from "@/apps/web/store/hooks"
 import Spinner from "../../components/Spinner";
@@ -30,7 +29,7 @@ useEffect(() => {
   if (!session?.user || !activeChatId) {
     return isChatLoading
       ? <Spinner size={60} />
-      : <About />
+      : null
   }
 
   return (

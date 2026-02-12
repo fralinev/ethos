@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "../db";
 import { broadcastToUsers } from "../ws/hub";
-import type { NewChat, ChatRow } from "@ethos/shared"
+import type { NewChat, ChatRow, Chat } from "@ethos/shared"
 
 
 
@@ -10,41 +10,36 @@ export const chatsRouter = Router();
 
 chatsRouter.post("/create", async (req, res) => {
   try {
-    const { body, headers }: { body: NewChat; headers: any } = req;
-    const requesterIdRaw = headers?.["x-user-id"];
-    const requesterId = requesterIdRaw;
+    const { body, headers } = req;
+    const { userIds }: { userIds: string[] } = body;
+    let { subject }: { subject: string | null } = body
+    const requesterId = headers?.["x-user-id"];
 
-    if (!requesterIdRaw) {
+    if (!requesterId) {
       return res.status(401).json({ message: "unauthorized" });
     }
 
-    if (!body.subject) body.subject = null;
-
-    // basic payload shape guard
-    if (
-      !body ||
-      !Array.isArray(body.userIds)
-    ) {
+    if (!body || !Array.isArray(userIds)) {
       return res.status(400).json({ message: "invalid payload" });
     }
+
+    if (!subject) subject = null;
+    else subject = subject.trim();
 
     const requester = await db.query(
       "SELECT id, username FROM users WHERE id = $1",
       [requesterId]
     );
     if (!requester || !requester.rowCount) {
-      return res.status(401).json({ message: "requestor not found" });
+      return res.status(401).json({ message: "requester not found" });
     }
+
     const requesterRow = requester.rows[0];
 
-    const limitedParts =
+    const limited =
       body.userIds.length > 7
         ? body.userIds.slice(0, 7)
         : body.userIds;
-
-    const limitedNums = limitedParts.map((id) => {
-      return Number(id)
-    })
 
     if (body.subject !== null && body.subject.length > 21) {
       return res.status(400).json({ message: "bad request" });
@@ -52,7 +47,7 @@ chatsRouter.post("/create", async (req, res) => {
 
     const result = await db.query(
       "SELECT id, username FROM users WHERE id = ANY($1::bigint[])",
-      [limitedNums]
+      [limited]
     );
 
     const foundUsers = result.rows;
@@ -60,8 +55,8 @@ chatsRouter.post("/create", async (req, res) => {
       foundUsers.map((u) => u.id)
     );
 
-    const missing = limitedParts.filter(
-      (id) => !foundUsersSet.has(id)
+    const missing = limited.filter(
+      (id: string) => !foundUsersSet.has(id)
     );
 
     if (missing.length > 0) {
@@ -82,6 +77,12 @@ chatsRouter.post("/create", async (req, res) => {
     }
     const finalMembers = Array.from(uniqueById.values());
 
+    if (finalMembers.length < 2) {
+      throw new Error("A chat must have at least 2 members");
+    }
+
+    const type = finalMembers.length === 2 ? "direct" : "group";
+
     const client = await db.connect();
 
     try {
@@ -89,11 +90,11 @@ chatsRouter.post("/create", async (req, res) => {
 
       const chatInsert = await client.query(
         `
-        INSERT INTO chats (subject, created_by)
-        VALUES ($1, $2)
-        RETURNING id, subject, created_by, created_at
+        INSERT INTO chats (subject, created_by, type)
+        VALUES ($1, $2, $3)
+        RETURNING id, subject, created_by, created_at, type
         `,
-        [body.subject === null ? null : body.subject.trim(), requesterRow.id]
+        [subject, requesterRow.id, type]
       );
 
       const chat = chatInsert.rows[0];
@@ -111,9 +112,10 @@ chatsRouter.post("/create", async (req, res) => {
 
       await client.query("COMMIT");
 
-      const chatDTO = {
+      const chatDTO: Chat = {
         id: chat.id,
         subject: chat.subject,
+        type: chat.type,
         createdAt: chat.created_at,
         createdBy: {
           id: requesterRow.id,
@@ -163,7 +165,7 @@ chatsRouter.get("/", async (req, res) => {
 
     const chatsResult = await db.query<ChatRow>(
       `
-      SELECT c.id, c.subject, c.created_by, c.created_at
+      SELECT c.id, c.subject, c.type, c.created_by, c.created_at
       FROM chats c
       INNER JOIN chat_members cm ON cm.chat_id = c.id
       WHERE cm.user_id = $1
@@ -173,8 +175,6 @@ chatsRouter.get("/", async (req, res) => {
       `,
       [requesterId]
     );
-
-    console.log("chatsResult.rows", chatsResult.rows)
 
     if (!chatsResult.rowCount) {
       return res.status(200).json([]);
@@ -230,18 +230,16 @@ chatsRouter.get("/", async (req, res) => {
       existing.push({ id: row.id, username: row.username });
       membersByChatId.set(row.chat_id, existing);
     }
-    console.log("membersByChatId", membersByChatId)
 
 
     const chatDtos = chats.map((chat) => {
       const creator = creatorMap.get(chat.created_by);
       const members = membersByChatId.get(chat.id) ?? [];
-
-
       return {
         id: chat.id,
         subject: chat.subject,
         createdAt: chat.created_at,
+        type: chat.type,
         createdBy: creator
           ? {
             id: creator.id,
@@ -499,8 +497,8 @@ chatsRouter.post("/:chatId", async (req, res) => {
         AND left_at IS NULL
         `,
         [chatId]
-      ) 
-      const memberIds = members.rows.map(({user_id}) => user_id)
+      )
+      const memberIds = members.rows.map(({ user_id }) => user_id)
       broadcastToUsers([...memberIds, userId], "chat:left", { chatId, leftBy: userId });
 
     }
@@ -575,3 +573,108 @@ chatsRouter.patch("/:chatId", async (req, res) => {
   }
 
 })
+
+chatsRouter.delete("/:chatId/members", async (req, res) => {
+  try {
+    const userId = req.header("x-user-id");
+    const { chatId } = req.params;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!chatId) {
+      return res.status(400).json({ message: "Invalid chatId" });
+    }
+
+    const chat = await db.query(
+      `SELECT type FROM chats WHERE id = $1`,
+      [chatId]
+    );
+
+    if (chat.rows.length === 0) {
+      return res.status(404).json({ message: "Chat not found" });
+    }
+
+    if (chat.rows[0].type !== "group") {
+      return res.status(400).json({ message: "Cannot leave direct chat" });
+    }
+
+    const requester = await db.query(
+      `
+      SELECT 1
+      FROM chat_members
+      WHERE chat_id = $1
+      AND user_id = $2
+      AND left_at IS NULL
+      `,
+      [chatId, userId]
+    );
+
+    if (requester.rows.length === 0) {
+      return res.status(401).json({ message: "User not member" });
+    }
+
+    await db.query(
+      `
+      UPDATE chat_members
+      SET left_at = now()
+      WHERE chat_id = $1
+      AND user_id = $2
+      AND left_at IS NULL
+      `,
+      [chatId, userId]
+    );
+
+    const remainder = await db.query(
+      `
+      SELECT 1
+      FROM chat_members
+      WHERE chat_id = $1
+      AND left_at IS NULL
+      LIMIT 1
+      `,
+      [chatId]
+    );
+
+    if (remainder.rows.length === 0) {
+      // Archive chat if last member left
+      await db.query(
+        `
+        UPDATE chats
+        SET archived_at = now()
+        WHERE id = $1
+        `,
+        [chatId]
+      );
+
+      broadcastToUsers([userId], "chat:left", {
+        chatId,
+        leftBy: userId,
+      });
+    } else {
+      const members = await db.query(
+        `
+        SELECT user_id
+        FROM chat_members
+        WHERE chat_id = $1
+        AND left_at IS NULL
+        `,
+        [chatId]
+      );
+
+      const memberIds = members.rows.map(({ user_id }) => user_id);
+
+      broadcastToUsers([...memberIds, userId], "chat:left", {
+        chatId,
+        leftBy: userId,
+      });
+    }
+
+    return res.status(204).end();
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});

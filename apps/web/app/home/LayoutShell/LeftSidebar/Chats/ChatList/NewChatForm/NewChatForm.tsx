@@ -1,17 +1,16 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useMemo } from "react"
 import styles from "./NewChatForm.module.css"
 import { useNewChatForm } from "@/apps/web/hooks/useNewChatForm"
-import type { User } from "@ethos/shared"
+import type { User, SessionData } from "@ethos/shared"
 import { FaSearch } from "react-icons/fa";
 import Spinner from "@/apps/web/app/home/components/Spinner"
 import { FaCheck } from "react-icons/fa";
 import { FaXmark } from "react-icons/fa6";
+import { apiFetch } from "@/apps/web/lib/apiFetch"
 
-
-
-export default function NewChatForm({ allUsers, onCancel }: { allUsers: User[], onCancel: React.Dispatch<React.SetStateAction<boolean>> }) {
+export default function NewChatForm({ session, onCancel }: { session: SessionData | undefined, onCancel: React.Dispatch<React.SetStateAction<boolean>> }) {
   const [subject, setSubject] = useState("")
   const [selectedUsers, setSelectedUsers] = useState(new Map())
   const [query, setQuery] = useState("")
@@ -26,13 +25,11 @@ export default function NewChatForm({ allUsers, onCancel }: { allUsers: User[], 
   const chatSubjectRef = useRef<HTMLInputElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null)
 
-
   useEffect(() => {
     if (chatSubjectRef.current) {
       chatSubjectRef.current.focus();
     }
   }, []);
-
 
   useEffect(() => {
     function handleOutsideClick(ev: any) {
@@ -58,8 +55,8 @@ export default function NewChatForm({ allUsers, onCancel }: { allUsers: User[], 
 
   const getUsers = async () => {
     try {
-      const response = await fetch(`/api/users?query=${encodeURIComponent(query)}`)
-      const data = await response.json()
+      const data = await apiFetch(`/api/users?query=${encodeURIComponent(query)}`)
+      // const data = await response.json()
       setFilteredUsers(data)
     } catch (err) {
       console.error(err)
@@ -137,7 +134,7 @@ export default function NewChatForm({ allUsers, onCancel }: { allUsers: User[], 
               </div>
             </label>
 
-            <label className={styles.field}>
+            {selectedUsers.size > 1 && <label className={styles.field}>
               <span className={styles.label}>Subject (optional)</span>
               <input
                 id="new-chat-subject-input"
@@ -146,7 +143,7 @@ export default function NewChatForm({ allUsers, onCancel }: { allUsers: User[], 
                 ref={chatSubjectRef}
                 className={styles.input}
               />
-            </label>
+            </label>}
 
 
 

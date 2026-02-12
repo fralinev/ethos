@@ -1,7 +1,7 @@
 "use client"
 import styles from "./RightSidebar.module.css"
-import Logger from "../../components/Logger"
-import HealthChecks from "../../components/HealthChecks"
+import Logger from "./Logger/Logger"
+import HealthChecks from "./HealthChecks/HealthChecks"
 
 
 

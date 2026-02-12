@@ -7,7 +7,7 @@ import { LuMoveRight } from "react-icons/lu";
 
 type SubjectChangeModalProps = {
   chat: Chat;
-  onConfirm: (chatId: string, name: string, newName: string) => Promise<void>;
+  onConfirm: (chatId: string, subject: string | null, newSubject: string) => Promise<void>;
 }
 
 export default function SubjectChangeModal({ chat, onConfirm }: SubjectChangeModalProps) {

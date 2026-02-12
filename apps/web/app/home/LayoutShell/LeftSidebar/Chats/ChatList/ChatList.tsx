@@ -5,14 +5,15 @@ import LeaveChatModal from "../LeaveChatModal";
 import { useState } from "react";
 import type { Chat } from "@ethos/shared"
 import styles from "./ChatList.module.css"
-import ChatRow from "../ChatRow"
+import ChatRow from "./ChatRow/ChatRow"
 import SubjectChangeModal from "../SubjectChangeModal";
 import { Modal } from "../../../../components/Modal";
 import { useAppDispatch } from "@/apps/web/store/hooks";
 import { startChatLoading } from "@/apps/web/store/slices/chatSlice"
 import { useSocket } from "@/apps/web/hooks/useSocket";
+import { apiFetch } from "@/apps/web/lib/apiFetch";
 
-export default function ChatList({ chats, activeChatId }: { chats: Chat[], activeChatId: string | undefined }) {
+export default function ChatList({ chats, activeTab, activeChatId }: { chats: Chat[], activeTab: string, activeChatId: string | undefined }) {
   const [chatPendingRename, setChatPendingRename] = useState<Chat | null>(null);
   const [openId, setOpenId] = useState<string | null>(null)
   const [chatPendingLeave, setChatPendingLeave] = useState<Chat | null>(null)
@@ -24,7 +25,6 @@ export default function ChatList({ chats, activeChatId }: { chats: Chat[], activ
   const getChat = (chatId: string) => {
     if (chatId === activeChatId) return;
     if (activeChatId) client.exitChat(activeChatId)
-    // client.joinChat(chatId)
     dispatch(startChatLoading());
     router.push(`/home?chatId=${chatId}`);
   };
@@ -37,10 +37,9 @@ export default function ChatList({ chats, activeChatId }: { chats: Chat[], activ
 
   const handleLeaveChat = async (chatId: string) => {
     try {
-      const response = await fetch(`/api/chats/${chatId}`, {
-        method: "POST",
+      await apiFetch(`/api/chats/${chatId}/members`, {
+        method: "DELETE",
       })
-      const data = await response.json()
       setChatPendingLeave(null)
       if (activeChatId === chatId) {
         router.push("/home")
@@ -51,7 +50,7 @@ export default function ChatList({ chats, activeChatId }: { chats: Chat[], activ
   }
 
 
-  const handleSubjectChange = async (chatId: string, subject: string, newSubject: string) => {
+  const handleSubjectChange = async (chatId: string, subject: string | null, newSubject: string) => {
     try {
       const response = await fetch(`/api/chats/${chatId}`, {
         method: "PATCH",
@@ -67,6 +66,7 @@ export default function ChatList({ chats, activeChatId }: { chats: Chat[], activ
 
   const handleEllipsesClick = (chatId: string) => {
     setOpenId((prev) => (prev === chatId ? null : chatId));
+
   };
 
   return (
@@ -100,6 +100,7 @@ export default function ChatList({ chats, activeChatId }: { chats: Chat[], activ
               <ChatRow
                 chat={chat}
                 getChat={getChat}
+                activeTab={activeTab}
                 handleEllipsesClick={handleEllipsesClick}
                 openId={openId}
                 onLeave={() => setChatPendingLeave(chat)}

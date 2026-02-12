@@ -20,8 +20,6 @@ export default function LeftSidebar({
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [allUsers, setAllUsers] = useState<User[]>([])
-
 
   // useEffect(() => {
   //   const getUsers = async () => {
@@ -50,7 +48,7 @@ export default function LeftSidebar({
     <div className={styles.leftSidebar}>
       {/* <SectionHeader text="Users" /> */}
       <Users initialUsers={initialUsers} />
-      <Chats initialChats={initialChats} session={session} activeChatId={activeChatId} allUsers={allUsers} />
+      <Chats initialChats={initialChats} session={session} activeChatId={activeChatId} />
     </div>
   )
 }

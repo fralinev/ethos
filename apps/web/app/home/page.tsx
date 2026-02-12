@@ -22,6 +22,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
   const { chatId } = await searchParams;
   const activeChatId: string | undefined = chatId ? chatId : undefined;
+
   let initialChats: Chat[] = [];
   let initialUsers: User[] = [];
 
@@ -38,6 +39,8 @@ export default async function Home({ searchParams }: HomeProps) {
     console.error("Error fetching chats:", err);
   }
 
+  const activeChat = activeChatId ? initialChats.find((chat:Chat) => chat.id === activeChatId) : undefined
+
   return (
     <div className={styles.page}>
       <Header />
@@ -45,6 +48,7 @@ export default async function Home({ searchParams }: HomeProps) {
         <LayoutShell
           initialChats={initialChats}
           initialUsers={initialUsers}
+          activeChat={activeChat}
           session={session}
           activeChatId={activeChatId}
         />

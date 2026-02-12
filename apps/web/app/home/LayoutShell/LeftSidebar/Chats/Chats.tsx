@@ -1,10 +1,10 @@
 "use client"
 import styles from "./Chats.module.css"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import ChatList from "./ChatList/ChatList"
 import NewChatForm from "./ChatList/NewChatForm/NewChatForm"
 import { useSocket } from "@/apps/web/hooks/useSocket"
-import type { SessionData, Chat, User } from "@ethos/shared"
+import type { SessionData, Chat, User, SocketMessage } from "@ethos/shared"
 import { useRouter, } from "next/navigation";
 import { Modal } from "../../../components/Modal"
 import ChatsHeader from "./ChatsHeader/ChatsHeader"
@@ -16,20 +16,30 @@ export default function Chats({
   initialChats,
   session,
   activeChatId,
-  allUsers }: {
+  }: {
     initialChats: Chat[],
     session: SessionData | undefined,
     activeChatId: string | undefined,
-    allUsers: User[]
   }) {
   const [chats, setChats] = useState<Chat[]>(initialChats);
-  const [message, setMessage] = useState("+ new chat")
+  const [activeTab, setActiveTab] = useState("direct")
   const [chatPendingCreation, setChatPendingCreation] = useState(false)
 
   const { client } = useSocket();
   const router = useRouter();
 
   const activeChatIdRef = useRef<string | undefined>(activeChatId);
+
+
+  const directChats = useMemo(
+    () => chats.filter(chat => chat.type === "direct"),
+    [chats]
+  );
+
+  const groupChats = useMemo(
+    () => chats.filter(chat => chat.type === "group"),
+    [chats]
+  );
 
   useEffect(() => {
     setChats(initialChats);
@@ -41,14 +51,15 @@ export default function Chats({
 
   useEffect(() => {
     if (!client) return;
-    const off = client.onMessage((msg) => {
+    const off = client.onMessage((msg: SocketMessage) => {
       if (!msg) return;
       if (msg.type === "chat:created") {
         const newChat: Chat = msg.payload;
         setChats((prev: Chat[]) => {
-          if (prev.some((c) => String(c.id) === String(newChat.id))) return prev;
+          if (prev.some((c) => c.id === newChat.id)) return prev;
           return [...prev, newChat];
         });
+        setActiveTab(msg.payload.type)
       }
 
       if (msg.type === "chat:renamed") {
@@ -80,7 +91,6 @@ export default function Chats({
 
         }
       }
-
     });
 
     return () => off();
@@ -88,17 +98,17 @@ export default function Chats({
 
   return (
     <div className={styles.chats}>
-      <ChatsHeader />
-      <ChatList chats={chats} activeChatId={activeChatId} />
+      <ChatsHeader activeTab={activeTab} onTabChange={setActiveTab} />
+      <ChatList chats={activeTab === "direct" ? directChats : groupChats} activeTab={activeTab} activeChatId={activeChatId} />
       <button
         className={styles.createNewChatButton}
-        onClick={() => setChatPendingCreation(true)}>
+        onClick={() => setChatPendingCreation(true)}> 
         <span className="test" style={{ alignSelf: "center", margin: "0 4px 0 0" }}><IoMdAddCircle size={20} color="rgba(154, 205, 100, 0.50)" /></span>New Chat
       </button>
       {
         chatPendingCreation &&
         <Modal onCancel={() => setChatPendingCreation(false)}>
-          <NewChatForm allUsers={allUsers} onCancel={() => setChatPendingCreation(false)}></NewChatForm>
+          <NewChatForm onCancel={() => setChatPendingCreation(false)} session={session}></NewChatForm>
         </Modal>
       }
     </div>
