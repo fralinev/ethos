@@ -23,7 +23,7 @@ export default function Chats({
   }) {
   const [chats, setChats] = useState<Chat[]>(initialChats);
   const [activeTab, setActiveTab] = useState("direct")
-  const [chatPendingCreation, setChatPendingCreation] = useState(false)
+  const [isCreatingNewChat, setIsCreatingNewChat] = useState(false)
 
   const { client } = useSocket();
   const router = useRouter();
@@ -102,13 +102,13 @@ export default function Chats({
       <ChatList chats={activeTab === "direct" ? directChats : groupChats} activeTab={activeTab} activeChatId={activeChatId} />
       <button
         className={styles.createNewChatButton}
-        onClick={() => setChatPendingCreation(true)}> 
+        onClick={() => setIsCreatingNewChat(true)}> 
         <span className="test" style={{ alignSelf: "center", margin: "0 4px 0 0" }}><IoMdAddCircle size={20} color="rgba(154, 205, 100, 0.50)" /></span>New Chat
       </button>
       {
-        chatPendingCreation &&
-        <Modal onCancel={() => setChatPendingCreation(false)}>
-          <NewChatForm onCancel={() => setChatPendingCreation(false)} session={session}></NewChatForm>
+        isCreatingNewChat &&
+        <Modal onCancel={() => setIsCreatingNewChat(false)}>
+          <NewChatForm setIsCreatingNewChat={setIsCreatingNewChat} ></NewChatForm>
         </Modal>
       }
     </div>

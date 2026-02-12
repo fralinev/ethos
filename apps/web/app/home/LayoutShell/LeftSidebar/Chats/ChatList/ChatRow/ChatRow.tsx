@@ -3,25 +3,25 @@
 import styles from "./ChatRow.module.css"
 import { useRef, useEffect } from "react"
 import { FaEllipsisH } from "react-icons/fa";
-import type { Chat } from "@ethos/shared";
+import type { Chat, User } from "@ethos/shared";
 import { createPortal } from "react-dom";
+import { useUser } from "@/apps/web/app/context/UserContext";
 
 type ChatRowProps = {
   chat: Chat,
   getChat: (chatId: string) => void,
   activeTab: string,
-  handleEllipsesClick: (chatId: string) => void,
   openId: string | null;
   setOpenId: React.Dispatch<React.SetStateAction<string | null>>,
   onLeave: (chat: Chat) => void,
   onRename: (chat: Chat) => void
 }
 
+
 export default function ChatRow({
   chat,
   getChat,
   activeTab,
-  handleEllipsesClick,
   openId,
   setOpenId,
   onLeave,
@@ -30,6 +30,9 @@ export default function ChatRow({
   const dropdownRef = useRef<HTMLDivElement | null>(null)
   const ellipsisRef = useRef<HTMLSpanElement | null>(null)
   const rect = ellipsisRef.current?.getBoundingClientRect();
+  const user = useUser()
+
+  // console.log(useUser())
 
   useEffect(() => {
     if (openId !== chat.id) return;
@@ -54,9 +57,9 @@ export default function ChatRow({
 
   const getUsernames = (): string => {
     return chat.members
-      .reduce((acc: string[], curr) => {
-        const { username } = curr;
-        acc.push(username);
+      .reduce((acc: string[], curr: User) => {
+        const { id, username } = curr;
+        if (user.id !== id) acc.push(username);
         return acc
       }, [])
       .join(", ")
@@ -76,7 +79,11 @@ export default function ChatRow({
           id={chat.id.toString()}
           className={styles.ellipses}
         >
-          {activeTab === "group" && <span ref={ellipsisRef} onClick={() => handleEllipsesClick(chat.id)}><FaEllipsisH /> </span>}
+          {activeTab === "group" &&
+            <span ref={ellipsisRef}
+              onClick={() => setOpenId((prev) => (prev === chat.id ? null : chat.id))}>
+              <FaEllipsisH />
+            </span>}
           {openId === chat.id &&
             createPortal(
               <div ref={dropdownRef} style={{ position: "fixed", top: rect?.bottom, left: rect?.left }} className={styles.chatRowDropdown}>

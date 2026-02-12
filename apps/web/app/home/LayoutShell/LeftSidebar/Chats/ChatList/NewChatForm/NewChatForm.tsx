@@ -1,68 +1,27 @@
 "use client"
 
-import { useEffect, useRef, useState, useMemo } from "react"
+import { useState } from "react"
 import styles from "./NewChatForm.module.css"
 import { useNewChatForm } from "@/apps/web/hooks/useNewChatForm"
-import type { User, SessionData } from "@ethos/shared"
+import type { User } from "@ethos/shared"
 import { FaSearch } from "react-icons/fa";
 import Spinner from "@/apps/web/app/home/components/Spinner"
 import { FaCheck } from "react-icons/fa";
 import { FaXmark } from "react-icons/fa6";
-import { apiFetch } from "@/apps/web/lib/apiFetch"
 
-export default function NewChatForm({ session, onCancel }: { session: SessionData | undefined, onCancel: React.Dispatch<React.SetStateAction<boolean>> }) {
-  const [subject, setSubject] = useState("")
-  const [selectedUsers, setSelectedUsers] = useState(new Map())
-  const [query, setQuery] = useState("")
-  const [filteredUsers, setFilteredUsers] = useState([])
-  const [loading, setLoading] = useState(false)
+export default function NewChatForm({ setIsCreatingNewChat }: { setIsCreatingNewChat: React.Dispatch<React.SetStateAction<boolean>> }) {
+  const [subject, setSubject] = useState<string>("")
+  const [selectedUsers, setSelectedUsers] = useState<Map<string, User>>(new Map())
 
   const {
-    handleCancel,
     handleCreate,
-  } = useNewChatForm(onCancel, subject, [...selectedUsers.keys()])
-
-  const chatSubjectRef = useRef<HTMLInputElement | null>(null);
-  const dropdownRef = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    if (chatSubjectRef.current) {
-      chatSubjectRef.current.focus();
-    }
-  }, []);
-
-  useEffect(() => {
-    function handleOutsideClick(ev: any) {
-      if (!dropdownRef.current) return
-      if (!dropdownRef.current.contains(ev.target)) {
-        setQuery("")
-      }
-    }
-    document.addEventListener("mousedown", handleOutsideClick)
-    return () => document.removeEventListener("mousedown", handleOutsideClick)
-  }, [])
-
-  useEffect(() => {
-    if (!query) return
-    setLoading(true)
-    const t = setTimeout(() => getUsers(), 1000)
-    return () => {
-      setLoading(false)
-      setFilteredUsers([])
-      clearTimeout(t)
-    }
-  }, [query])
-
-  const getUsers = async () => {
-    try {
-      const data = await apiFetch(`/api/users?query=${encodeURIComponent(query)}`)
-      // const data = await response.json()
-      setFilteredUsers(data)
-    } catch (err) {
-      console.error(err)
-    }
-    setLoading(false)
-  }
+    searchRef,
+    dropdownRef,
+    query,
+    setQuery,
+    loading,
+    filteredUsers
+  } = useNewChatForm(setIsCreatingNewChat, subject, [...selectedUsers.keys()])
 
   const handleSelectUsers = (user: User) => {
     setSelectedUsers(prev => {
@@ -71,9 +30,9 @@ export default function NewChatForm({ session, onCancel }: { session: SessionDat
       return next
     })
   }
-  const handleSubjectChange = (ev: any) => {
-    if (ev.target.value.length > 21) return;
-    setSubject(ev.target.value)
+  const handleSubjectChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value.length > 21) return;
+    setSubject(e.target.value)
   }
   return (
     <>
@@ -88,7 +47,12 @@ export default function NewChatForm({ session, onCancel }: { session: SessionDat
             <div className={styles.selectedUsers}>
               {Array.from(selectedUsers.values()).map((user) => (
                 <span key={user.id} className={styles.selectedUser}>
-                  <button style={{ cursor: "pointer" }} onClick={() => handleSelectUsers(user)}><FaXmark size={18} /></button>
+                  <button
+                    type="button"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleSelectUsers(user)}>
+                    <FaXmark size={18} />
+                  </button>
                   {user.username}
                 </span>
               ))}
@@ -103,12 +67,15 @@ export default function NewChatForm({ session, onCancel }: { session: SessionDat
                   placeholder="find a user..."
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  ref={chatSubjectRef}
+                  ref={searchRef}
                   className={styles.input}
                 />
                 {query.length === 0 ?
                   <FaSearch className={styles.icon} /> :
-                  <button className="flex items-center" onClick={() => setQuery("")}>
+                  <button
+                    type="button"
+                    className="flex items-center"
+                    onClick={() => setQuery("")}>
                     <FaXmark className={`${styles.icon} cursor-pointer`} size={18} />
                   </button>}
                 {query.length > 0 && <div ref={dropdownRef} className={styles.dropdown}>
@@ -140,22 +107,12 @@ export default function NewChatForm({ session, onCancel }: { session: SessionDat
                 id="new-chat-subject-input"
                 value={subject}
                 onChange={handleSubjectChange}
-                ref={chatSubjectRef}
                 className={styles.input}
               />
             </label>}
-
-
-
-
-
-
-
-
-
           </div>
           <div className={styles.buttons}>
-            <button type="button" style={{ cursor: "pointer" }} onClick={handleCancel} className={styles.modalButton}>Cancel</button>
+            <button type="button" style={{ cursor: "pointer" }} onClick={() => setIsCreatingNewChat(false)} className={styles.modalButton}>Cancel</button>
             <button type="submit" style={{ cursor: "pointer" }} className={styles.modalButton} disabled={selectedUsers.size === 0}>Create</button>
           </div>
         </form>

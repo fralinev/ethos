@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
     const response = await fetch(`${API_BASE_URL}/chats/create`, {
       method: "POST",
       headers: {
+        "Content-Type": "application/json",
         "x-user-id": session.user.id,
       },
       body: JSON.stringify(body),

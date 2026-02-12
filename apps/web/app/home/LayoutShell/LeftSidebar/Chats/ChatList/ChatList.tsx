@@ -64,11 +64,6 @@ export default function ChatList({ chats, activeTab, activeChatId }: { chats: Ch
 
   }
 
-  const handleEllipsesClick = (chatId: string) => {
-    setOpenId((prev) => (prev === chatId ? null : chatId));
-
-  };
-
   return (
     <div id="chat-list-container" className={styles.chatListContainer}>
       {/* <SectionHeader text="chats" /> */}
@@ -101,7 +96,6 @@ export default function ChatList({ chats, activeTab, activeChatId }: { chats: Ch
                 chat={chat}
                 getChat={getChat}
                 activeTab={activeTab}
-                handleEllipsesClick={handleEllipsesClick}
                 openId={openId}
                 onLeave={() => setChatPendingLeave(chat)}
                 onRename={onRename}

@@ -11,6 +11,7 @@ export const chatsRouter = Router();
 chatsRouter.post("/create", async (req, res) => {
   try {
     const { body, headers } = req;
+    console.log("CHECK", body, headers)
     const { userIds }: { userIds: string[] } = body;
     let { subject }: { subject: string | null } = body
     const requesterId = headers?.["x-user-id"];

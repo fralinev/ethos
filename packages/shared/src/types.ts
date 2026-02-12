@@ -7,10 +7,7 @@ export type Chat = {
     id: string;
     username: string;
   };
-  members: {
-    id: string;
-    username: string;
-  }[];
+  members: User[];
 };
 
 export type ChatType = "direct" | "group";

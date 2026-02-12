@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import type { Chat, SessionData, AuthedSession, User } from "@ethos/shared"
 import LayoutShell from "./LayoutShell/LayoutShell";
 import { apiFetch } from "../../lib/apiFetch";
+import { UserProvider } from "../context/UserContext";
 
 type HomeProps = {
   searchParams: Promise<{
@@ -39,20 +40,22 @@ export default async function Home({ searchParams }: HomeProps) {
     console.error("Error fetching chats:", err);
   }
 
-  const activeChat = activeChatId ? initialChats.find((chat:Chat) => chat.id === activeChatId) : undefined
+  const activeChat = activeChatId ? initialChats.find((chat: Chat) => chat.id === activeChatId) : undefined
 
   return (
-    <div className={styles.page}>
-      <Header />
-      <div className={styles.layout}>
-        <LayoutShell
-          initialChats={initialChats}
-          initialUsers={initialUsers}
-          activeChat={activeChat}
-          session={session}
-          activeChatId={activeChatId}
-        />
+    <UserProvider user={session.user}>
+      <div className={styles.page}>
+        <Header />
+        <div className={styles.layout}>
+          <LayoutShell
+            initialChats={initialChats}
+            initialUsers={initialUsers}
+            activeChat={activeChat}
+            session={session}
+            activeChatId={activeChatId}
+          />
+        </div>
       </div>
-    </div>
+    </UserProvider>
   );
 }

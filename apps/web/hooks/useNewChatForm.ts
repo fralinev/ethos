@@ -1,25 +1,87 @@
-import { useState } from "react"
 import { apiFetch } from "../lib/apiFetch";
+import { useEffect, useRef, useState } from "react";
+import type { User } from "@ethos/shared"
 
-export const useNewChatForm = (onCancel:React.Dispatch<React.SetStateAction<boolean>>, subject:string, userIds:string[] ) => {
+export const useNewChatForm = (setIsCreatingNewChat:React.Dispatch<React.SetStateAction<boolean>>, subject:string, userIds:string[] ) => {
+  const [query, setQuery] = useState<string>("")
+  const [loading, setLoading] = useState<boolean>(false)
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([])
 
-  const handleCancel = () => {
-    onCancel(false)
-  }
+  const searchRef = useRef<HTMLInputElement | null>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null)
+  const requestSeqRef = useRef(0)
+
+   useEffect(() => {
+      if (searchRef.current) {
+        searchRef.current.focus();
+      }
+    }, []);
+    
+  useEffect(() => {
+    function handleOutsideClick(e: MouseEvent) {
+      if (!dropdownRef.current) return
+      if (!dropdownRef.current.contains(e.target as Node)) {
+        setQuery("")
+      }
+    }
+    document.addEventListener("mousedown", handleOutsideClick)
+    return () => document.removeEventListener("mousedown", handleOutsideClick)
+  }, [])
+
+  useEffect(() => {
+    if (!query) {
+      requestSeqRef.current += 1
+      setLoading(false)
+      setFilteredUsers([])
+      return
+    }
+
+    setLoading(true)
+    const controller = new AbortController()
+    const requestId = ++requestSeqRef.current
+
+    const t = setTimeout(async () => {
+      try {
+        const data: User[] = await apiFetch(
+          `/api/users?query=${encodeURIComponent(query)}`,
+          { signal: controller.signal }
+        )
+        if (requestId !== requestSeqRef.current) return
+        setFilteredUsers(data)
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === "AbortError") return;
+        console.error(err)
+      } finally {
+        if (requestId === requestSeqRef.current) {
+          setLoading(false)
+        }
+      }
+    }, 300)
+
+    return () => {
+      clearTimeout(t)
+      controller.abort()
+    }
+  }, [query])
 
   const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
+    console.log("handleCreate", userIds)
     e.preventDefault();
     const chatDTO = await apiFetch("/api/chats/create", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ subject, userIds }),
     })
-    onCancel(false)
+    setIsCreatingNewChat(false)
   }
  
 
   return {
-    handleCancel,
+    searchRef,
+    dropdownRef,
     handleCreate,
+    query,
+    setQuery,
+    loading,
+    filteredUsers
   }
 }

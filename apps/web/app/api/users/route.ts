@@ -7,7 +7,6 @@ const API_BASE_URL = process.env.API_BASE_URL
 export async function GET(req: Request) {
   const session: SessionData | undefined = await getSessionFromNextRequest();
   if (!session || !session.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  console.log("SESSION", session)
 
   const { searchParams } = new URL(req.url)
   const query = searchParams.get("query")
