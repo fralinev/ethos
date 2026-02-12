@@ -28,7 +28,7 @@ chatsRouter.post("/create", async (req, res) => {
     else subject = subject.trim();
 
     const requester = await db.query(
-      "SELECT id, username FROM users WHERE id = $1",
+      "SELECT id, username, role, created_at FROM users WHERE id = $1",
       [requesterId]
     );
     if (!requester || !requester.rowCount) {
@@ -47,7 +47,7 @@ chatsRouter.post("/create", async (req, res) => {
     }
 
     const result = await db.query(
-      "SELECT id, username FROM users WHERE id = ANY($1::bigint[])",
+      "SELECT id, username, role, created_at FROM users WHERE id = ANY($1::bigint[])",
       [limited]
     );
 
@@ -68,11 +68,11 @@ chatsRouter.post("/create", async (req, res) => {
     }
 
     const totalParts = [
-      ...foundUsers.map((u) => ({ id: u.id, username: u.username })),
-      { id: requesterRow.id, username: requesterRow.username },
+      ...foundUsers.map((u) => ({ id: u.id, username: u.username, role: u.role, created_at: u.created_at})),
+      { id: requesterRow.id, username: requesterRow.username, role: requesterRow.role, created_at: requesterRow.created_at},
     ];
 
-    const uniqueById = new Map<string, { id: string; username: string }>();
+    const uniqueById = new Map<string, { id: string; username: string, role: string, created_at: string }>();
     for (const u of totalParts) {
       uniqueById.set(u.id, u);
     }
@@ -125,6 +125,8 @@ chatsRouter.post("/create", async (req, res) => {
         members: finalMembers.map((m) => ({
           id: m.id,
           username: m.username,
+          role: m.role,
+          created_at: m.created_at
         })),
       };
 
