@@ -9,7 +9,7 @@ export default function LogoutButton({session}:{session?: SessionData}) {
     window.location.href = "/login";  // full reload → cleanest
   }
 
-  if (!session?.user) return (
+  if (!session?.userId) return (
     <button style={{ cursor: "pointer" }} onClick={() =>  window.location.href = "/login"}>Login</button>
   );
 
