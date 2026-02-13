@@ -1,34 +1,64 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromNextRequest } from "@/apps/web/lib/session";
-import { SessionData } from "@ethos/shared";
+import type { SessionData, Chat } from "@ethos/shared";
+import { serverApiFetch } from "@/apps/web/lib/serverApiFetch";
 
+type ApiErrorLike = {
+  status?: number;
+  message?: string;
+};
 
-const API_BASE_URL = process.env.API_BASE_URL
+const isObject = (v: unknown): v is Record<string, unknown> =>
+  typeof v === "object" && v !== null;
+
+const readApiError = (err: unknown): ApiErrorLike => {
+  if (!isObject(err)) return {};
+  return {
+    status: typeof err.status === "number" ? err.status : undefined,
+    message: typeof err.message === "string" ? err.message : undefined,
+  };
+};
 
 export async function POST(req: NextRequest) {
+  const session: SessionData | undefined = await getSessionFromNextRequest();
+  if (!session?.userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let body: unknown;
 
   try {
-    const body = await req.json();
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { error: "Invalid JSON body" },
+      { status: 400 }
+    );
+  }
 
-    const session: SessionData | undefined = await getSessionFromNextRequest();
-    if (!session || !session.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!isObject(body)) {
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 }
+    );
+  }
 
-    const response = await fetch(`${API_BASE_URL}/chats/create`, {
+  try {
+    const newChat = await serverApiFetch<Chat>("/chats/create", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-user-id": session.user.id,
-      },
       body: JSON.stringify(body),
     });
 
-    const data = await response.json();
-    const res = NextResponse.json(data, { status: response.status });
-
-    return res;
+    return NextResponse.json({ newChat }, { status: 201 });
   } catch (err) {
-    console.error(err); //
-    return NextResponse.json({ error: "API Unreachable" }, { status: 502 })
+    const { status, message } = readApiError(err);
+    if (status && status >= 400 && status < 500) {
+      return NextResponse.json(
+        { error: message ?? "Request failed" },
+        { status }
+      );
+    }
+    console.error(err);
+    return NextResponse.json({ error: "Upstream service failure" }, { status: 502 });
   }
-
 }

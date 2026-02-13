@@ -10,7 +10,6 @@ export const chatSockets = new Map<string, Set<AuthedWebSocket>>();
 
 
 
-// unused
 export function registerWss(instance: WebSocketServer) {
   wssGlobal = instance;
   console.log("[wsHub] WebSocketServer registered");

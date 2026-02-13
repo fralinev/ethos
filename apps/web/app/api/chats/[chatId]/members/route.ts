@@ -7,7 +7,7 @@ import { getSessionFromNextRequest } from "@/apps/web/lib/session";
 export async function DELETE(req: NextRequest, { params }: any) {
   try {
     const session: SessionData | undefined = await getSessionFromNextRequest();
-    if (!session?.user) {
+    if (!session?.userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -17,7 +17,7 @@ export async function DELETE(req: NextRequest, { params }: any) {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        "x-user-id": session.user.id,
+        "x-user-id": session.userId,
       },
     })
     const data = await response.json();

@@ -7,7 +7,10 @@ import { SessionData } from "@ethos/shared"
 
 const SESSION_PREFIX = "sess:";
 
-
+type ExpressSessionRecord = {
+  cookie: unknown;
+  userId?: string;
+};
 
 
 
@@ -19,15 +22,13 @@ async function getSessionById(
   sessionId: string
 ): Promise<SessionData | undefined> {
   const key = sessionKey(sessionId);
-  const json = await redis.get(key);
-  if (!json) return undefined;
-
-  try {
-    return json as SessionData
-  } catch (e) {
-    console.error("Failed to parse session JSON from Redis", e);
-    return undefined;
+  const session = await redis.get<ExpressSessionRecord>(key);
+  if (!session || typeof session !== "object") return undefined;
+  if (typeof session.userId === "string") {
+    return { userId: session.userId };
   }
+
+  return undefined;
 }
 
 function unsignExpressCookie(

@@ -58,7 +58,7 @@ export type SocketMessage = {
 export type User = {
   id: string;
   username: string;
-  created_at: string;
+  createdAt: string;
   role: string;
 };
 
@@ -76,12 +76,7 @@ export type ChatRow = {
 };
 
 export type SessionData = {
-  cookie: any;
-  user?: {
-    id: string;
-    username: string;
-    role: string;
-  };
+  userId: string;
 };
 
 

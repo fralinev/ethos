@@ -1,63 +1,76 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation";
 import SectionHeader from "../home/components/SectionHeader";
 import { AUTH_ERRORS } from "../../../../packages/shared/src/constants"
 import { TiEye } from "react-icons/ti";
 import styles from "./Login.module.css"
+import { apiFetch } from "../../lib/apiFetch";
+import Spinner from "../home/components/Spinner";
+import { error } from "console";
 
-export default function Login({onCancel}:{onCancel: any}) {
+export default function Login({ setString }: { setString: React.Dispatch<React.SetStateAction<string>> }) {
 
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [errorText, setErrorText] = useState("")
   const [passwordType, setPasswordType] = useState("password")
+  const [loading, setLoading] = useState(false)
 
-    const timeoutRef = useRef<any>(null);
-  
-
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
+  const usernameRef = useRef<HTMLInputElement>(null)
 
   const router = useRouter();
-  const isFormValid = () => {
-      if (!username || !password) {
-        setErrorText(AUTH_ERRORS.MISSING_FIELD)
-        return false;
-      } else return true;
+
+  useEffect(() => {
+    if (usernameRef.current) {
+      usernameRef.current.focus();
+    }
+  }, []);
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value.length > 15) return;
+    setUsername(e.target.value)
+  }
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value.length > 64) return;
+    setPassword(e.target.value)
   }
 
-  
+
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     setErrorText("");
-    if (!isFormValid()) return;
     try {
+      setLoading(true)
       const res = await fetch("/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
         credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
       });
-      const data = await res.json().catch(() => null);
-      if (!res.ok || !data?.ok) {
-        setErrorText(data?.message ?? "Login failed");
+
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        setErrorText("Unexpected server response");
         return;
       }
-      setErrorText(data.message ?? "logging in...");
-      router.push("/home");
+
+      if (res.ok) {
+        router.push("/home");
+        return;
+      }
+      setErrorText(data.message);
     } catch (err) {
-      console.error("Login error", err);
-      setErrorText("Something went wrong logging in");
+      console.error(err);
+      setErrorText("Login failed");
+    } finally {
+      setLoading(false)
     }
   };
-  const handleSignup = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-    router.push("/signup");
-  }
-
 
   const handleEyeClick = () => {
     if (timeoutRef.current) {
@@ -69,53 +82,67 @@ export default function Login({onCancel}:{onCancel: any}) {
       timeoutRef.current = setTimeout(() => {
         setPasswordType("password");
         timeoutRef.current = null;
-      }, 2000);
+      }, 3000);
     } else {
       setPasswordType("password");
     }
   };
-  return (
-    <div className={styles.loginWrapper}>
-      <div className={styles.login}>
-        <SectionHeader text="Login" />
-        <form className="flex flex-col gap-10 pt-5" onSubmit={handleLogin}>
-          <div id="login-input-fields" className={styles.authInputFields}>
-            <div>
-              <label htmlFor="username">Username: </label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                className={styles.loginInput}
-                onChange={(e) => setUsername(e.target.value)}
-                value={username}
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <label htmlFor="password">Password: </label>
-              <div className="flex items-center relative w-full">
-                <input
-                  type={passwordType}
-                  id="password"
-                  name="password"
-                  className={styles.loginInput}
-                  onChange={(e) => setPassword(e.target.value)}
-                  value={password}
-                />
-                <span className="absolute right-1.5 cursor-pointer" onClick={handleEyeClick}><TiEye size={21} /></span>
-              </div>
-            </div>
-          </div>
-          <div id="login-buttons" className={styles.authButtons}>
-            <button className={styles.authButton} type="button" onClick={onCancel}>←</button>
-            <button className={styles.authButton} type="submit">Login</button>
 
-          </div>
-          <div>
-            <h4 style={{ padding: "0 0 10px 0" }}>{errorText}</h4>
-          </div>
-        </form>
-      </div>
-    </div>
+  return (
+    <section className={styles.container}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>Login</h1>
+      </header>
+      <form onSubmit={handleLogin}>
+        <div className={styles.fields}>
+          <label className={styles.field}>
+            <span className={styles.label}>Username</span>
+            <input
+              ref={usernameRef}
+              type="text"
+              id="username"
+              value={username}
+              onChange={handleUsernameChange}
+              className={styles.input}
+            />
+          </label>
+          <label className={styles.field}>
+            <span className={styles.label}>Password</span>
+            <div className="relative flex items-center">
+              <input
+                value={password}
+                type={passwordType}
+                id="password"
+                onChange={handlePasswordChange}
+                className={styles.input}
+                style={{ paddingRight: "40px" }}
+              />
+              <button
+                type="button"
+                className="flex items-center"
+                onClick={handleEyeClick}>
+                <TiEye className={`${styles.icon} cursor-pointer`} size={22} />
+              </button>
+            </div>
+          </label>
+        </div>
+        <div className={styles.buttonGroup}>
+          <button
+            type="button"
+            style={{ cursor: "pointer" }}
+            onClick={() => setString("")}
+            className={styles.modalButton}
+          >Cancel</button>
+          <button
+            type="submit"
+            style={{ cursor: "pointer" }}
+            className={styles.modalButton}
+            disabled={!username || !password}
+          >Login</button>
+          {loading && <Spinner />}
+        </div>
+        {errorText && <div className={styles.errorText}>{errorText}</div>}
+      </form>
+    </section >
   )
 }

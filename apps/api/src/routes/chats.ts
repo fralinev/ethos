@@ -11,11 +11,10 @@ export const chatsRouter = Router();
 chatsRouter.post("/create", async (req, res) => {
   try {
     const { body, headers } = req;
-    console.log("CHECK", body, headers)
     const { userIds }: { userIds: string[] } = body;
     let { subject }: { subject: string | null } = body
-    const requesterId = headers?.["x-user-id"];
-
+    const requesterId = req.session.userId;
+    console.log("CHECKK", requesterId)
     if (!requesterId) {
       return res.status(401).json({ message: "unauthorized" });
     }
@@ -68,8 +67,8 @@ chatsRouter.post("/create", async (req, res) => {
     }
 
     const totalParts = [
-      ...foundUsers.map((u) => ({ id: u.id, username: u.username, role: u.role, created_at: u.created_at})),
-      { id: requesterRow.id, username: requesterRow.username, role: requesterRow.role, created_at: requesterRow.created_at},
+      ...foundUsers.map((u) => ({ id: u.id, username: u.username, role: u.role, created_at: u.created_at })),
+      { id: requesterRow.id, username: requesterRow.username, role: requesterRow.role, created_at: requesterRow.created_at },
     ];
 
     const uniqueById = new Map<string, { id: string; username: string, role: string, created_at: string }>();
@@ -126,7 +125,7 @@ chatsRouter.post("/create", async (req, res) => {
           id: m.id,
           username: m.username,
           role: m.role,
-          created_at: m.created_at
+          createdAt: m.created_at
         })),
       };
 
@@ -149,11 +148,8 @@ chatsRouter.post("/create", async (req, res) => {
 
 chatsRouter.get("/", async (req, res) => {
   try {
-    const { headers }: { headers: any } = req;
-    const requesterIdRaw = headers?.["x-user-id"];
-    const requesterId = requesterIdRaw;
-
-    if (!requesterIdRaw) {
+    const requesterId = req.session.userId;
+    if (!requesterId) {
       return res.status(401).json({ message: "unauthorized" });
     }
 
@@ -266,12 +262,10 @@ chatsRouter.get("/", async (req, res) => {
 chatsRouter.get("/:chatId/messages", async (req, res) => {
   try {
     const { headers, params } = req;
-    const requesterIdRaw = headers?.["x-user-id"];
-    const requesterId = requesterIdRaw;
-
-    if (!requesterIdRaw) {
-      return res.status(401).json({ message: "unauthorized" });
-    }
+    const requesterId = req.session.userId;
+  if (!requesterId) {
+    return res.status(401).json({ message: "unauthorized" });
+  }
 
     const chatIdRaw = params.chatId;
     const chatId = chatIdRaw;
@@ -291,7 +285,7 @@ chatsRouter.get("/:chatId/messages", async (req, res) => {
     );
 
     if (!membership.rowCount) {
-      return res.status(403).json({ message: "forbidden" });
+      return res.status(403).json({ message: "Forbidden" });
     }
 
     const messagesResult = await db.query(

@@ -1,71 +1,76 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SessionData } from "@ethos/shared";
+import { SessionData, ChatMessage } from "@ethos/shared";
 import { getSessionFromNextRequest } from "@/apps/web/lib/session";
+import { serverApiFetch } from "@/apps/web/lib/serverApiFetch";
 
 
-export async function GET(req: NextRequest, context: any) {
+type ApiErrorLike = {
+  status?: number;
+  message?: string;
+};
+
+const isObject = (v: unknown): v is Record<string, unknown> =>
+  typeof v === "object" && v !== null;
+
+const readApiError = (err: unknown): ApiErrorLike => {
+  if (!isObject(err)) return {};
+  return {
+    status: typeof err.status === "number" ? err.status : undefined,
+    message: typeof err.message === "string" ? err.message : undefined,
+  };
+};
+
+
+
+export async function GET(req: NextRequest, context: { params: Promise<{ chatId: string }> }) {
   try {
     const session: SessionData | undefined = await getSessionFromNextRequest();
-
-    if (!session?.user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (!session?.userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const { chatId } = await context.params;
-
-    const chatIdNum = Number(chatId);
-
-    if (!chatId || Number.isNaN(chatIdNum)) {
-      return NextResponse.json({ message: "invalid chat id" }, { status: 400 });
+    if (!chatId || !/^\d+$/.test(chatId)) {
+      return NextResponse.json({ error: "Invalid chatId" }, { status: 400 });
     }
-
-    const resp = await fetch(`${process.env.API_BASE_URL}/chats/${chatIdNum}/messages`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "x-user-id": session.user.id.toString(),
-      },
-    });
-
-    const data = await resp.json().catch(() => null);
-
-    return NextResponse.json(data, { status: resp.status });
+    const { data, status } = await serverApiFetch<ChatMessage[]>(`/chats/${chatId}/messages`)
+    return NextResponse.json(data, { status });
   } catch (err) {
-    console.error("errz", err);
-    return NextResponse.json({ message: "unknown" }, { status: 500 });
+    console.error("Route failure", err);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
 
 
-
-export async function POST(req: NextRequest, { params }: any) {
+export async function POST(req: NextRequest, context: { params: Promise<{ chatId: string }> }) {
   try {
     const session: SessionData | undefined = await getSessionFromNextRequest();
-    if (!session?.user) {
+    if (!session?.userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { chatId } = await params;
+    const { chatId } = await context.params;
 
-    const response = await fetch(`${process.env.API_BASE_URL}/chats/${chatId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-user-id": session.user.id,
-      },
+    const { data, status } = await serverApiFetch<ChatMessage>(`/chats/${chatId}`, {
+      method: "POST"
     })
-    const data = await response.json();
-    return NextResponse.json({data})
+    return NextResponse.json(data, { status })
 
   } catch (err) {
-    console.error(err)
-    return NextResponse.json({ message: "error posting to :chatId" })
+    console.error("Route failure", err);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
 
 export async function PATCH(req: NextRequest, { params }: any) {
   try {
     const session: SessionData | undefined = await getSessionFromNextRequest();
-    if (!session?.user) {
+    if (!session?.userId) {
       return NextResponse.json({ message: "unauthorized" }, { status: 401 });
     }
     const { chatId } = await params;
@@ -78,7 +83,7 @@ export async function PATCH(req: NextRequest, { params }: any) {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        "x-user-id": session.user.id.toString(),
+        "x-user-id": session.userId.toString(),
       },
       body: JSON.stringify(body)
     });

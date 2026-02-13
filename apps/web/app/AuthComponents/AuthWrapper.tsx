@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 
 
 export default function AuthWrapper({ session }: { session: any }) {
-  const [string, setString] = useState<string | null>(null);
+  const [string, setString] = useState<string>("");
 
   const router = useRouter();
 
@@ -38,14 +38,10 @@ export default function AuthWrapper({ session }: { session: any }) {
     throw new Error("Safari blocked")
   }
 
-  const onCancel = () => {
-    setString(null)
-  }
-
   return (
     <div>
       <div>
-        {session?.user && string === null &&
+        {session?.userId && string === null &&
           <button
             className={styles.appRight}
             onClick={() => router.push("/home")}
@@ -54,13 +50,13 @@ export default function AuthWrapper({ session }: { session: any }) {
           </button>}
       </div>
       <div style={{ margin: "32px 0 0 0" }} >
-        {!session?.user && string === null && <div className={styles.authButtons}>
+        {!session?.userId && !string && <div className={styles.authButtons}>
           <button onClick={() => setString("login")}>Login</button>
           <button onClick={() => setString("signup")}>Signup</button>
         </div>}
       </div>
-      {string === "login" && <Login onCancel={onCancel} />}
-      {string === "signup" && <Signup setString={setString} onCancel={onCancel} />}
+      {string === "login" && <Login setString={setString} />}
+      {string === "signup" && <Signup setString={setString} />}
     </div>
   )
 }

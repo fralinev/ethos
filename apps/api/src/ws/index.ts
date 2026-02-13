@@ -3,11 +3,13 @@ import type { Server as HttpServer } from "http";
 import type { Store as SessionStore } from "express-session";
 import { registerWss, registerUserSocket, unregisterUserSocket, registerChatSocket, unregisterChatSocket } from "./hub";
 import { SessionData, HealthPayload } from "@ethos/shared"
+import { db } from "../db";
+import type { dbUserRow } from "../types/types";
 
 
 
 export type AuthedWebSocket = WebSocket & {
-  user: SessionData["user"] | null;
+  user: {id: string} | null;
   chatId?: string
 }
 
@@ -132,14 +134,17 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
 
     const sid = getSessionIdFromCookieHeader(req.headers.cookie);
     if (sid) {
-      sessionStore.get(sid, (err, session) => {
+      sessionStore.get(sid, async (err, session) => {
 
-        if (!err && session && (session as SessionData).user) {
-          socket.user = (session as SessionData).user!;
-          console.log("[ws] connected as authed user", socket.user.id);
+        if (!err && session && session.userId) {
+          const result = await db.query(
+            `SELECT id, username, role FROM users WHERE id = $1`,
+            [session.userId]
+          );
+          socket.user = { id: result.rows[0].id }
+          console.log("[ws] connected as authed user", socket.user);
           registerUserSocket(socket.user.id, socket);
           socket.send(JSON.stringify({ type: "auth:ready" }))
-
         } else {
           console.log("[ws] connected as guest (session miss)");
         }

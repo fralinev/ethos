@@ -7,7 +7,7 @@ import type { SessionData, AuthedSession } from "@ethos/shared"
 
 
 export default async function Canvas() {
-  const session: SessionData | AuthedSession | undefined = await getSessionFromNextRequest();
+  const session: SessionData | undefined = await getSessionFromNextRequest();
 
   
 

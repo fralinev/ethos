@@ -1,8 +1,9 @@
 import { apiFetch } from "../lib/apiFetch";
 import { useEffect, useRef, useState } from "react";
 import type { User } from "@ethos/shared"
+import { HttpError } from "@ethos/shared"
 
-export const useNewChatForm = (setIsCreatingNewChat:React.Dispatch<React.SetStateAction<boolean>>, subject:string, userIds:string[] ) => {
+export const useNewChatForm = (setIsCreatingNewChat: React.Dispatch<React.SetStateAction<boolean>>, subject: string, userIds: string[]) => {
   const [query, setQuery] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false)
   const [filteredUsers, setFilteredUsers] = useState<User[]>([])
@@ -11,12 +12,12 @@ export const useNewChatForm = (setIsCreatingNewChat:React.Dispatch<React.SetStat
   const dropdownRef = useRef<HTMLDivElement | null>(null)
   const requestSeqRef = useRef(0)
 
-   useEffect(() => {
-      if (searchRef.current) {
-        searchRef.current.focus();
-      }
-    }, []);
-    
+  useEffect(() => {
+    if (searchRef.current) {
+      searchRef.current.focus();
+    }
+  }, []);
+
   useEffect(() => {
     function handleOutsideClick(e: MouseEvent) {
       if (!dropdownRef.current) return
@@ -35,7 +36,6 @@ export const useNewChatForm = (setIsCreatingNewChat:React.Dispatch<React.SetStat
       setFilteredUsers([])
       return
     }
-
     setLoading(true)
     const controller = new AbortController()
     const requestId = ++requestSeqRef.current
@@ -50,7 +50,11 @@ export const useNewChatForm = (setIsCreatingNewChat:React.Dispatch<React.SetStat
         setFilteredUsers(data)
       } catch (err: unknown) {
         if (err instanceof Error && err.name === "AbortError") return;
-        console.error(err)
+        if (err instanceof HttpError && err.status === 401) {
+          window.location.href = "/";
+        } else {
+          console.error(err)
+        }
       } finally {
         if (requestId === requestSeqRef.current) {
           setLoading(false)
@@ -67,13 +71,13 @@ export const useNewChatForm = (setIsCreatingNewChat:React.Dispatch<React.SetStat
   const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
     console.log("handleCreate", userIds)
     e.preventDefault();
-    const chatDTO = await apiFetch("/api/chats/create", {
+    const { newChat } = await apiFetch("/api/chats/create", {
       method: "POST",
       body: JSON.stringify({ subject, userIds }),
     })
     setIsCreatingNewChat(false)
   }
- 
+
 
   return {
     searchRef,

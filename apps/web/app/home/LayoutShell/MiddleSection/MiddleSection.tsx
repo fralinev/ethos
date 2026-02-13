@@ -12,7 +12,7 @@ export default function MiddleSection({ activeChatId, session }: { activeChatId:
   const isChatLoading = useAppSelector((s) => s.ui.isChatLoading);
 
 useEffect(() => {
-    if (!session?.user || !activeChatId) {
+    if (!session?.userId || !activeChatId) {
       dispatch(finishChatLoading())
     }
     return
@@ -22,11 +22,11 @@ useEffect(() => {
   function isAuthedSession(
     session: SessionData | undefined
   ): session is AuthedSession {
-    return !!session?.user;
+    return !!session?.userId;
   }
   // When a user clicks on a chat and there is no active chat, i.e. 
   // from the home/about page, show the spinner immediately
-  if (!session?.user || !activeChatId) {
+  if (!session?.userId || !activeChatId) {
     return isChatLoading
       ? <Spinner size={60} />
       : null

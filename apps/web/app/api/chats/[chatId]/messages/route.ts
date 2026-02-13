@@ -8,7 +8,7 @@ export async function POST(req: NextRequest, context: any) {
   try {
     const session: SessionData | undefined = await getSessionFromNextRequest();
 
-    if (!session?.user) {
+    if (!session?.userId) {
       return NextResponse.json({ message: "unauthorized" }, { status: 401 });
     }
 
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest, context: any) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-user-id": session.user.id.toString(),
+        "x-user-id": session.userId.toString(),
       },
       body: JSON.stringify(body),
     });

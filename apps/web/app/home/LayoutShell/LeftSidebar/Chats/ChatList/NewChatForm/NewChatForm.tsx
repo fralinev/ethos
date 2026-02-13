@@ -30,6 +30,11 @@ export default function NewChatForm({ setIsCreatingNewChat }: { setIsCreatingNew
       return next
     })
   }
+  const handleQueryChange = (e:any) => {
+    if (e.target.value.length > 15) return;
+    setQuery(e.target.value)
+
+  }
   const handleSubjectChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value.length > 21) return;
     setSubject(e.target.value)
@@ -66,7 +71,7 @@ export default function NewChatForm({ setIsCreatingNewChat }: { setIsCreatingNew
                   id="new-chat-users-search"
                   placeholder="find a user..."
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={handleQueryChange}
                   ref={searchRef}
                   className={styles.input}
                 />
@@ -101,20 +106,19 @@ export default function NewChatForm({ setIsCreatingNewChat }: { setIsCreatingNew
               </div>
             </label>
 
-            {selectedUsers.size > 1 && <label className={styles.field}>
-              <span className={styles.label}>Subject (optional)</span>
-              <input
-                id="new-chat-subject-input"
-                value={subject}
-                onChange={handleSubjectChange}
-                className={styles.input}
-              />
-            </label>}
+            {selectedUsers.size > 1 &&
+              <label className={styles.field}>
+                <span className={styles.label}>Subject (optional)</span>
+                <input
+                  id="new-chat-subject-input"
+                  value={subject}
+                  onChange={handleSubjectChange}
+                  className={styles.input}
+                />
+              </label>}
           </div>
-          <div className={styles.buttons}>
             <button type="button" style={{ cursor: "pointer" }} onClick={() => setIsCreatingNewChat(false)} className={styles.modalButton}>Cancel</button>
             <button type="submit" style={{ cursor: "pointer" }} className={styles.modalButton} disabled={selectedUsers.size === 0}>Create</button>
-          </div>
         </form>
       </section>
     </>

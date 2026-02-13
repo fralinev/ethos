@@ -9,7 +9,10 @@ import { startChatLoading, finishChatLoading } from "@/apps/web/store/slices/cha
 import { useSocket } from "@/apps/web/hooks/useSocket";
 import { useRouter } from "next/navigation";
 import type { ChatMessage, ServerMessage } from "@ethos/shared"
-import { getMessages } from "./utils"
+import { useUser } from "@/apps/web/app/context/UserContext";
+import { apiFetch } from "@/apps/web/lib/apiFetch"
+import { HttpError } from "@ethos/shared"
+
 
 export default function Chat({ session, activeChatId }: any) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -17,18 +20,37 @@ export default function Chat({ session, activeChatId }: any) {
   const dispatch = useAppDispatch();
   const { client } = useSocket();
   const router = useRouter();
-  const userId = session.user.id
+  const user = useUser()
 
   useEffect(() => {
-    async function load() {
-      const messages = await getMessages(userId, activeChatId)
-      setMessages(messages)
-      client.joinChat(activeChatId)
-      dispatch(finishChatLoading());
+    if (!activeChatId) return;
+    let cancelled = false;
+    async function getMessages() {
+      try {
+        const data = await apiFetch<ChatMessage[]>(
+          `/api/chats/${activeChatId}`,
+          { cache: "no-store" }
+        );
+        if (cancelled) return;
+        setMessages(data)
+        dispatch(finishChatLoading());
+      } catch (err) {
+        if (err instanceof HttpError && err.status === 401) {
+          window.location.href = "/";
+        } else console.error(err)
+      }
     }
-    load();
+    getMessages()
+    return () => {
+      cancelled = true;
+    };
+  }, [activeChatId])
 
-  }, [activeChatId, userId])
+  useEffect(() => {
+    if (!activeChatId) return;
+    client.joinChat(activeChatId);
+  }, [activeChatId]);
+
 
   useEffect(() => {
     if (!client) return;
@@ -38,7 +60,7 @@ export default function Chat({ session, activeChatId }: any) {
           ...msg.payload,
           chatId: msg.payload.chatId
         };
-        if (session?.user && newMsg.sender.id === session.user.id) {
+        if (newMsg.sender.id === session.userId) {
           return;
         }
         if (newMsg.chatId === activeChatId) {
@@ -47,50 +69,47 @@ export default function Chat({ session, activeChatId }: any) {
       }
     });
     return () => off();
-  }, [client, activeChatId, session?.user?.id]);
+  }, [client, activeChatId]);
 
   const onSend = async (text: string) => {
-      if (!activeChatId) return;
-      try {
-        const clientId = crypto.randomUUID();
-        setMessages((prev: ChatMessage[]) => {
-          return [
-            ...prev,
-            {
-              clientId,
-              optimistic: true,
-              chatId: activeChatId,
-              body: text,
-              createdAt: new Date().toISOString(),
-              sender: {
-                id: session.user.id,
-                username: session.user.username
-              }
-            }]
+    if (!activeChatId) return;
+    try {
+      const clientId = crypto.randomUUID();
+      setMessages((prev: ChatMessage[]) => {
+        return [
+          ...prev,
+          {
+            clientId,
+            optimistic: true,
+            chatId: activeChatId,
+            body: text,
+            createdAt: new Date().toISOString(),
+            sender: {
+              id: user.id,
+              username: user.username
+            }
+          }]
+      })
+      const newMessage = await apiFetch<ServerMessage>(`/api/chats/${activeChatId}/messages`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content: text }),
+      });
+      setMessages((prev: ChatMessage[]) => {
+        return prev.map((message: ChatMessage) => {
+          return "clientId" in message && message.clientId === clientId ? newMessage : message
         })
-        const resp = await fetch(`/api/chats/${activeChatId}/messages`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ content: text }),
-        });
-        if (!resp.ok) {
-          console.error("Failed to send message", resp.status);
-          return;
-        }
-        const newMessage: ServerMessage = await resp.json();
-        setMessages((prev: ChatMessage[]) => {
-          return prev.map((message: ChatMessage) => {
-            return "clientId" in message && message.clientId === clientId ? newMessage : message
-          })
-        }
-      
-      );
-      } catch (err) {
-        console.error("Error sending message:", err);
       }
-    };
+
+      );
+    } catch (err) {
+      if (err instanceof HttpError && err.status === 401) {
+        window.location.href = "/";
+      } else console.error(err)
+    }
+  };
 
   const exitChat = () => {
     dispatch(startChatLoading())
@@ -102,10 +121,10 @@ export default function Chat({ session, activeChatId }: any) {
       <ChatHeader text={"some chat"} onClose={exitChat} />
       <ChatTranscript
         session={session}
-        activeChatId={activeChatId} 
+        activeChatId={activeChatId}
         messages={messages}
-        />
-      <ChatCommand onSend={onSend}/>
+      />
+      <ChatCommand onSend={onSend} />
     </>
   )
 }

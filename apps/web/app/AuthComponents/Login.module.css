@@ -1,43 +1,85 @@
-
-.loginWrapper{
-    display: flex;
-    justify-content: center;
+.container {
+    width: 18rem;
+    border: 1px solid yellowgreen;
+    background: rgba(0, 0, 0);
+    padding: 1.5rem;
+    color: white;
+    z-index: 10
 }
-.login{
-    display:flex;
-    flex-direction: column;
-    min-height: 35vh;
-    justify-content: space-between;
+
+.header {
+    margin: 0 0 20 0;
+}
+
+.title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    margin: 0;
+}
+
+.fields {
+    gap: 1rem;
+}
+
+.field {
+    display: block;
+    position: relative;
     align-items: center;
-    /* margin: 100px 0 0 0; */
-    border: 5px solid yellowgreen;
-    width: 400px;
-}
-.authInputFields {
-    display: flex;
-    flex-direction: column;
-    margin: 20 0 0 0;
-    gap: 20px;
+    margin: 0 0 1rem 0;
+
 }
 
-.loginInput{
-    border: 1px solid white;
-    padding: 5px;
-    flex: 1
+.label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: whitesmoke;
 }
-.authButtons{
+
+.input {
+    width: 100%;
+    border: 1px solid #3f4a6e;
+    background: rgba(255, 255, 255, 0.08);
+    outline: none;
+    padding: 0.5rem 1rem;
+    color: white;
+}
+
+.input:focus {
+    border-color: yellowgreen;
+}
+
+.icon {
+    position: absolute;
+    right: 10px;
+    color: white
+}
+
+.buttonGroup {
     display: flex;
-    gap: 20px;
-    justify-content: space-between;
 }
-.authButton{
-    color:yellowgreen;
+
+.modalButton {
+    color: yellowgreen;
     border: 1px solid white;
     margin: 5px;
-    padding: 12 15;
+    padding: 5 10;
+    cursor: pointer;
 }
-.authButton:hover{
+
+.modalButton:hover {
     color: black;
     background-color: yellowgreen;
     cursor: pointer;
+}
+
+.modalButton:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.errorText {
+    margin: 20 0 0 0;
+    color: rgb(242, 79, 79);
 }

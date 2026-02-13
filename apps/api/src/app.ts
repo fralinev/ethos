@@ -27,7 +27,7 @@ app.use(cors({
 }));
 app.use(helmet());
 app.use(sessionMiddleware);
-app.use(express.json());
+app.use(express.json({strict: false}));
 
 app.get("/socket-maps", (req, res) => {
   if (process.env.NODE_ENV === "development") {

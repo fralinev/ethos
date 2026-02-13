@@ -6,10 +6,10 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
   try {
     const session: SessionData | undefined = await getSessionFromNextRequest();
-    if (!session?.user) {
+    if (!session?.userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-    const response = await fetch(`${process.env.API_BASE_URL}/profiles/${session.user.id}`, {
+    const response = await fetch(`${process.env.API_BASE_URL}/profiles/${session.userId}`, {
       headers: {
         cookie: req.headers.get("cookie") ?? ""
       }
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: Request) {
   try {
     const session: SessionData | undefined = await getSessionFromNextRequest();
-    if (!session?.user) {
+    if (!session?.userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
     const body = await req.json();
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...body,
-        userId: session.user.id
+        userId: session.userId
       })
     })
     const data = await response.json();

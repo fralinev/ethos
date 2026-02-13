@@ -75,3 +75,16 @@ Hosted on Render:
 
 - ethos-web (Next.js) ethos.fralinev.dev
 - ethos-api (Express) api.ethos.fralinev.dev
+
+## BFF Routes
+
+- auth/signup (POST)
+- auth/login (POST)
+- auth/logout (POST)
+- chats/create (POST)
+- chats/[chatId] (GET, POST, PATCH)
+- chats/[chatId]/members (DELETE)
+- chats/[chatId]/messages (POST)
+- health (GET)
+- profiles (GET, POST)
+- users (GET)

@@ -1,23 +1,37 @@
 "use client"
 
-import { useState, useRef } from "react"
-import SectionHeader from "../home/components/SectionHeader";
-import { useRouter, } from "next/navigation";
+import { useState, useRef, useEffect } from "react"
 import { TiEye } from "react-icons/ti";
 import styles from "./Signup.module.css"
 import { AUTH_ERRORS } from "@/packages/shared/src/constants";
+import Spinner from "../home/components/Spinner";
 
-export default function Signup({ setString, onCancel }: { setString: any, onCancel: any }) {
+export default function Signup({ setString }: { setString: React.Dispatch<React.SetStateAction<string>> }) {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [passwordType, setPasswordType] = useState("password")
   const [errorText, setErrorText] = useState("")
+  const [loading, setLoading] = useState(false)
 
-  const router = useRouter();
   const timeoutRef = useRef<any>(null);
+  const usernameRef = useRef<HTMLInputElement>(null)
 
   const USERNAME_REGEX = /^[A-Za-z]{3,15}$/;
-  const PASSWORD_REGEX = /^.{3,21}$/;
+  const PASSWORD_REGEX = /^.{8,64}$/;
+
+  useEffect(() => {
+    if (usernameRef.current) {
+      usernameRef.current.focus();
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const isFormValid = () => {
     if (!username || !password) {
@@ -33,7 +47,6 @@ export default function Signup({ setString, onCancel }: { setString: any, onCanc
       return false;
     }
     return true;
-
   }
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,26 +54,45 @@ export default function Signup({ setString, onCancel }: { setString: any, onCanc
     setUsername(e.target.value)
   }
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value.length > 64) return;
     setPassword(e.target.value)
   }
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (loading) return
     if (!isFormValid()) return;
     try {
+      setLoading(true)
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
-      if (res) {
-        const data = await res.json();
-        setErrorText(data.message)
-        if (data.id) {
-          setString("login")
-        }
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        setErrorText("Unexpected server response");
+        return;
       }
+      if (res.status === 201) {
+        setErrorText("");
+        setString("login");
+        return;
+      }
+      if (res.status === 409) {
+        setErrorText(data.message ?? AUTH_ERRORS.USER_ALREADY_EXISTS);
+        return;
+      }
+      if (res.status === 400) {
+        setErrorText(data.message ?? AUTH_ERRORS.MISSING_FIELD);
+        return;
+      }
+      setErrorText(data.message ?? "Unknown error");
     } catch (err) {
       console.error(err)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -81,52 +113,63 @@ export default function Signup({ setString, onCancel }: { setString: any, onCanc
   };
 
   return (
-    <div className={styles.signupWrapper}>
-      <div className={styles.signup}>
-        <SectionHeader text="Create new user" />
-
-        <form className="flex flex-col gap-10 pt-5" onSubmit={handleSignup}>
-          <div id="signup-input-fields" className={styles.authInputFields}>
-            <div >
-              <label htmlFor="username">Username: </label>
+    <section className={styles.container}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>Signup</h1>
+      </header>
+      <form onSubmit={handleSignup}>
+        <div className={styles.fields}>
+          <label className={styles.field}>
+            <span className={styles.label}>Username</span>
+            <input
+              ref={usernameRef}
+              type="text"
+              id="username"
+              value={username}
+              onChange={handleUsernameChange}
+              className={styles.input}
+            />
+            <small className="block my-5">Username must be 3 to 15 letters</small>
+          </label>
+          <label className={styles.field}>
+            <span className={styles.label}>Password</span>
+            <div className="relative flex items-center">
               <input
-                type="text"
-                id="username"
-                name="username"
-                className={styles.signupInput}
-                onChange={handleUsernameChange}
-                value={username}
+                value={password}
+                type={passwordType}
+                id="password"
+                onChange={handlePasswordChange}
+                className={styles.input}
+                style={{ paddingRight: "40px" }}
               />
-              <small className="block my-5">Username must be 3 to 15 letters</small>
+              <button
+                type="button"
+                className="flex items-center"
+                onClick={handleEyeClick}>
+                <TiEye className={`${styles.icon} cursor-pointer`} size={22} />
+              </button>
             </div>
-            <div className="flex items-center gap-2">
-              <label htmlFor="password">Password: </label>
-              <div className="flex items-center relative">
-                <input
-                  type={passwordType}
-                  id="password"
-                  name="password"
-                  className={styles.signupInput}
-                  onChange={handlePasswordChange}
-                  value={password}
-                />
+            <small className="block mt-5">Password must be 8 to 64 characters</small>
 
-                <span className="absolute right-1.5 cursor-pointer" onClick={handleEyeClick}><TiEye size={21} /></span>
-              </div>
-
-            </div>
-            <small className="block mt-5">Password must be 3 to 21 characters</small>
-
-          </div>
-          <div id="signup-buttons" className={styles.authButtons}>
-            <button className={styles.authButton} type="button" onClick={onCancel}>←</button>
-            <button className={styles.authButton} type="submit">Create</button>
-          </div>
-          <div>
-            <h4 style={{ padding: "0 0 10px 0" }}>{errorText}</h4>
-          </div>
-        </form>
-      </div>
-    </div>
+          </label>
+        </div>
+        <div className={styles.buttonGroup}>
+          <button
+            type="button"
+            style={{ cursor: "pointer" }}
+            onClick={() => setString("")}
+            className={styles.modalButton}
+          >Cancel</button>
+          <button
+            type="submit"
+            style={{ cursor: "pointer" }}
+            className={styles.modalButton}
+            disabled={loading || !username || !password}
+          >Signup</button>
+          {loading && <Spinner />}
+        </div>
+        {errorText && <div className={styles.errorText}>{errorText}</div>}
+      </form>
+    </section >
   )
 }
