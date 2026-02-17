@@ -6,8 +6,6 @@ import Signup from "./Signup";
 import { LuMoveRight } from "react-icons/lu";
 import { useRouter } from "next/navigation";
 
-
-
 export default function AuthWrapper({ session }: { session: any }) {
   const [string, setString] = useState<string>("");
 
@@ -38,10 +36,12 @@ export default function AuthWrapper({ session }: { session: any }) {
     throw new Error("Safari blocked")
   }
 
+  console.log("SESSION", session)
+
   return (
     <div>
       <div>
-        {session?.userId && string === null &&
+        {session?.userId && !string &&
           <button
             className={styles.appRight}
             onClick={() => router.push("/home")}

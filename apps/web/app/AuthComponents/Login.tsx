@@ -69,6 +69,7 @@ export default function Login({ setString }: { setString: React.Dispatch<React.S
       setErrorText("Login failed");
     } finally {
       setLoading(false)
+      setString("")
     }
   };
 
