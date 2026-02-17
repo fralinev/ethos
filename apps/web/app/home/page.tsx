@@ -17,7 +17,6 @@ type HomeProps = {
 
 export default async function Home({ searchParams }: HomeProps) {
   const session: SessionData | undefined = await getSessionFromNextRequest();
-  console.log("checkk HOME session", session)
   if (!session?.userId) {
     redirect("/")
   }
@@ -46,7 +45,6 @@ export default async function Home({ searchParams }: HomeProps) {
     cache: "no-store",
   }),
 ]);
-
 
   const activeChat = activeChatId ? initialChats.find((chat: Chat) => chat.id === activeChatId) : undefined
 

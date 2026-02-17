@@ -3,10 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import type { User } from "@ethos/shared"
 import { HttpError } from "@ethos/shared"
 
-export const useNewChatForm = (setIsCreatingNewChat: React.Dispatch<React.SetStateAction<boolean>>, subject: string, userIds: string[]) => {
+export const useNewChatForm = (setIsCreatingNewChat: React.Dispatch<React.SetStateAction<boolean>>, subject: string, userIds: string[], selectedUsers: any) => {
   const [query, setQuery] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false)
   const [filteredUsers, setFilteredUsers] = useState<User[]>([])
+  const [message, setMessage] = useState("")
 
   const searchRef = useRef<HTMLInputElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null)
@@ -68,10 +69,19 @@ export const useNewChatForm = (setIsCreatingNewChat: React.Dispatch<React.SetSta
     }
   }, [query])
 
+  const isValidForm = () => {
+    if (selectedUsers.size > 6) {
+      setMessage("Too many users")
+      return false;
+    }
+    return true
+  }
+
   const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
-    console.log("handleCreate", userIds)
     e.preventDefault();
-    const { newChat } = await apiFetch("/api/chats/create", {
+    setMessage("")
+    if (!isValidForm()) return 
+    const newChat = await apiFetch("/api/chats/create", {
       method: "POST",
       body: JSON.stringify({ subject, userIds }),
     })
@@ -86,6 +96,7 @@ export const useNewChatForm = (setIsCreatingNewChat: React.Dispatch<React.SetSta
     query,
     setQuery,
     loading,
-    filteredUsers
+    filteredUsers,
+    message
   }
 }

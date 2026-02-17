@@ -16,6 +16,8 @@ export default function Profile() {
     bio: ""
   })
 
+  console.log("profile", profile)
+
   useEffect(() => {
     const controller = new AbortController();
 

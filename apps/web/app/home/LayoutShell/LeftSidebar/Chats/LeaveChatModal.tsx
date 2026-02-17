@@ -11,7 +11,7 @@ export default function LeaveChatModal({
 
   const [loading, setLoading] = useState<boolean>(false)
 
-   const leaveChat = async (e: React.FormEvent<HTMLFormElement>) => {
+  const leaveChat = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     try {
@@ -25,10 +25,14 @@ export default function LeaveChatModal({
 
   return (
     <>
-      <h1>Leave chat <span style={{color: "violet"}}>{chat.subject}</span>?</h1>
-      <form className={styles.form} onSubmit={leaveChat}>
-        {loading ? <Spinner/> : <button type="submit" disabled={loading} className={styles.modalButton}>Leave</button>}
-      </form>
+      <section className={styles.container}>
+        <header className={styles.header}>
+          <h1 className={styles.title}>Leave chat?</h1>
+        </header>
+        <form className={styles.form} onSubmit={leaveChat}>
+          {loading ? <Spinner /> : <button type="submit" disabled={loading} className={styles.button}>Leave</button>}
+        </form>
+      </section>
     </>
   )
 }

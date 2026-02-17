@@ -63,7 +63,8 @@ export function unregisterChatSocket(socket: AuthedWebSocket) {
 }
 
 
-export function broadcastToUsers<E extends keyof SocketEventMap>(userIds: string[], event: E, payload: SocketEventMap[E]) {
+// export function broadcastToUsers<E extends keyof SocketEventMap>(userIds: string[], event: E, payload: SocketEventMap[E]) {
+export function broadcastToUsers(userIds: string[], event:any, payload: any) {
   if (!wssGlobal) {
     console.warn("[wsHub] broadcastToUsers called before WSS registered");
     return;

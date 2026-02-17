@@ -18,6 +18,8 @@ export async function serverApiFetch<T>(
       cache: "no-store",
     }
   );
+
   const data = await res.json();
+
   return { data, status: res.status };
 }

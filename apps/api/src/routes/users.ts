@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "../db";
-import type { dbUserRow } from "../types/types";
+import type { UserRow } from "../types/types";
 
 export const usersRouter = Router();
 
@@ -66,7 +66,7 @@ usersRouter.get("/:userId", async (req, res) => {
         `SELECT id, username, role, created_at FROM users WHERE id = $1`,
         [userId]
       )
-    const user: dbUserRow = result.rows[0]
+    const user: UserRow = result.rows[0]
     if (!user) return res.status(404).json({ message: "not found" });
     return res.json({ id: user.id, username: user.username, role: user.role, createdAt: user.created_at });
   } catch (e) {

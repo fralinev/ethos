@@ -10,7 +10,6 @@ export const db = new Pool({
   max: 10
 });
 
-// Optional: a quick readiness check helper
 export async function checkDb() {
   const { rows } = await db.query("select 1 as ok");
   return rows[0].ok === 1;

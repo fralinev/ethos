@@ -40,20 +40,33 @@ export default function SubjectChangeModal({ chat, onConfirm }: SubjectChangeMod
   }
 
   return (
-    <>
-      <h1>{chat.subject ? `Change Subject: ${chat.subject}` : "Add Subject"} <span style={{ color: "violet" }}>{chat.subject}</span></h1>
+    <section className={styles.container}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>
+          {chat.subject ?
+            `Change Subject` :
+            "Add Subject"}
+
+        </h1>
+      </header>
       <form className={styles.form} onSubmit={onSubmit}>
-        <input
-          ref={inputRef}
-          className={styles.modalTextInput}
-          type="text"
-          onChange={(e) => setNewSubject(e.target.value)}
-          value={newSubject}
-        />
-        <button type="submit" disabled={loading} className={styles.modalButton}><LuMoveRight size={22}/></button>
+        <div className={styles.control}>
+          <input
+            ref={inputRef}
+            className={styles.input}
+            type="text"
+            onChange={(e) => setNewSubject(e.target.value)}
+            value={newSubject}
+          />
+          <div className={styles.buttonWrapper}>
+            { loading ? 
+            <Spinner size={22}/> :
+            <button type="submit" disabled={loading} className={styles.button}><LuMoveRight size={22} /></button>}
+          </div>
+        </div>
+
       </form>
       {message && message}
-      {loading && <Spinner />}
-    </>
+    </section>
   )
 }

@@ -44,12 +44,12 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const newChat = await serverApiFetch<Chat>("/chats/create", {
+    const {data, status} = await serverApiFetch<Chat>("/chats/create", {
       method: "POST",
       body: JSON.stringify(body),
     });
 
-    return NextResponse.json({ newChat }, { status: 201 });
+    return NextResponse.json(data, { status });
   } catch (err) {
     const { status, message } = readApiError(err);
     if (status && status >= 400 && status < 500) {

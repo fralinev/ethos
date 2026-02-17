@@ -82,7 +82,6 @@ export default function Chats({
           if (activeChatId === msg.payload.chatId) {
             router.push("/home")
           } else {
-            console.log("chat:left", session?.userId, msg.payload)
             setChats((prev: any) => {
               const filtered = prev.filter((chat: Chat) => chat.id !== msg.payload.chatId)
               return filtered

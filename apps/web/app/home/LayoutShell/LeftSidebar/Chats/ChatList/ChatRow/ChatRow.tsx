@@ -32,8 +32,6 @@ export default function ChatRow({
   const rect = ellipsisRef.current?.getBoundingClientRect();
   const user = useUser()
 
-  // console.log(useUser())
-
   useEffect(() => {
     if (openId !== chat.id) return;
     const handleOutsideClick = (e: MouseEvent) => {

@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { db } from "../db";
 import { broadcastToUsers } from "../ws/hub";
 import { AUTH_ERRORS } from "@ethos/shared"
-import type { dbUserRow } from "../types/types";
+import type { UserRow } from "../types/types";
 
 
 
@@ -45,7 +45,7 @@ authRouter.post("/login", async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(401).json({ error: AUTH_ERRORS.WRONG_FIELD })
     }
-    const user: dbUserRow = result.rows[0]
+    const user: UserRow = result.rows[0]
     const match = await bcrypt.compare(password, user.password_hash)
     if (!match) {
       return res.status(401).json({ error: AUTH_ERRORS.WRONG_FIELD })

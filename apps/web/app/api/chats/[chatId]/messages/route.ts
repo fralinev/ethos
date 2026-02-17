@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SessionData } from "@ethos/shared";
 import { getSessionFromNextRequest } from "@/apps/web/lib/session";
+import { serverApiFetch } from "@/apps/web/lib/serverApiFetch";
 
 
 
@@ -9,7 +10,7 @@ export async function POST(req: NextRequest, context: any) {
     const session: SessionData | undefined = await getSessionFromNextRequest();
 
     if (!session?.userId) {
-      return NextResponse.json({ message: "unauthorized" }, { status: 401 });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const { chatId } = await context.params;
@@ -22,18 +23,12 @@ export async function POST(req: NextRequest, context: any) {
 
     const body = await req.json();
 
-    const resp = await fetch(`${process.env.API_BASE_URL}/chats/${chatIdNum}/messages`, {
+    const {data, status} = await serverApiFetch(`/chats/${chatIdNum}/messages`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-user-id": session.userId.toString(),
-      },
       body: JSON.stringify(body),
     });
 
-    const data = await resp.json().catch(() => null);
-
-    return NextResponse.json(data, { status: resp.status });
+    return NextResponse.json(data, { status });
   } catch (err) {
     console.error("BFF /api/chats/[chatId]/messages POST error:", err);
     return NextResponse.json({ message: "unknown" }, { status: 500 });

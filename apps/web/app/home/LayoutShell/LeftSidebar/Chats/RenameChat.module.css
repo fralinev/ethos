@@ -1,25 +1,49 @@
-.modalTextInput {
-  border: 1px solid white;
-  height: 35px;
-}
-
-.modalButton {
-  color: yellowgreen;
-  border: 1px solid white;
-  margin: 5px;
-  padding: 5px;
-  cursor: pointer;
+.container {
+    width: 18rem;
+    border: 1px solid yellowgreen;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 1.5rem;
+    color: white;
 
 }
 
-.modalButton:hover {
-  color: black;
-  background-color: yellowgreen;
-  cursor: pointer;
+.header {
+    margin: 0 0 20px 0;
 }
 
-.form{
-  display: flex;
+.title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    margin: 0;
+}
+.control{
+  display:flex;
   gap: 10px;
-  align-items: center;
+}
+.input {
+    width: 100%;
+    border: 1px solid #3f4a6e;
+    background: rgba(255, 255, 255, 0.08);
+    outline: none;
+    padding: 0.5rem 1rem;
+    color: white;
+}
+.input:focus {
+    border-color: yellowgreen;
+}
+.button {
+    color: yellowgreen;
+    border: 1px solid white;
+    margin: 5px;
+    padding: 5 10;
+    cursor: pointer;
+}
+.button:hover {
+    color: black;
+    background-color: yellowgreen;
+    cursor: pointer;
+}
+.buttonWrapper{
+  display:flex
 }

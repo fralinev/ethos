@@ -8,7 +8,7 @@
 }
 
 .header {
-    margin: 0
+    margin: 0 0 20px 0;
 }
 
 .title {
@@ -32,9 +32,10 @@
 
 .label {
     display: block;
-    margin-bottom: 0.5rem;
+    /* margin-bottom: 0.5rem; */
     font-size: 0.875rem;
     color: whitesmoke;
+    margin: 0 0 10px 0;
 }
 
 .input {
@@ -42,7 +43,6 @@
     border: 1px solid #3f4a6e;
     background: rgba(255, 255, 255, 0.08);
     outline: none;
-
     padding: 0.5rem 1rem;
     color: white;
 }
@@ -51,10 +51,13 @@
     border-color: yellowgreen;
 }
 
+.wrapper{}
+
 .icon {
     position: absolute;
     right: 10px;
     color: yellowgreen;
+    top: 15px;
 }
 
 .dropdown {
@@ -67,7 +70,9 @@
     border: 1px solid rgba(154, 205, 50, 0.35);
     padding: 4px;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.70);
-
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(154, 205, 50, 0.35) rgba(0, 0, 0, 0.2);
     z-index: 2;
 }
 
@@ -87,13 +92,16 @@
 }
 
 .selectedUsers {
+    position: absolute;
+    top: -10px;
+    /* bottom: 100%; */
     display: flex;
     max-width: 300px;
     flex-wrap: wrap;
     gap: 8px;
     font-size: .9rem;
     align-items: center;
-    margin: 20px 0;
+    margin: 0;
 }
 
 .selectedUser {
@@ -130,4 +138,13 @@
 .modalButton:disabled {
     opacity: 0.5;
     pointer-events: none;
+}
+
+.block{
+    position: relative;
+}
+
+.errorText {
+    margin: 20 0 0 0;
+    color: rgb(242, 79, 79);
 }

@@ -1,8 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SessionData } from "@ethos/shared";
 import { getSessionFromNextRequest } from "@/apps/web/lib/session";
+import { serverApiFetch } from "@/apps/web/lib/serverApiFetch";
 
+type ApiErrorLike = {
+  status?: number;
+  message?: string;
+};
 
+const isObject = (v: unknown): v is Record<string, unknown> =>
+  typeof v === "object" && v !== null;
+
+const readApiError = (err: unknown): ApiErrorLike => {
+  if (!isObject(err)) return {};
+  return {
+    status: typeof err.status === "number" ? err.status : undefined,
+    message: typeof err.message === "string" ? err.message : undefined,
+  };
+};
 
 export async function DELETE(req: NextRequest, { params }: any) {
   try {
@@ -13,18 +28,20 @@ export async function DELETE(req: NextRequest, { params }: any) {
 
     const { chatId } = await params;
 
-    const response = await fetch(`${process.env.API_BASE_URL}/chats/${chatId}/members`, {
+    const { data, status } = await serverApiFetch(`/chats/${chatId}/members`, {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        "x-user-id": session.userId,
-      },
     })
-    const data = await response.json();
-    return NextResponse.json({data})
+    return NextResponse.json(data, { status })
 
   } catch (err) {
-    console.error(err)
-    return NextResponse.json({ message: "error posting to :chatId" })
+    const { status, message } = readApiError(err);
+    if (status && status >= 400 && status < 500) {
+      return NextResponse.json(
+        { error: message ?? "Request failed" },
+        { status }
+      );
+    }
+    console.error(err);
+    return NextResponse.json({ error: "Upstream service failure" }, { status: 502 });
   }
 }

@@ -4,7 +4,6 @@ import type { Store as SessionStore } from "express-session";
 import { registerWss, registerUserSocket, unregisterUserSocket, registerChatSocket, unregisterChatSocket } from "./hub";
 import { SessionData, HealthPayload } from "@ethos/shared"
 import { db } from "../db";
-import type { dbUserRow } from "../types/types";
 
 
 
@@ -194,7 +193,7 @@ export function createWebSocketServer(httpServer: HttpServer, sessionStore: Sess
           }
           break;
         case "chat:typing":
-          console.log("chat typing")
+          // console.log("chat typing")
 
         case "ping":
           socket.send(JSON.stringify({ type: "pong", payload: "hello from server" }))

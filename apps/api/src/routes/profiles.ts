@@ -1,8 +1,5 @@
 import { Router } from "express";
-import bcrypt from "bcrypt";
 import { db } from "../db";
-import { broadcastToUsers } from "../ws/hub";
-import { AUTH_ERRORS } from "@ethos/shared"
 import type { Profile } from "@ethos/shared";
 
 export const profilesRouter = Router();
@@ -26,16 +23,15 @@ profilesRouter.get("/:userId", async (req, res) => {
       [params.userId]
     )
 
-    const profile:Profile = {
+    const profile: Profile = {
       avatarURL: "",
       fullName: "",
       bio: ""
     }
-    profile.avatarURL = response.rows[0].avatar_url
-    profile.fullName = response.rows[0].full_name
-    profile.bio = response.rows[0].bio
+    profile.avatarURL = response.rows[0].avatar_url || ""
+    profile.fullName = response.rows[0].full_name || ""
+    profile.bio = response.rows[0].bio || ""
     res.json({ message: "success", profile })
-
 
   } catch (err) {
     console.error(err)
@@ -60,7 +56,7 @@ profilesRouter.post("/", async (req, res) => {
       [userId, avatarURL]
     );
 
-    
+
 
     const profilesTableResponse = await db.query(
       `
@@ -81,22 +77,18 @@ profilesRouter.post("/", async (req, res) => {
       RETURNING full_name, bio, updated_at;
       `,
       [userId, fullName, bio]
-);
+    );
 
     await db.query("COMMIT");
 
-    // const { avatar_url} = usersTableResponse.rows[0]
-    // const { full_name, bio} = profilesTableResponse.rows[0]
-
-    const savedProfile:Profile = {
+    const savedProfile: Profile = {
       avatarURL: "",
       fullName: "",
       bio: ""
     }
-    savedProfile.avatarURL = usersTableResponse.rows[0].avatar_url
-    savedProfile.fullName = profilesTableResponse.rows[0].full_name
-    savedProfile.bio = profilesTableResponse.rows[0].bio
-
+    savedProfile.avatarURL = usersTableResponse.rows[0].avatar_url || ""
+    savedProfile.fullName = profilesTableResponse.rows[0].full_name || ""
+    savedProfile.bio = profilesTableResponse.rows[0].bio || ""
     res.json({ message: "success", savedProfile })
   } catch (err) {
     await db.query("ROLLBACK");

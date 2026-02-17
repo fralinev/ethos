@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import styles from "./NewChatForm.module.css"
 import { useNewChatForm } from "@/apps/web/hooks/useNewChatForm"
 import type { User } from "@ethos/shared"
@@ -12,6 +12,7 @@ import { FaXmark } from "react-icons/fa6";
 export default function NewChatForm({ setIsCreatingNewChat }: { setIsCreatingNewChat: React.Dispatch<React.SetStateAction<boolean>> }) {
   const [subject, setSubject] = useState<string>("")
   const [selectedUsers, setSelectedUsers] = useState<Map<string, User>>(new Map())
+  const [chipHeight, setChipHeight] = useState(0)
 
   const {
     handleCreate,
@@ -20,8 +21,36 @@ export default function NewChatForm({ setIsCreatingNewChat }: { setIsCreatingNew
     query,
     setQuery,
     loading,
-    filteredUsers
-  } = useNewChatForm(setIsCreatingNewChat, subject, [...selectedUsers.keys()])
+    filteredUsers,
+    message
+  } = useNewChatForm(setIsCreatingNewChat, subject, [...selectedUsers.keys()], selectedUsers)
+
+  const chipRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!chipRef.current) return;
+
+    const el = chipRef.current;
+    const updateHeight = () => {
+      const next = Math.ceil(el.getBoundingClientRect().height);
+      console.log("next", next)
+      setChipHeight(next);
+    };
+
+    updateHeight();
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateHeight();
+    });
+
+    resizeObserver.observe(el);
+
+    return () => {
+      resizeObserver.unobserve(el);
+      resizeObserver.disconnect();
+    };
+  }, []);
+
 
   const handleSelectUsers = (user: User) => {
     setSelectedUsers(prev => {
@@ -30,7 +59,7 @@ export default function NewChatForm({ setIsCreatingNewChat }: { setIsCreatingNew
       return next
     })
   }
-  const handleQueryChange = (e:any) => {
+  const handleQueryChange = (e: any) => {
     if (e.target.value.length > 15) return;
     setQuery(e.target.value)
 
@@ -49,24 +78,39 @@ export default function NewChatForm({ setIsCreatingNewChat }: { setIsCreatingNew
         <form onSubmit={handleCreate}>
           <div className={styles.fields}>
 
-            <div className={styles.selectedUsers}>
-              {Array.from(selectedUsers.values()).map((user) => (
-                <span key={user.id} className={styles.selectedUser}>
-                  <button
-                    type="button"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => handleSelectUsers(user)}>
-                    <FaXmark size={18} />
-                  </button>
-                  {user.username}
-                </span>
-              ))}
-              {selectedUsers.size > 1 && <button type="button" onClick={() => setSelectedUsers(new Map())} className={styles.clearAllButton}>clear all</button>}
-            </div>
 
-            <label className={styles.field}>
-              <span className={styles.label}>Participants</span>
-              <div className="relative flex items-center">
+
+
+
+
+            <span className={styles.label} style={{margin: "0 0 20px 0", color: selectedUsers.size > 6 ? "red" : "white"}}>{`Participants (${selectedUsers.size}/6)`}</span>
+
+
+
+            {/* <label className={styles.field}> */}
+
+            <div style={{ paddingTop: chipHeight }} className={`${styles.wrapper} relative flex items-center`}>
+
+
+
+
+              <div ref={chipRef} className={styles.selectedUsers}>
+                {Array.from(selectedUsers.values()).map((user) => (
+                  <span key={user.id} className={styles.selectedUser}>
+                    <button
+                      type="button"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleSelectUsers(user)}
+                    >
+                      <FaXmark size={18} />
+                    </button>
+                    {user.username}
+                  </span>
+                ))}
+                {/* {selectedUsers.size > 1 && <button type="button" onClick={() => setSelectedUsers(new Map())} className={styles.clearAllButton}>clear all</button>} */}
+              </div>
+              <div style={{position: "relative", margin: "0 0 20px 0"}}>
+
                 <input
                   id="new-chat-users-search"
                   placeholder="find a user..."
@@ -104,22 +148,24 @@ export default function NewChatForm({ setIsCreatingNewChat }: { setIsCreatingNew
                     </div>}
                 </div>}
               </div>
-            </label>
-
-            {selectedUsers.size > 1 &&
-              <label className={styles.field}>
-                <span className={styles.label}>Subject (optional)</span>
-                <input
-                  id="new-chat-subject-input"
-                  value={subject}
-                  onChange={handleSubjectChange}
-                  className={styles.input}
-                />
-              </label>}
+              {/* </label> */}
+            </div>
           </div>
-            <button type="button" style={{ cursor: "pointer" }} onClick={() => setIsCreatingNewChat(false)} className={styles.modalButton}>Cancel</button>
-            <button type="submit" style={{ cursor: "pointer" }} className={styles.modalButton} disabled={selectedUsers.size === 0}>Create</button>
+
+          {selectedUsers.size > 1 &&
+            <label className={styles.field}>
+              <span className={styles.label}>Subject (optional)</span>
+              <input
+                id="new-chat-subject-input"
+                value={subject}
+                onChange={handleSubjectChange}
+                className={styles.input}
+              />
+            </label>}
+          <button type="button" style={{ cursor: "pointer" }} onClick={() => setIsCreatingNewChat(false)} className={styles.modalButton}>Cancel</button>
+          <button type="submit" style={{ cursor: "pointer" }} className={styles.modalButton} disabled={selectedUsers.size === 0}>Create</button>
         </form>
+        {message && <div className={styles.errorText}>{message}</div>}
       </section>
     </>
   )
