@@ -10,6 +10,28 @@ export type Chat = {
   members: User[];
 };
 
+export type ChatDTO = {
+  id: string;
+  subject: string | null;
+  type: ChatType;
+  createdAt: string;
+  createdBy: string;
+  members: {
+    id: string
+    username: string
+    role: string
+  }[]
+}
+
+export type ServerChat = {
+  id: string;
+  subject: string | null;
+  type: ChatType;
+  createdAt: string;
+  createdBy: string;
+
+}
+
 export type ChatType = "direct" | "group";
 
 export type Message = {
