@@ -1,99 +1,50 @@
 import { Router } from "express";
-import { db } from "../db";
-import type { Profile } from "@ethos/shared";
+import * as profileService from "../services/profile.service";
 
 export const profilesRouter = Router();
 
 
 profilesRouter.get("/:userId", async (req, res) => {
   try {
-    const { params } = req;
-    const response = await db.query(
-      `
-      SELECT
-        u.username,
-        u.avatar_url,
-        p.full_name,
-        p.bio
-      FROM users u
-      LEFT JOIN profiles p ON p.user_id = u.id
-      WHERE u.id = $1
-      LIMIT 1
-      `,
-      [params.userId]
-    )
-
-    const profile: Profile = {
-      avatarURL: "",
-      fullName: "",
-      bio: ""
+    const requesterId = req.session.userId;
+    if (!requesterId) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
-    profile.avatarURL = response.rows[0].avatar_url || ""
-    profile.fullName = response.rows[0].full_name || ""
-    profile.bio = response.rows[0].bio || ""
-    res.json({ message: "success", profile })
+
+    const { params } = req;
+    if (params.userId !== requesterId) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    const profile = await profileService.getProfile(requesterId);
+    res.json({ message: "Success", profile })
 
   } catch (err) {
     console.error(err)
+    res.status(500).json({ message: "Unknown" })
   }
 })
 
 profilesRouter.post("/", async (req, res) => {
   try {
-    const { body } = req;
-    const { userId, avatarURL, fullName, bio } = body;
-
-    await db.query("BEGIN");
-
-    const usersTableResponse = await db.query(
-      `
-      UPDATE users
-      SET avatar_url = $2,
-        updated_at = now()
-      WHERE id = $1
-      RETURNING avatar_url
-      `,
-      [userId, avatarURL]
-    );
-
-
-
-    const profilesTableResponse = await db.query(
-      `
-      INSERT INTO profiles (
-        user_id,
-        full_name,
-        bio,
-        updated_at
-      )
-      VALUES ($1, $2, $3, now())
-
-      ON CONFLICT (user_id)
-      DO UPDATE SET
-        full_name = EXCLUDED.full_name,
-        bio = EXCLUDED.bio,
-        updated_at = now()
-
-      RETURNING full_name, bio, updated_at;
-      `,
-      [userId, fullName, bio]
-    );
-
-    await db.query("COMMIT");
-
-    const savedProfile: Profile = {
-      avatarURL: "",
-      fullName: "",
-      bio: ""
+    const requesterId = req.session.userId;
+    if (!requesterId) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
-    savedProfile.avatarURL = usersTableResponse.rows[0].avatar_url || ""
-    savedProfile.fullName = profilesTableResponse.rows[0].full_name || ""
-    savedProfile.bio = profilesTableResponse.rows[0].bio || ""
-    res.json({ message: "success", savedProfile })
+
+    const { body } = req;
+    const { avatarURL, fullName, bio } = body;
+
+    const savedProfile = await profileService.saveProfile({
+      userId: requesterId,
+      avatarURL,
+      fullName,
+      bio
+    });
+    res.json({ message: "Success", savedProfile })
   } catch (err) {
-    await db.query("ROLLBACK");
     console.error(err)
-    res.json({ message: "massive sacatroophic error" })
+    res.status(500).json({ error: "Unknown" })
 
   }
 })

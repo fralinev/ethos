@@ -4,11 +4,11 @@ import { useState, useEffect, useRef, useMemo } from "react"
 import ChatList from "./ChatList/ChatList"
 import NewChatForm from "./ChatList/NewChatForm/NewChatForm"
 import { useSocket } from "@/apps/web/hooks/useSocket"
-import type { SessionData, Chat, User, SocketMessage } from "@ethos/shared"
-import { useRouter, } from "next/navigation";
+import type { SessionData, Chat } from "@ethos/shared"
 import { Modal } from "../../../components/Modal"
 import ChatsHeader from "./ChatsHeader/ChatsHeader"
 import { IoMdAddCircle } from "react-icons/io";
+import { useChatSocketEvents } from "./useChatSocketEvents";
 
 
 
@@ -26,7 +26,6 @@ export default function Chats({
   const [isCreatingNewChat, setIsCreatingNewChat] = useState(false)
 
   const { client } = useSocket();
-  const router = useRouter();
 
   const activeChatIdRef = useRef<string | undefined>(activeChatId);
 
@@ -49,51 +48,14 @@ export default function Chats({
     activeChatIdRef.current = activeChatId;
   }, [activeChatId]);
 
-  useEffect(() => {
-    if (!client) return;
-    const off = client.onMessage((msg: SocketMessage) => {
-      if (!msg) return;
-      if (msg.type === "chat:created") {
-        const newChat: Chat = msg.payload;
-        setChats((prev: Chat[]) => {
-          if (prev.some((c) => c.id === newChat.id)) return prev;
-          return [...prev, newChat];
-        });
-        setActiveTab(msg.payload.type)
-      }
-
-      if (msg.type === "chat:renamed") {
-        const { chatId, newSubject } = msg.payload;
-        if (chatId === activeChatIdRef.current) {
-          router.push(`/home?chatId=${chatId}`)
-        } else {
-          setChats((prev: Chat[]) => {
-            const targetId = String(chatId);
-            return prev.map((c) =>
-              String(c.id) === targetId
-                ? { ...c, subject: newSubject }
-                : c
-            );
-          });
-        }
-      }
-      if (msg.type === "chat:left") {
-        if (session?.userId === msg.payload.leftBy) {
-          if (activeChatId === msg.payload.chatId) {
-            router.push("/home")
-          } else {
-            setChats((prev: any) => {
-              const filtered = prev.filter((chat: Chat) => chat.id !== msg.payload.chatId)
-              return filtered
-            })
-          }
-
-        }
-      }
-    });
-
-    return () => off();
-  }, [client]);
+  useChatSocketEvents({
+    client,
+    session,
+    activeChatId,
+    activeChatIdRef,
+    setChats,
+    setActiveTab,
+  });
 
   return (
     <div className={styles.chats}>

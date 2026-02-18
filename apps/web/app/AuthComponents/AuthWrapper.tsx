@@ -36,8 +36,6 @@ export default function AuthWrapper({ session }: { session: any }) {
     throw new Error("Safari blocked")
   }
 
-  console.log("SESSION", session)
-
   return (
     <div>
       <div>
