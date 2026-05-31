@@ -39,7 +39,7 @@ export default function Users({ initialUsers }: { initialUsers: User[] }) {
   return (
     <div className={styles.users}>
       {loading ? <Spinner/> : <UsersList users={displayUsers} />}
-      <UsersSearch query={query} onSearch={setQuery} />
+      {/* <UsersSearch query={query} onSearch={setQuery} /> */}
     </div>
   )
 }

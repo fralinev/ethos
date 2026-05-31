@@ -62,6 +62,29 @@ chatsRouter.get("/", async (req, res) => {
   }
 });
 
+chatsRouter.get("/:chatId", async (req, res) => {
+  try {
+    const requesterId = req.session.userId;
+    if (!requesterId || isNaN(Number(requesterId))) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const { chatId } = req.params;
+    if (!chatId || isNaN(Number(chatId))) {
+      return res.status(400).json({ error: "Invalid chatId" });
+    }
+
+    const chat = await chatService.getChatById(chatId, requesterId);
+    return res.status(200).json(chat);
+  } catch (err) {
+    if (err instanceof HttpError) {
+      return res.status(err.status).json({ error: err.message });
+    }
+    console.error(err);
+    return res.status(500).json({ message: "Unknown" });
+  }
+});
+
 chatsRouter.get("/:chatId/messages", async (req, res) => {
   try {
     const requesterId = req.session.userId;

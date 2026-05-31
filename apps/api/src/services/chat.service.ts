@@ -46,19 +46,27 @@ export async function createChat({
     return { chat, members };
   });
 
+  const createdByMember = members.find((member) => member.id === requesterId);
+  if (!createdByMember) {
+    throw new BadRequestError("Requester not found in chat members");
+  }
+
   const chatDTO: ChatDTO = {
     id: chat.id,
     subject: chat.subject,
     type: chat.type,
     createdAt: chat.created_at,
-    createdBy: requesterId,
+    createdBy: {
+      id: createdByMember.id,
+      username: createdByMember.username,
+    },
     members: members.map((m) => ({
       id: m.id,
       username: m.username,
       role: m.role,
     })),
   };
-
+  console.log("SERVER CHECK", members)
   broadcastToUsers(members.map(u => u.id), "chat:created", chatDTO);
   return chatDTO
 }
@@ -75,16 +83,55 @@ export async function getChats(userId: string) {
     else chatMembership.set(chat_id, [member]);
 
   }
-  const chatDTOs: ChatDTO[] = chats.map(chat => ({
+  const chatDTOs: ChatDTO[] = chats.map(chat => {
+    const members = chatMembership.get(chat.id) ?? [];
+    const createdByMember = members.find((member) => member.id === chat.created_by);
+    if (!createdByMember) {
+      throw new HttpError(500, "Chat creator missing from members");
+    }
+
+    return {
+      id: chat.id,
+      subject: chat.subject,
+      type: chat.type,
+      createdAt: chat.created_at,
+      createdBy: {
+        id: createdByMember.id,
+        username: createdByMember.username,
+      },
+      members,
+    };
+  })
+  return chatDTOs;
+}
+
+export async function getChatById(chatId: string, userId: string): Promise<ChatDTO> {
+  const chat = await chatRepo.getChatByIdForUser(chatId, userId);
+  if (!chat) {
+    throw new HttpError(404, "Chat not found");
+  }
+
+  const memberRows = await chatRepo.getMembersByChatIds([chat.id]);
+  const members = memberRows
+    .filter((row) => row.chat_id === chat.id)
+    .map(({ chat_id, ...member }) => member);
+
+  const createdByMember = members.find((member) => member.id === chat.created_by);
+  if (!createdByMember) {
+    throw new HttpError(500, "Chat creator missing from members");
+  }
+
+  return {
     id: chat.id,
     subject: chat.subject,
     type: chat.type,
     createdAt: chat.created_at,
-    createdBy: chat.created_by,
-    members: chatMembership.get(chat.id) ?? []
-
-  }))
-  return chatDTOs;
+    createdBy: {
+      id: createdByMember.id,
+      username: createdByMember.username,
+    },
+    members,
+  };
 }
 
 export async function getMessages(chatId: string, userId: string) {

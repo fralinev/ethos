@@ -33,7 +33,6 @@ export default function NewChatForm({ setIsCreatingNewChat }: { setIsCreatingNew
     const el = chipRef.current;
     const updateHeight = () => {
       const next = Math.ceil(el.getBoundingClientRect().height);
-      console.log("next", next)
       setChipHeight(next);
     };
 

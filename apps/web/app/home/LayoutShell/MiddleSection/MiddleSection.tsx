@@ -5,9 +5,10 @@ import { useAppSelector, useAppDispatch } from "@/apps/web/store/hooks"
 import Spinner from "../../components/Spinner";
 import { finishChatLoading } from "@/apps/web/store/slices/chatSlice";
 import Chat from "./Chat/Chat";
+import type { Chat as ChatType } from "@ethos/shared";
 
 
-export default function MiddleSection({ activeChatId, session }: { activeChatId: string | undefined, session: any }) {
+export default function MiddleSection({ activeChatId, activeChat, session }: { activeChatId: string | undefined, activeChat: ChatType | undefined, session: any }) {
   const dispatch = useAppDispatch();
   const isChatLoading = useAppSelector((s) => s.ui.isChatLoading);
 
@@ -35,6 +36,7 @@ useEffect(() => {
   return (
     <>
       {activeChatId && isAuthedSession(session) && <Chat
+      activeChat={activeChat}
         session={session}
         activeChatId={activeChatId}
       /> }

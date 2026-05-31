@@ -95,7 +95,7 @@ export default function LayoutShell({
       </aside>
       <main className={styles.main}>
 
-        <MiddleSection activeChatId={activeChatId}
+        <MiddleSection activeChatId={activeChatId} activeChat={activeChat}
           session={session}
         />
       </main>

@@ -14,7 +14,7 @@ import { apiFetch } from "@/apps/web/lib/apiFetch"
 import { HttpError } from "@ethos/shared"
 
 
-export default function Chat({ session, activeChatId }: any) {
+export default function Chat({ session, activeChatId, activeChat }: any) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const dispatch = useAppDispatch();
@@ -118,7 +118,7 @@ export default function Chat({ session, activeChatId }: any) {
   }
   return (
     <>
-      <ChatHeader text={"some chat"} onClose={exitChat} />
+      <ChatHeader activeChat={activeChat} onClose={exitChat} />
       <ChatTranscript
         session={session}
         activeChatId={activeChatId}

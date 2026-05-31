@@ -15,7 +15,10 @@ export type ChatDTO = {
   subject: string | null;
   type: ChatType;
   createdAt: string;
-  createdBy: string;
+  createdBy: {
+    id: string;
+    username: string;
+  };
   members: {
     id: string
     username: string

@@ -1,8 +1,9 @@
 "use client"
 import { GrFormClose } from "react-icons/gr";
-
-export default function ChatHeader({ text, onClose }: any) {
-
+import { getUsernames } from "@/apps/web/lib/utils";
+import { useUser } from "@/apps/web/app/context/UserContext";
+export default function ChatHeader({ text, onClose, activeChat }: any) {
+  const user = useUser();
   return (
     <div style={{
       display: "flex",
@@ -11,7 +12,7 @@ export default function ChatHeader({ text, onClose }: any) {
       padding: "12px 20px",
       width: "100%"
     }}>
-      <div>{text}</div>
+      <div>{activeChat.subject ? activeChat.subject : getUsernames(activeChat.members, user.id)}</div>
       {onClose &&
         <div
           onClick={onClose}

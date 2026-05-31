@@ -91,7 +91,7 @@ export default function ChatList({ chats, activeTab, activeChatId }: { chats: Ch
       <div id="chat-list" style={{ padding: "10px" }}>
         {chats.length > 0 && chats.map((chat: Chat) => {
           return (
-            <div key={chat.id}>
+            <div onClick={() => getChat(chat.id)} style={{cursor: "pointer"}} key={chat.id}>
               <ChatRow
                 chat={chat}
                 getChat={getChat}

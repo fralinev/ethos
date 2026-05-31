@@ -38,6 +38,7 @@ export function useChatSocketEvents({
             return [...prev, newChat];
           });
           setActiveTab(msg.payload.type);
+          console.log("HCEKKKK", msg, session)
           if (session?.userId && msg.payload.createdBy.id === session.userId) {
             router.push(`/home?chatId=${newChat.id}`);
           }

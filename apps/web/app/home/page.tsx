@@ -16,6 +16,7 @@ type HomeProps = {
 };
 
 export default async function Home({ searchParams }: HomeProps) {
+  // console.log("checkk")
   const session: SessionData | undefined = await getSessionFromNextRequest();
   if (!session?.userId) {
     redirect("/")
@@ -46,7 +47,17 @@ export default async function Home({ searchParams }: HomeProps) {
   }),
 ]);
 
-  const activeChat = activeChatId ? initialChats.find((chat: Chat) => chat.id === activeChatId) : undefined
+  let activeChat = activeChatId ? initialChats.find((chat: Chat) => chat.id === activeChatId) : undefined;
+  if (activeChatId && !activeChat) {
+    try {
+      activeChat = await apiFetch<Chat>(`${process.env.API_BASE_URL}/chats/${activeChatId}`, {
+        headers: { Cookie: cookieHeader },
+        cache: "no-store",
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   return (
     <UserProvider user={currentUser}>

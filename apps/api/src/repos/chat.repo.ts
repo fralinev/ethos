@@ -67,6 +67,28 @@ export async function getChatsByUserId(
   return result.rows
 }
 
+export async function getChatByIdForUser(
+  chatId: string,
+  userId: string,
+  client: Pool | PoolClient = db
+) {
+  const result = await client.query<ChatRow>(
+    `
+    SELECT c.id, c.subject, c.type, c.created_by, c.created_at
+    FROM chats c
+    INNER JOIN chat_members cm ON cm.chat_id = c.id
+    WHERE c.id = $1
+      AND cm.user_id = $2
+      AND cm.left_at IS NULL
+      AND c.archived_at IS NULL
+    LIMIT 1
+    `,
+    [chatId, userId]
+  );
+
+  return result.rows[0];
+}
+
 export async function getMembersByChatIds(
   chatIds: string[],
   client: Pool | PoolClient = db

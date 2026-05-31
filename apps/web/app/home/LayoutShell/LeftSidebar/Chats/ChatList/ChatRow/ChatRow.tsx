@@ -3,9 +3,10 @@
 import styles from "./ChatRow.module.css"
 import { useRef, useEffect } from "react"
 import { FaEllipsisH } from "react-icons/fa";
-import type { Chat, User } from "@ethos/shared";
+import type { Chat } from "@ethos/shared";
 import { createPortal } from "react-dom";
 import { useUser } from "@/apps/web/app/context/UserContext";
+import { getUsernames } from "@/apps/web/lib/utils";
 
 type ChatRowProps = {
   chat: Chat,
@@ -53,24 +54,13 @@ export default function ChatRow({
     }
   }, [openId, chat.id])
 
-  const getUsernames = (): string => {
-    return chat.members
-      .reduce((acc: string[], curr: User) => {
-        const { id, username } = curr;
-        if (user.id !== id) acc.push(username);
-        return acc
-      }, [])
-      .join(", ")
-  }
-
   return (
-    <div >
       <div className={styles.chatRow}>
         <div
-          onClick={() => getChat(chat.id)}
+          
           className={styles.chatRowName}
         >
-          {chat.subject ? <span className={styles.subject}>{chat.subject}</span> : <span className={styles.noSubject}>{getUsernames()}</span>}
+          {chat.subject ? <span className={styles.subject}>{chat.subject}</span> : <span className={styles.noSubject}>{getUsernames(chat.members, user.id)}</span>}
         </div>
         <div
 
@@ -98,6 +88,5 @@ export default function ChatRow({
           }
         </div>
       </div>
-    </div>
   )
 }
