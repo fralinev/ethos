@@ -12,9 +12,10 @@ export default function AuthWrapper({ session }: { session: any }) {
   const router = useRouter();
 
   function isSafari() {
-    const ua = navigator.userAgent
-    return /^((?!chrome|android).)*safari/i.test(ua)
-  }
+  if (typeof window === 'undefined') return false;
+  const ua = navigator.userAgent;
+  return /^((?!chrome|android).)*safari/i.test(ua);
+}
 
   if (isSafari()) {
     document.body.innerHTML = `

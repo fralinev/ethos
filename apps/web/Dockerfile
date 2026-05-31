@@ -39,4 +39,6 @@ COPY --from=builder /app/apps/web/public ./apps/web/public
 
 EXPOSE 8080
 
-CMD ["node_modules/.bin/next", "start", "--prefix", "apps/web", "-p", "8080"]
+WORKDIR /app/apps/web
+
+CMD ["/app/node_modules/.bin/next", "start", "-p", "8080"]

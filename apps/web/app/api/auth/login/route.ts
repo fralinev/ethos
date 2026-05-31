@@ -4,7 +4,6 @@ const isObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null;
 
 export async function POST(req: NextRequest) {
-
   if (!process.env.API_BASE_URL) {
     return NextResponse.json(
       { error: "Server misconfiguration" },

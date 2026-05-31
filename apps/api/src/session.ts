@@ -5,6 +5,8 @@ import { redis } from "./redisClient";
 
 export const sessionStore: SessionStore = new UpstashStore(redis);
 
+console.log("[session] NODE_ENV:", process.env.NODE_ENV);
+
 export const sessionMiddleware = session({
   name: "connect.sid",
   store: sessionStore,
