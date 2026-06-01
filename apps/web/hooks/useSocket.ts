@@ -168,6 +168,7 @@ let sharedClient: SocketClient | null = null;
 function getSocketClient(): SocketClient {
   if (!sharedClient) {
     let url = process.env.NEXT_PUBLIC_WS_URL;
+    console.log("[ws] url:", url);
     sharedClient = new SocketClient(url as string);
   }
   return sharedClient;
