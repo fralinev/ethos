@@ -9,6 +9,7 @@ COPY package.json package-lock.json tsconfig.json ./
 # Copy workspace packages
 COPY packages/shared ./packages/shared
 COPY apps/web ./apps/web
+COPY apps/web/.env.production ./apps/web/.env.production
 
 # Install all dependencies
 RUN npm ci
