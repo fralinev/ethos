@@ -1,80 +1,47 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import ProfileEdit from "../ProfileEdit/ProfileEdit"
 import ProfileView from "../ProfileView/ProfileView"
 import type { Profile } from "@ethos/shared"
 import Spinner from "../../../components/Spinner"
-import { apiFetch } from "@/apps/web/lib/apiFetch"
+import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query"
 
 
 export default function Profile() {
   const [mode, setMode] = useState<'view' | 'edit'>('view')
-  const [loading, setLoading] = useState(false)
-  const [profile, setProfile] = useState<Profile>({
-    fullName: "",
-    avatarURL: "",
-    bio: ""
+
+  const queryClient = useQueryClient()
+
+  const { data: profile, isPending } = useQuery({
+    queryKey: ["profile"],
+    queryFn: () => fetch("/api/profiles").then(r => r.json()).then(d => d.profile),
   })
 
-  console.log("profile", profile)
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    async function getProfile() {
-      try {
-        setLoading(true)
-        const data = await apiFetch("/api/profiles", {
-          signal: controller.signal
-        })
-        setProfile(data.profile)
-      } catch (err: any) {
-        if (err.name !== "AbortError") {
-          console.error(err);
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
-      }
-    }
-    getProfile()
-    return () => {
-      controller.abort();
-    };
-  }, [])
-
-  const handleSave = async (profile: Profile) => {
-    try {
-      setLoading(true)
-      const response = await fetch("/api/profiles", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(profile)
-      })
-      if (!response.ok) throw new Error("Failed to save profile");
-      const { savedProfile } = await response.json();
-      setProfile(savedProfile)
+  const { mutate: saveProfile } = useMutation({
+    mutationFn: (updated: Profile) => fetch("/api/profiles", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updated)
+    }).then(r => r.json()).then(d => d.savedProfile),
+    onSuccess: (savedProfile) => {
+      queryClient.setQueryData(["profile"], savedProfile)
       setMode("view")
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
     }
-  }
+  })
+
 
   return (
     <>
       {mode === "edit" ?
         <ProfileEdit
           profile={profile}
-          loading={loading}
+          loading={isPending}
           onSave={(updated: Profile) => {
-            handleSave(updated)
+            saveProfile(updated)
           }}
           onCancel={() => setMode('view')}
         /> :
-        loading ?
+        isPending ?
           <Spinner /> :
           <ProfileView
             profile={profile}

@@ -7,6 +7,7 @@ import LayoutShell from "./LayoutShell/LayoutShell";
 import { apiFetch } from "../../lib/apiFetch";
 import { UserProvider } from "../context/UserContext";
 import { cookies } from "next/headers";
+import Providers from "../context/Providers";
 
 type HomeProps = {
   searchParams: Promise<{
@@ -16,7 +17,6 @@ type HomeProps = {
 };
 
 export default async function Home({ searchParams }: HomeProps) {
-  // console.log("checkk")
   const session: SessionData | undefined = await getSessionFromNextRequest();
   if (!session?.userId) {
     redirect("/")
@@ -28,24 +28,20 @@ export default async function Home({ searchParams }: HomeProps) {
   const { chatId } = await searchParams;
   const activeChatId: string | undefined = chatId ? chatId : undefined;
 
-  // let initialChats: Chat[] = [];
-  // let initialUsers: User[] = [];
-  // let currentUser: User | null = null
-
   const [currentUser, initialChats, initialUsers] = await Promise.all([
-  apiFetch<User>(`${process.env.API_BASE_URL}/users/${session.userId}`, {
-    headers: { Cookie: cookieHeader },
-    cache: "no-store",
-  }),
-  apiFetch<Chat[]>(`${process.env.API_BASE_URL}/chats`, {
-    headers: { Cookie: cookieHeader },
-    cache: "no-store",
-  }),
-  apiFetch<User[]>(`${process.env.API_BASE_URL}/users`, {
-    headers: { Cookie: cookieHeader },
-    cache: "no-store",
-  }),
-]);
+    apiFetch<User>(`${process.env.API_BASE_URL}/users/${session.userId}`, {
+      headers: { Cookie: cookieHeader },
+      cache: "no-store",
+    }),
+    apiFetch<Chat[]>(`${process.env.API_BASE_URL}/chats`, {
+      headers: { Cookie: cookieHeader },
+      cache: "no-store",
+    }),
+    apiFetch<User[]>(`${process.env.API_BASE_URL}/users`, {
+      headers: { Cookie: cookieHeader },
+      cache: "no-store",
+    }),
+  ]);
 
   let activeChat = activeChatId ? initialChats.find((chat: Chat) => chat.id === activeChatId) : undefined;
   if (activeChatId && !activeChat) {
@@ -60,7 +56,7 @@ export default async function Home({ searchParams }: HomeProps) {
   }
 
   return (
-    <UserProvider user={currentUser}>
+    <Providers user={currentUser}>
       <div className={styles.page}>
         <Header />
         <div className={styles.layout}>
@@ -73,6 +69,6 @@ export default async function Home({ searchParams }: HomeProps) {
           />
         </div>
       </div>
-    </UserProvider>
+    </Providers>
   );
 }

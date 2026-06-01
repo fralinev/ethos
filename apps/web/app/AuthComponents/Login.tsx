@@ -63,13 +63,14 @@ export default function Login({ setString }: { setString: React.Dispatch<React.S
         router.push("/home");
         return;
       }
-      setErrorText(data.message);
+      console.log("data.message", data.error)
+      setErrorText(data.error);
     } catch (err) {
       console.error(err);
       setErrorText("Login failed");
     } finally {
       setLoading(false)
-      setString("")
+      // setString("")
     }
   };
 

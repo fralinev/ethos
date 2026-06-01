@@ -1,45 +1,27 @@
+"use client"
+
 import UsersList from "./UsersList/UsersList"
-import UsersSearch from "./UsersSearch"
 import styles from "./Users.module.css"
-import { useState, useEffect } from "react"
-import Spinner from "../../components/Spinner"
+import { useQuery } from "@tanstack/react-query"
 import type {User} from "@ethos/shared"
 
+async function fetchUsers(): Promise<User[]> {
+  const res = await fetch("/api/users")
+  if (!res.ok) throw new Error("Failed to fetch users")
+  return res.json()
+}
 
 export default function Users({ initialUsers }: { initialUsers: User[] }) {
-  const [query, setQuery] = useState("")
-  const [filteredUsers, setFilteredUsers] = useState([])
-  const [loading, setLoading] = useState(false)
-
-  const displayUsers = query.trim().length > 0 ? filteredUsers : initialUsers
-
-  useEffect(() => {
-    if (!query) return
-    setLoading(true)
-    const t = setTimeout(async () => {
-      try {
-        const response = await fetch(`/api/users?query=${encodeURIComponent(query)}`)
-        const data = await response.json();
-        setFilteredUsers(data)
-      } catch (err) {
-        console.error(err)
-      }
-      setLoading(false)
-
-    }, 1000)
-    return () => {
-      setLoading(false)
-      setFilteredUsers([])
-      clearTimeout(t)
-    }
-  }, [query])
-
-
+ 
+const { data: users = [] } = useQuery({
+    queryKey: ["users"],
+    queryFn: fetchUsers,
+    initialData: initialUsers,
+  })
 
   return (
     <div className={styles.users}>
-      {loading ? <Spinner/> : <UsersList users={displayUsers} />}
-      {/* <UsersSearch query={query} onSearch={setQuery} /> */}
+      <UsersList users={users} />
     </div>
   )
 }

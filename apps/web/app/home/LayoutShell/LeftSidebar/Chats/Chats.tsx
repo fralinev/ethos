@@ -9,8 +9,7 @@ import { Modal } from "../../../components/Modal"
 import ChatsHeader from "./ChatsHeader/ChatsHeader"
 import { IoMdAddCircle } from "react-icons/io";
 import { useChatSocketEvents } from "./useChatSocketEvents";
-
-
+import { useQueryClient, useQuery } from "@tanstack/react-query"
 
 export default function Chats({
   initialChats,
@@ -21,14 +20,20 @@ export default function Chats({
     session: SessionData | undefined,
     activeChatId: string | undefined,
   }) {
-  const [chats, setChats] = useState<Chat[]>(initialChats);
   const [activeTab, setActiveTab] = useState("direct")
   const [isCreatingNewChat, setIsCreatingNewChat] = useState(false)
+
+  const queryClient = useQueryClient()
 
   const { client } = useSocket();
 
   const activeChatIdRef = useRef<string | undefined>(activeChatId);
 
+  const { data: chats = [] } = useQuery({
+    queryKey: ["chats"],
+    queryFn: () => Promise.resolve(initialChats), // unused
+    initialData: initialChats,
+  })
 
   const directChats = useMemo(
     () => chats.filter(chat => chat.type === "direct"),
@@ -41,10 +46,6 @@ export default function Chats({
   );
 
   useEffect(() => {
-    setChats(initialChats);
-  }, [initialChats]);
-
-  useEffect(() => {
     activeChatIdRef.current = activeChatId;
   }, [activeChatId]);
 
@@ -53,7 +54,7 @@ export default function Chats({
     session,
     activeChatId,
     activeChatIdRef,
-    setChats,
+    setChats: (updater) => queryClient.setQueryData(["chats"], updater),
     setActiveTab,
   });
 
