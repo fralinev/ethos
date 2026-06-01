@@ -61,7 +61,7 @@ app.get("/archived-chats", async (req, res) => {
   res.json(data)
 } )
 
-app.get('/health', (req, res) => res.sendStatus(200));
+app.get('/health', (req, res) => res.status(200).json({status: "OK"}));
 
 
 app.get('/', (_req, res) => {

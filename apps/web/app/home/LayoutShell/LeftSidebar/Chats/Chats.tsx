@@ -54,7 +54,10 @@ export default function Chats({
     session,
     activeChatId,
     activeChatIdRef,
-    setChats: (updater) => queryClient.setQueryData(["chats"], updater),
+    setChats: (updater) => {
+      console.log("setQueryData called")
+      queryClient.setQueryData(["chats"], updater)
+    },
     setActiveTab,
   });
 

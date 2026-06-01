@@ -2,34 +2,40 @@
 
 import { useState } from "react";
 import styles from "./ProfileView.module.css";
+import profileStyles from "../Profile/Profile.module.css"
 import { RiEditFill } from "react-icons/ri";
 import type { Profile } from "@ethos/shared"
+import { SiLichess } from "react-icons/si";
 
-export default function ProfileView({ profile, onEdit}: { profile: Profile, onEdit: () => void }) {
+export default function ProfileView({ profile, onEdit }: { profile: Profile, onEdit: () => void }) {
+  console.log(profile)
 
   return (
-    <section className={styles.card}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>Profile</h1>
-        <div className={styles.avatarPreview} aria-hidden />
+    <section className={profileStyles.card}>
+      <header className={profileStyles.header}>
+        <h1 className={profileStyles.title}>Profile</h1>
+        {profile.avatarURL ? <img className={styles.avatar} src={profile.avatarURL} /> : <SiLichess size="40" />}
 
 
       </header>
 
-      <div className={styles.fields}>
-        <label className={styles.field}>
-          <span className={styles.label}>Full name</span>
-          <div>{profile.fullName}</div>
+
+      <div className={profileStyles.fields}>
+
+        {/* <label className={profileStyles.field}>
+          <span className={profileStyles.label}>Avatar</span>
+          <img className={styles.avatar} src={profile.avatarURL} />
+        </label> */}
+
+        <label className={profileStyles.field}>
+          <span className={profileStyles.label}>Name</span>
+          <div className={profileStyles.content}>{profile.fullName}</div>
         </label>
 
-        <label className={styles.field}>
-          <span className={styles.label}>Avatar URL</span>
-          <div>{profile.avatarURL}</div>
-        </label>
 
-        <label className={styles.field}>
-          <span className={styles.label}>Bio</span>
-          <div>{profile.bio}</div>
+        <label className={profileStyles.field}>
+          <span className={profileStyles.label}>Bio</span>
+          <div className={profileStyles.content}>{profile.bio}</div>
         </label>
       </div>
 

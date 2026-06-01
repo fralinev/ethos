@@ -22,7 +22,7 @@ export async function getProfileByUserId(
   const result = await client.query<ProfileRow>(
     `
     SELECT
-      u.avatar_url,
+      p.avatar_url,
       p.full_name,
       p.bio
     FROM users u
@@ -48,41 +48,33 @@ export async function upsertProfile(
 ): Promise<Profile> {
   const { userId, avatarURL, fullName, bio } = input;
 
-  const usersTableResponse = await client.query<{ avatar_url: string | null }>(
-    `
-    UPDATE users
-    SET avatar_url = $2,
-      updated_at = now()
-    WHERE id = $1
-    RETURNING avatar_url
-    `,
-    [userId, avatarURL]
-  );
-
   const profilesTableResponse = await client.query<{
+    avatar_url: string | null;
     full_name: string | null;
     bio: string | null;
   }>(
     `
     INSERT INTO profiles (
       user_id,
+      avatar_url,
       full_name,
       bio,
       updated_at
     )
-    VALUES ($1, $2, $3, now())
+    VALUES ($1, $2, $3, $4, now())
     ON CONFLICT (user_id)
     DO UPDATE SET
+      avatar_url = EXCLUDED.avatar_url,
       full_name = EXCLUDED.full_name,
       bio = EXCLUDED.bio,
       updated_at = now()
-    RETURNING full_name, bio;
+    RETURNING avatar_url, full_name, bio;
     `,
-    [userId, fullName, bio]
+    [userId, avatarURL, fullName, bio]
   );
 
   return {
-    avatarURL: usersTableResponse.rows[0]?.avatar_url ?? "",
+    avatarURL: profilesTableResponse.rows[0]?.avatar_url ?? "",
     fullName: profilesTableResponse.rows[0]?.full_name ?? "",
     bio: profilesTableResponse.rows[0]?.bio ?? "",
   };

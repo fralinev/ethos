@@ -6,7 +6,7 @@
   background: rgba(0, 0, 0, 0.8);
   padding: 1.5rem;
   color: white;
-  /* box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45); */
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
 }
 
 .header {
@@ -41,7 +41,7 @@
 
 .input,
 .textarea {
-  width: 100%;
+  width: 80%;
   /* border-radius: 0.75rem; */
   border: 1px solid #3f4a6e;
   background: rgba(255, 255, 255, 0.05);
@@ -79,6 +79,30 @@
   border-radius: 999px;
   border: 1px solid #3f4a6e;
   background: rgba(255, 255, 255, 0.05);
+}
+
+.avatarUpload {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.uploadButton {
+  background: transparent;
+  border: 1px solid rgba(154, 205, 50, 0.4);
+  color: rgba(154, 205, 50, 0.8);
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.uploadButton:hover {
+  border-color: yellowgreen;
+  color: yellowgreen;
+  background: rgba(154, 205, 50, 0.08);
 }
 
 .button {

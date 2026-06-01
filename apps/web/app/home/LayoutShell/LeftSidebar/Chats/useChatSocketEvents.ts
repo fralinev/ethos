@@ -47,7 +47,7 @@ export function useChatSocketEvents({
           const { chatId, newSubject } = msg.payload;
           if (chatId === activeChatIdRef.current) {
             router.push(`/home?chatId=${chatId}`);
-          } else {
+          } 
             setChats((prev: Chat[]) => {
               const targetId = chatId;
               return prev.map((c) =>
@@ -56,7 +56,7 @@ export function useChatSocketEvents({
                   : c
               );
             });
-          }
+          
           break;
         }
         case "chat:left": {

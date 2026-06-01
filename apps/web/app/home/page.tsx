@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import type { Chat, SessionData, AuthedSession, User } from "@ethos/shared"
 import LayoutShell from "./LayoutShell/LayoutShell";
 import { apiFetch } from "../../lib/apiFetch";
-import { UserProvider } from "../context/UserContext";
 import { cookies } from "next/headers";
 import Providers from "../context/Providers";
 
@@ -29,7 +28,7 @@ export default async function Home({ searchParams }: HomeProps) {
   const activeChatId: string | undefined = chatId ? chatId : undefined;
 
   const [currentUser, initialChats, initialUsers] = await Promise.all([
-    apiFetch<User>(`${process.env.API_BASE_URL}/users/${session.userId}`, {
+    apiFetch<User>(`${process.env.API_BASE_URL}/users/me`, {
       headers: { Cookie: cookieHeader },
       cache: "no-store",
     }),

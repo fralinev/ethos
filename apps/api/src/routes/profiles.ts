@@ -1,5 +1,9 @@
 import { Router } from "express";
 import * as profileService from "../services/profile.service";
+import multer from "multer";
+import { uploadAvatar } from "../utils/s3";
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 export const profilesRouter = Router();
 
@@ -48,3 +52,22 @@ profilesRouter.post("/", async (req, res) => {
 
   }
 })
+
+profilesRouter.post("/avatar", upload.single("avatar"), async (req, res) => {
+  try {
+    const requesterId = req.session.userId;
+    if (!requesterId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No file provided" });
+    }
+
+    const avatarURL = await uploadAvatar(req.file, requesterId);
+    res.json({ message: "Success", avatarURL });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Unknown" });
+  }
+});

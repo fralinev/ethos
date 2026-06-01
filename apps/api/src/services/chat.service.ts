@@ -66,7 +66,6 @@ export async function createChat({
       role: m.role,
     })),
   };
-  console.log("SERVER CHECK", members)
   broadcastToUsers(members.map(u => u.id), "chat:created", chatDTO);
   return chatDTO
 }

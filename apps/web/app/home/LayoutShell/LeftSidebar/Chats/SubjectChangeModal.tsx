@@ -7,7 +7,7 @@ import { LuMoveRight } from "react-icons/lu";
 
 type SubjectChangeModalProps = {
   chat: Chat;
-  onConfirm: (chatId: string, subject: string | null, newSubject: string) => Promise<void>;
+  onConfirm: ({chatId, subject, newSubject}:{chatId: string, subject: string | null, newSubject: string}) => void;
 }
 
 export default function SubjectChangeModal({ chat, onConfirm }: SubjectChangeModalProps) {
@@ -30,7 +30,7 @@ export default function SubjectChangeModal({ chat, onConfirm }: SubjectChangeMod
     setMessage("");
     setLoading(true);
     try {
-      await onConfirm(chat.id, chat.subject, trimmed);
+      await onConfirm({chatId: chat.id, subject: chat.subject, newSubject: trimmed});
     } catch (err) {
       setMessage("Something went wrong");
       console.error(err);

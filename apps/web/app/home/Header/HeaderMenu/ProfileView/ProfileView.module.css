@@ -2,7 +2,7 @@
   width: 100%;
   max-width: 20rem;
   /* border-radius: 1rem; */
-  border: 1px solid yellowgreen;
+  border: 1px solid rgb(2, 114, 28);
   background: rgba(0, 0, 0, 0.8);
   padding: 1.5rem;
   color: white;
@@ -37,6 +37,13 @@
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
   color: whitesmoke
+}
+
+.avatar{
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  object-fit: cover;
 }
 
 .input,
